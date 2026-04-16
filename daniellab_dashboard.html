@@ -1001,13 +1001,21 @@ async function openStudent(id) {
   panel.classList.add('open');
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  let notes = [];
-  try { notes = await loadNotes(id) || []; } catch {}
+  let notes = [], responses = [], assignments = [];
+  try {
+    [notes, responses, assignments] = await Promise.all([
+      loadNotes(id).catch(()=>[]),
+      sbFetch(`responses?student_id=eq.${id}&select=domain,is_correct&limit=1000`).catch(()=>[]),
+      sbFetch(`assignments?student_id=eq.${id}&order=created_at.asc`).catch(()=>[]),
+    ]);
+  } catch {}
 
-  renderPanel(s, notes);
+  renderPanel(s, notes, responses || [], assignments || []);
 }
 
-function renderPanel(s, notes) {
+function renderPanel(s, notes, responses, assignments) {
+  responses    = responses    || [];
+  assignments  = assignments  || [];
   const mathDomains  = s.math_ratings  ? Object.entries(s.math_ratings)  : [];
   const ebrwDomains  = s.ebrw_ratings  ? Object.entries(s.ebrw_ratings)  : [];
   const priorities   = s.priority_domains || [];
@@ -1019,9 +1027,64 @@ function renderPanel(s, notes) {
     additional:'Additional Topics', calc:'Calculator Strategy',
     evidence:'Command of Evidence', vocab:'Words in Context', analysis:'Analysis in Hist./Sci.',
     expression:'Expression of Ideas', grammar:'Standard English',
+    craft_structure:'Craft & Structure', info_ideas:'Information & Ideas',
+    sec:'Standard English', eoi:'Expression of Ideas',
+    advanced_math:'Advanced Math', psda:'Problem Solving & Data', geometry:'Geometry',
   };
 
   const barColor = v => v <= 2 ? '' : v <= 3 ? 'mid' : 'high';
+
+  // ── Feature 2: Live accuracy from responses ──────────────
+  const domainStats = {};
+  responses.forEach(r => {
+    if (!r.domain) return;
+    if (!domainStats[r.domain]) domainStats[r.domain] = { correct:0, total:0 };
+    domainStats[r.domain].total++;
+    if (r.is_correct) domainStats[r.domain].correct++;
+  });
+  const allPracticeDomains = [
+    'craft_structure','info_ideas','sec','eoi',
+    'algebra','advanced_math','psda','geometry',
+  ];
+  function liveAccuracyHtml() {
+    const rows = allPracticeDomains.filter(d => domainStats[d]?.total >= 3);
+    if (!rows.length) return '<div style="color:var(--muted);font-size:.78rem;">No practice data yet.</div>';
+    const pctColor = p => p >= 70 ? 'var(--success)' : p >= 50 ? '#b45309' : 'var(--danger)';
+    return rows.map(d => {
+      const st  = domainStats[d];
+      const pct = Math.round((st.correct / st.total) * 100);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-light);font-size:.78rem;">
+        <span style="flex:1;color:var(--text-secondary);">${domainLabels[d]||d}</span>
+        <span style="font-weight:600;color:${pctColor(pct)};width:36px;text-align:right;">${pct}%</span>
+        <span style="color:var(--text-dim);font-size:.7rem;">${st.total}q</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Feature 4: Assignment pills ──────────────────────────
+  const assignDomains = ['craft_structure','info_ideas','sec','eoi','algebra','advanced_math','psda','geometry'];
+  function assignmentHtml() {
+    return `
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;" id="assign-current">
+        ${assignments.map(a => `
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;
+            padding:3px 8px;border-radius:4px;
+            background:${a.completed?'rgba(42,122,79,0.08)':'rgba(200,16,46,0.07)'};
+            color:${a.completed?'var(--success)':'var(--danger)'};
+            border:1px solid ${a.completed?'rgba(42,122,79,0.2)':'rgba(200,16,46,0.15)'};">
+            ${a.completed?'✓ ':''} ${domainLabels[a.domain]||a.domain}
+            <button onclick="deleteAssignment('${a.id}')" style="background:none;border:none;cursor:pointer;font-size:10px;opacity:.5;padding:0;line-height:1;">✕</button>
+          </span>`).join('')}
+        ${!assignments.length ? '<span style="color:var(--muted);font-size:.78rem;">No assignments yet.</span>' : ''}
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <select id="assign-domain-select" style="font-family:var(--sans);font-size:.78rem;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);outline:none;">
+          ${assignDomains.map(d=>`<option value="${d}">${domainLabels[d]||d}</option>`).join('')}
+        </select>
+        <input id="assign-note-input" type="text" placeholder="Note (optional)" style="font-family:var(--sans);font-size:.78rem;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);outline:none;width:160px;" />
+        <button onclick="addAssignment('${s.id}')" style="font-family:var(--sans);font-size:.75rem;font-weight:600;padding:4px 12px;background:var(--accent);color:#fff;border:none;border-radius:5px;cursor:pointer;">Assign</button>
+      </div>`;
+  }
 
   document.getElementById('detail-panel').innerHTML = `
     <!-- HEADER -->
@@ -1046,7 +1109,7 @@ function renderPanel(s, notes) {
       </div>
     </div>
 
-    <!-- BODY: domains + parent info -->
+    <!-- BODY -->
     <div class="panel-body">
       <div class="panel-col">
         <div class="panel-section-label">Priority focus</div>
@@ -1056,7 +1119,10 @@ function renderPanel(s, notes) {
             : '<span style="color:var(--muted);font-size:.82rem;">Not generated yet</span>'}
         </div>
 
-        <div class="panel-section-label">Math domains</div>
+        <div class="panel-section-label">Live performance</div>
+        <div style="margin-bottom:18px;">${liveAccuracyHtml()}</div>
+
+        <div class="panel-section-label">Intake ratings — Math</div>
         ${mathDomains.map(([id, score]) => `
           <div class="domain-bar-row">
             <span class="domain-bar-label">${domainLabels[id] || id}</span>
@@ -1067,7 +1133,7 @@ function renderPanel(s, notes) {
           </div>
         `).join('')}
 
-        <div class="panel-section-label" style="margin-top:16px;">Reading & Writing</div>
+        <div class="panel-section-label" style="margin-top:16px;">Intake ratings — RW</div>
         ${ebrwDomains.map(([id, score]) => `
           <div class="domain-bar-row">
             <span class="domain-bar-label">${domainLabels[id] || id}</span>
@@ -1109,6 +1175,9 @@ function renderPanel(s, notes) {
           <div class="info-row"><span class="info-key">Style</span><span class="info-val">${s.study_habits.style || '—'}</span></div>
           <div class="info-row"><span class="info-key">Obstacle</span><span class="info-val">${s.study_habits.obstacle || '—'}</span></div>
         ` : '<span style="color:var(--muted);font-size:.82rem;">—</span>'}
+
+        <div class="panel-section-label" style="margin-top:20px;">Assigned practice</div>
+        <div style="margin-bottom:4px;">${assignmentHtml()}</div>
       </div>
     </div>
 
@@ -1253,6 +1322,37 @@ async function changeStatus(studentId, status) {
   } catch (e) {
     alert(`Failed to update status: ${e.message}`);
   }
+}
+
+/* ============================================================
+   FEATURE 4: ASSIGNMENT MANAGEMENT
+============================================================ */
+async function addAssignment(studentId) {
+  const domain = document.getElementById('assign-domain-select')?.value;
+  const note   = document.getElementById('assign-note-input')?.value.trim() || null;
+  if (!domain) return;
+  const {url, key} = getConfig();
+  if (!url || !key) return;
+  try {
+    await fetch(`${url}/rest/v1/assignments`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'apikey':key, 'Authorization':`Bearer ${key}`, 'Prefer':'return=minimal' },
+      body: JSON.stringify({ student_id: studentId, domain, note }),
+    });
+    openStudent(studentId);
+  } catch(e) { alert(`Failed to assign: ${e.message}`); }
+}
+
+async function deleteAssignment(assignmentId) {
+  const {url, key} = getConfig();
+  if (!url || !key) return;
+  try {
+    await fetch(`${url}/rest/v1/assignments?id=eq.${assignmentId}`, {
+      method: 'DELETE',
+      headers: { 'apikey':key, 'Authorization':`Bearer ${key}` },
+    });
+    openStudent(currentStudent?.id);
+  } catch(e) { alert(`Failed to remove: ${e.message}`); }
 }
 
 /* ============================================================
