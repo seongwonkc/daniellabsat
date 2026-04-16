@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DanielLab · Student Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* =============================================
+     CSS VARIABLES — edit here to retheme
+  ============================================= */
+  :root {
+    --bg:        #f5f4f2;
+    --surface:   #ffffff;
+    --border:    #e2e0dc;
+    --accent:    #c8102e;
+    --accent-dim:#a30d25;
+    --text:      #111111;
+    --muted:     #888888;
+    --danger:    #c8102e;
+    --good:      #2a7a4f;
+    --radius:    10px;
+    --serif:     'DM Serif Display', serif;
+    --sans:      'DM Sans', sans-serif;
+  }
+
+  /* =============================================
+     RESET & BASE
+  ============================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 80px;
+  }
+
+  /* =============================================
+     HEADER
+  ============================================= */
+  .site-header {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 48px;
+  }
+  .logo {
+    font-family: var(--sans);
+    font-size: 1.15rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .logo .brand-bold { color: var(--accent); font-weight: 700; }
+  .logo .brand-sub {
+    display: block;
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    margin-top: 3px;
+  }
+  .step-counter {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* =============================================
+     PROGRESS BAR
+  ============================================= */
+  .progress-bar {
+    width: 100%;
+    max-width: 680px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    margin-bottom: 48px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* =============================================
+     CARD (each step lives in one)
+  ============================================= */
+  .card {
+    width: 100%;
+    max-width: 680px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 40px 36px;
+    animation: fadeUp 0.35s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .card-subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  /* =============================================
+     FORM FIELDS
+  ============================================= */
+  .field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .field-group.single { grid-template-columns: 1fr; }
+  .field-group.triple { grid-template-columns: 1fr 1fr 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--accent);
+  }
+  input::placeholder { color: var(--muted); }
+  select option { background: #ffffff; color: #111111; }
+
+  /* score note */
+  .score-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* =============================================
+     DOMAIN RATING ROWS
+  ============================================= */
+  .domain-list { display: flex; flex-direction: column; gap: 18px; }
+
+  .domain-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .domain-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    flex: 1;
+    min-width: 0;
+  }
+  .domain-tag {
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: block;
+    font-weight: 400;
+  }
+
+  .rating-buttons {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .rating-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--sans);
+  }
+  .rating-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .rating-btn.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+  }
+
+  .rating-scale-hint {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0;
+    margin-bottom: 12px;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .rating-scale-hint span { width: 36px; text-align: center; }
+
+  /* =============================================
+     OPTION CARDS (for habits)
+  ============================================= */
+  .option-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .option-grid.wide { grid-template-columns: 1fr; }
+
+  .option-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+  }
+  .option-card:hover { border-color: var(--accent-dim); }
+  .option-card.selected {
+    border-color: var(--accent);
+    background: rgba(200,16,46,0.04);
+  }
+  .option-card input[type="radio"],
+  .option-card input[type="checkbox"] { display: none; }
+  .option-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .option-card.selected .option-indicator {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .option-card.selected .option-indicator::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+  }
+  .option-text { font-size: 0.88rem; font-weight: 500; line-height: 1.4; }
+  .option-sub { font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    margin-top: 24px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* =============================================
+     NAVIGATION
+  ============================================= */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+  }
+  .btn {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #ffffff;
+  }
+  .btn-primary:hover { background: var(--accent-dim); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* =============================================
+     VALIDATION ERROR
+  ============================================= */
+  .error-msg {
+    font-size: 0.8rem;
+    color: var(--danger);
+    margin-top: 16px;
+    display: none;
+  }
+  .error-msg.visible { display: block; }
+
+  /* =============================================
+     RESULTS PAGE
+  ============================================= */
+  #results { display: none; width: 100%; max-width: 680px; }
+
+  .result-header {
+    margin-bottom: 32px;
+    animation: fadeUp 0.35s ease both;
+  }
+  .result-header .greeting {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .result-header h1 {
+    font-family: var(--serif);
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+  .result-header .tagline {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+    animation: fadeUp 0.4s 0.05s ease both;
+  }
+  .result-grid.full { grid-template-columns: 1fr; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  .result-card .rc-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .result-card .rc-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .result-card .rc-body {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* score gap badge */
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(200,16,46,0.06);
+    border: 1px solid rgba(200,16,46,0.2);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .score-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* priority domains */
+  .priority-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .priority-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .priority-rank {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(200,16,46,0.08);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .priority-name { font-size: 0.9rem; font-weight: 500; }
+  .priority-section { font-size: 0.75rem; color: var(--muted); }
+
+  /* weekly plan */
+  .week-plan { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .week-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .week-row:last-child { border-bottom: none; }
+  .week-day { font-weight: 500; }
+  .week-focus { color: var(--muted); font-size: 0.82rem; }
+
+  /* habit flag */
+  .habit-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(42,122,79,0.07);
+    border: 1px solid rgba(42,122,79,0.2);
+    border-radius: 99px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--good);
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .habit-pill.warn {
+    background: rgba(200,16,46,0.06);
+    border-color: rgba(200,16,46,0.2);
+    color: var(--accent);
+  }
+  .habit-pill.neutral {
+    background: rgba(0,0,0,0.04);
+    border-color: rgba(0,0,0,0.12);
+    color: #555;
+  }
+
+  /* next steps */
+  .next-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .next-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .next-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .next-text { font-size: 0.88rem; line-height: 1.5; color: var(--muted); }
+  .next-text strong { color: var(--text); }
+
+  /* print / reset */
+  .result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 32px;
+    animation: fadeUp 0.4s 0.1s ease both;
+  }
+
+  /* =============================================
+     RESPONSIVE
+  ============================================= */
+  @media (max-width: 540px) {
+    .card { padding: 28px 20px 24px; }
+    .field-group { grid-template-columns: 1fr; }
+    .field-group.triple { grid-template-columns: 1fr 1fr; }
+    .option-grid { grid-template-columns: 1fr; }
+    .result-grid { grid-template-columns: 1fr; }
+    .rating-buttons { gap: 4px; }
+    .rating-btn { width: 32px; height: 32px; font-size: 0.8rem; }
+  }
+
+  /* settings icon button */
+  .btn-icon {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* settings overlay */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+  }
+  .modal h3 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+  }
+  .modal p { font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+  .modal .field { margin-bottom: 16px; }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 1.2rem; line-height: 1;
+    padding: 4px 8px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .save-note { font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+  .save-note span { color: var(--good); font-weight: 600; }
+
+  /* save status */
+  .save-status {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 16px;
+    display: none;
+  }
+  .save-status.ok   { display:block; background: rgba(42,122,79,0.08); color: var(--good); border: 1px solid rgba(42,122,79,0.2); }
+  .save-status.err  { display:block; background: rgba(200,16,46,0.06); color: var(--accent); border: 1px solid rgba(200,16,46,0.2); }
+
+  @media print {
+    body { background: white; color: black; padding: 20px; }
+    #form-wrapper { display: none !important; }
+    #results { display: block !important; }
+    .result-actions { display: none; }
+    .result-card, .result-header { color: black; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     HEADER
+============================================= -->
+<header class="site-header">
+  <div class="logo">The<span class="brand-bold">Daniel</span>Lab<span class="brand-sub">Seoul · Boston</span></div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="step-counter" id="step-counter">Step 1 of 4</div>
+    <button class="btn-icon" onclick="openSettings()" title="Supabase config">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="2.5"/>
+        <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="settings-overlay" onclick="maybeCloseSettings(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <h3>Supabase Config</h3>
+    <p>Paste your project URL and anon key. Stored locally in this browser — never sent anywhere except your own Supabase instance.</p>
+    <div class="field">
+      <label for="sb-url">Project URL</label>
+      <input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" />
+    </div>
+    <div class="field">
+      <label for="sb-key">Anon Key</label>
+      <input type="text" id="sb-key" placeholder="eyJhbGci..." />
+    </div>
+    <div class="field">
+      <label for="sb-cohort-default">Default Cohort (optional)</label>
+      <input type="text" id="sb-cohort-default" placeholder="e.g. SAT Spring 2025 A" />
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="saveSettings()">Save</button>
+    <div class="save-note" id="settings-status"></div>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar">
+  <div class="progress-fill" id="progress-fill" style="width: 25%"></div>
+</div>
+
+<!-- ============================================
+     FORM WRAPPER
+============================================= -->
+<div id="form-wrapper" style="width:100%;max-width:680px;">
+
+  <!-- ==================
+       STEP 1: Basic Info
+  =================== -->
+  <div class="card" id="step-1">
+    <div class="step-label">Step 1 — Student Info</div>
+    <h2 class="card-title">Student intake.</h2>
+    <p class="card-subtitle">Internal record — fill in what you have. Student code is auto-generated on submit.</p>
+
+    <div class="field-group">
+      <div class="field">
+        <label for="name">Student Name</label>
+        <input type="text" id="name" placeholder="Full name" />
+      </div>
+      <div class="field">
+        <label for="grade">Grade</label>
+        <select id="grade">
+          <option value="">Select grade</option>
+          <option value="9">9th Grade</option>
+          <option value="10">10th Grade</option>
+          <option value="11">11th Grade</option>
+          <option value="12">12th Grade</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field">
+        <label for="school-name">School</label>
+        <input type="text" id="school-name" placeholder="School name" />
+      </div>
+      <div class="field">
+        <label for="cohort">Cohort / Class</label>
+        <input type="text" id="cohort" placeholder="e.g. SAT Spring 2025 A" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field">
+        <label for="parent-name">Parent Name</label>
+        <input type="text" id="parent-name" placeholder="Parent / guardian" />
+      </div>
+      <div class="field">
+        <label for="parent-contact">Parent Contact</label>
+        <input type="text" id="parent-contact" placeholder="Phone or email" />
+      </div>
+    </div>
+
+    <div class="field-group triple">
+      <div class="field">
+        <label for="current-score">Current SAT Score</label>
+        <input type="number" id="current-score" placeholder="e.g. 1200" min="400" max="1600" />
+        <div class="score-note">0 if untested</div>
+      </div>
+      <div class="field">
+        <label for="target-score">Target Score</label>
+        <input type="number" id="target-score" placeholder="e.g. 1450" min="400" max="1600" />
+      </div>
+      <div class="field">
+        <label for="test-date">Target Test Date</label>
+        <input type="date" id="test-date" />
+      </div>
+    </div>
+
+    <div class="error-msg" id="err-1">Please fill in student name, grade, scores, and test date.</div>
+    <div class="nav-row">
+      <div></div>
+      <button class="btn btn-primary" onclick="goTo(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ==================
+       STEP 2: Math
+  =================== -->
+  <div class="card" id="step-2" style="display:none;">
+    <div class="step-label">Step 2 — Math</div>
+    <h2 class="card-title">How confident are you in each area?</h2>
+    <p class="card-subtitle">1 = very weak, 5 = very strong. Be honest — this only helps if it's accurate.</p>
+
+    <div class="rating-scale-hint">
+      <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+    </div>
+
+    <div class="domain-list" id="math-domains">
+      <!-- rendered by JS -->
+    </div>
+
+    <div class="error-msg" id="err-2">Please rate all areas before continuing.</div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ==================
+       STEP 3: EBRW
+  =================== -->
+  <div class="card" id="step-3" style="display:none;">
+    <div class="step-label">Step 3 — Reading & Writing</div>
+    <h2 class="card-title">Same for Reading & Writing.</h2>
+    <p class="card-subtitle">Rate each area honestly. 1 = very weak, 5 = very strong.</p>
+
+    <div class="rating-scale-hint">
+      <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+    </div>
+
+    <div class="domain-list" id="ebrw-domains">
+      <!-- rendered by JS -->
+    </div>
+
+    <div class="error-msg" id="err-3">Please rate all areas before continuing.</div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ==================
+       STEP 4: Study Habits
+  =================== -->
+  <div class="card" id="step-4" style="display:none;">
+    <div class="step-label">Step 4 — Study Habits</div>
+    <h2 class="card-title">How do you work best?</h2>
+    <p class="card-subtitle">No right answers here. This helps us set a realistic plan.</p>
+
+    <div class="section-label">Hours you can realistically study per week</div>
+    <div class="option-grid" id="hours-grid">
+      <div class="option-card" onclick="selectOption(this, 'hours', 'Under 3 hours')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Under 3 hours</div><div class="option-sub">Minimal — we'll prioritize ruthlessly</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'hours', '3–5 hours')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">3–5 hours</div><div class="option-sub">Moderate — solid baseline</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'hours', '5–8 hours')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">5–8 hours</div><div class="option-sub">Strong — room to cover everything</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'hours', '8+ hours')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">8+ hours</div><div class="option-sub">Intensive — maximize every week</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">How you study on your own</div>
+    <div class="option-grid" id="style-grid">
+      <div class="option-card" onclick="selectOption(this, 'style', 'Self-directed')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Self-directed</div><div class="option-sub">I make my own plan and stick to it</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'style', 'Needs structure')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Needs structure</div><div class="option-sub">I work better with a set schedule</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'style', 'Mixed')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Mixed</div><div class="option-sub">Depends on the subject or my mood</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'style', 'Avoids studying alone')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Avoids studying alone</div><div class="option-sub">I need accountability to get started</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Biggest obstacle to studying</div>
+    <div class="option-grid" id="obstacle-grid">
+      <div class="option-card" onclick="selectOption(this, 'obstacle', 'Time / schedule')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Time / schedule</div><div class="option-sub">Too much going on</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'obstacle', 'Motivation')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Motivation</div><div class="option-sub">Hard to get started or stay consistent</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'obstacle', 'Anxiety / pressure')">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Anxiety / pressure</div><div class="option-sub">Stress makes it hard to focus</div></div>
+      </div>
+      <div class="option-card" onclick="selectOption(this, 'obstacle', "Don't know what to study")">
+        <div class="option-indicator"></div>
+        <div><div class="option-text">Don't know what to study</div><div class="option-sub">Not sure where to focus</div></div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="err-4">Please answer all three questions before submitting.</div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo(3)">← Back</button>
+      <button class="btn btn-primary" onclick="buildResults()">Generate Profile →</button>
+    </div>
+  </div>
+
+</div><!-- /form-wrapper -->
+
+
+<!-- ============================================
+     RESULTS
+============================================= -->
+<div id="results">
+
+  <div class="result-header">
+    <div class="greeting">DanielLab · Student Profile</div>
+    <h1 id="r-name">Your Study Profile</h1>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px;">
+      <div class="tagline" id="r-tagline"></div>
+      <code style="font-size:0.75rem;background:#f0ede9;border:1px solid var(--border);border-radius:4px;padding:2px 8px;color:var(--muted);letter-spacing:.05em;" id="r-student-code"></code>
+    </div>
+    <div class="save-status" id="r-save-status"></div>
+  </div>
+
+  <!-- Score gap -->
+  <div style="animation: fadeUp 0.35s 0.05s ease both;">
+    <div class="score-badge">
+      <span class="dot"></span>
+      <span id="r-score-badge"></span>
+    </div>
+  </div>
+
+  <div class="result-grid" style="animation: fadeUp 0.35s 0.1s ease both;">
+    <!-- Priority Focus -->
+    <div class="result-card">
+      <div class="rc-label">Priority Focus Areas</div>
+      <div class="priority-list" id="r-priorities"></div>
+    </div>
+    <!-- Study Approach -->
+    <div class="result-card">
+      <div class="rc-label">Your Study Approach</div>
+      <div id="r-habit-pills" style="margin-bottom:12px;"></div>
+      <div class="rc-body" id="r-habit-note"></div>
+    </div>
+  </div>
+
+  <!-- Weekly Plan -->
+  <div class="result-grid full" style="animation: fadeUp 0.35s 0.15s ease both;">
+    <div class="result-card">
+      <div class="rc-label">Suggested Weekly Plan</div>
+      <div class="week-plan" id="r-week-plan"></div>
+    </div>
+  </div>
+
+  <!-- Next Steps -->
+  <div class="result-grid full" style="animation: fadeUp 0.35s 0.2s ease both;">
+    <div class="result-card">
+      <div class="rc-label">Next Steps</div>
+      <div class="next-steps" id="r-next-steps"></div>
+    </div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
+    <button class="btn btn-ghost" onclick="restartForm()">Start Over</button>
+  </div>
+
+</div><!-- /results -->
+
+
+<!-- ============================================
+     JAVASCRIPT
+============================================= -->
+<script>
+
+/* -----------------------------------------------
+   DATA: Domain definitions
+----------------------------------------------- */
+const MATH_DOMAINS = [
+  { id: 'algebra',    name: 'Heart of Algebra',           tag: 'Linear equations, systems, inequalities' },
+  { id: 'data',       name: 'Problem Solving & Data',     tag: 'Statistics, ratios, percentages, graphs' },
+  { id: 'passport',   name: 'Passport to Advanced Math',  tag: 'Quadratics, functions, exponents' },
+  { id: 'additional', name: 'Additional Math Topics',     tag: 'Geometry, trigonometry, complex numbers' },
+  { id: 'calc',       name: 'Calculator Strategy',        tag: 'Knowing when & how to use the calculator' },
+];
+
+const EBRW_DOMAINS = [
+  { id: 'evidence',   name: 'Command of Evidence',        tag: 'Finding support in text and graphics' },
+  { id: 'vocab',      name: 'Words in Context',           tag: 'Vocabulary, tone, word choice' },
+  { id: 'analysis',   name: 'Analysis in History/Science',tag: 'Argument structure, author\'s purpose' },
+  { id: 'expression', name: 'Expression of Ideas',        tag: 'Improving passages, transitions, focus' },
+  { id: 'grammar',    name: 'Standard English Conventions',tag: 'Punctuation, sentence structure, agreement' },
+];
+
+/* -----------------------------------------------
+   STATE
+----------------------------------------------- */
+const ratings = {}; // e.g. { algebra: 3, evidence: 2 }
+const habits  = { hours: null, style: null, obstacle: null };
+let currentStep = 1;
+const TOTAL_STEPS = 4;
+
+/* -----------------------------------------------
+   RENDER DOMAIN ROWS
+----------------------------------------------- */
+function renderDomains(containerId, domains) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = domains.map(d => `
+    <div class="domain-row">
+      <div class="domain-name">
+        ${d.name}
+        <span class="domain-tag">${d.tag}</span>
+      </div>
+      <div class="rating-buttons" id="rating-${d.id}">
+        ${[1,2,3,4,5].map(n => `
+          <button class="rating-btn" onclick="setRating('${d.id}', ${n}, this.parentElement)">${n}</button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+renderDomains('math-domains',  MATH_DOMAINS);
+renderDomains('ebrw-domains',  EBRW_DOMAINS);
+
+/* -----------------------------------------------
+   RATING INTERACTION
+----------------------------------------------- */
+function setRating(domainId, value, container) {
+  ratings[domainId] = value;
+  container.querySelectorAll('.rating-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i + 1 === value);
+  });
+}
+
+/* -----------------------------------------------
+   OPTION CARD SELECTION
+----------------------------------------------- */
+function selectOption(el, group, value) {
+  const grid = el.parentElement;
+  grid.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  habits[group] = value;
+}
+
+/* -----------------------------------------------
+   NAVIGATION
+----------------------------------------------- */
+function goTo(step) {
+  // Validate before moving forward
+  if (step > currentStep) {
+    if (!validateStep(currentStep)) return;
+  }
+
+  document.getElementById(`step-${currentStep}`).style.display = 'none';
+  document.getElementById(`step-${step}`).style.display = 'block';
+  document.getElementById(`step-${step}`).style.animation = 'none';
+  void document.getElementById(`step-${step}`).offsetWidth; // reflow
+  document.getElementById(`step-${step}`).style.animation = '';
+
+  currentStep = step;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const pct = (currentStep / TOTAL_STEPS) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('step-counter').textContent = `Step ${currentStep} of ${TOTAL_STEPS}`;
+}
+
+/* -----------------------------------------------
+   VALIDATION
+----------------------------------------------- */
+function validateStep(step) {
+  hideError(step);
+
+  if (step === 1) {
+    const name  = document.getElementById('name').value.trim();
+    const grade = document.getElementById('grade').value;
+    const curr  = document.getElementById('current-score').value;
+    const tgt   = document.getElementById('target-score').value;
+    const date  = document.getElementById('test-date').value;
+    if (!name || !grade || !curr || !tgt || !date) {
+      showError(1); return false;
+    }
+  }
+
+  if (step === 2) {
+    const missing = MATH_DOMAINS.filter(d => !ratings[d.id]);
+    if (missing.length > 0) { showError(2); return false; }
+  }
+
+  if (step === 3) {
+    const missing = EBRW_DOMAINS.filter(d => !ratings[d.id]);
+    if (missing.length > 0) { showError(3); return false; }
+  }
+
+  if (step === 4) {
+    if (!habits.hours || !habits.style || !habits.obstacle) {
+      showError(4); return false;
+    }
+  }
+
+  return true;
+}
+
+function showError(step) {
+  document.getElementById(`err-${step}`).classList.add('visible');
+}
+function hideError(step) {
+  document.getElementById(`err-${step}`).classList.remove('visible');
+}
+
+/* -----------------------------------------------
+   RESULTS ENGINE
+----------------------------------------------- */
+function buildResults() {
+  if (!validateStep(4)) return;
+
+  const name         = document.getElementById('name').value.trim();
+  const grade        = document.getElementById('grade').value;
+  const schoolName   = document.getElementById('school-name').value.trim();
+  const cohort       = document.getElementById('cohort').value.trim();
+  const parentName   = document.getElementById('parent-name').value.trim();
+  const parentContact= document.getElementById('parent-contact').value.trim();
+  const currentScore = parseInt(document.getElementById('current-score').value) || 0;
+  const targetScore  = parseInt(document.getElementById('target-score').value);
+  const testDate     = document.getElementById('test-date').value;
+  const studentCode  = generateStudentCode();
+
+  // Hide form, show results
+  document.getElementById('form-wrapper').style.display = 'none';
+  document.getElementById('progress-fill').style.width  = '100%';
+  document.getElementById('step-counter').textContent   = 'Profile Ready';
+  document.getElementById('results').style.display      = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  /* ---- Score gap ---- */
+  const gap   = targetScore - (currentScore || 0);
+  const weeks = weeksUntil(testDate);
+  document.getElementById('r-name').textContent = `${name}`;
+  document.getElementById('r-tagline').textContent =
+    `Gr. ${grade}  ·  ${schoolName || '—'}  ·  ${cohort || '—'}  ·  ${weeks}w to test`;
+  document.getElementById('r-student-code').textContent = studentCode;
+  document.getElementById('r-score-badge').textContent =
+    currentScore > 0
+      ? `${currentScore} → ${targetScore}  (+${gap} pts)`
+      : `Target: ${targetScore}  ·  ${weeks} weeks to go`;
+
+  /* ---- Compute weakest domains ---- */
+  const allDomains = [
+    ...MATH_DOMAINS.map(d => ({ ...d, score: ratings[d.id], section: 'Math' })),
+    ...EBRW_DOMAINS.map(d => ({ ...d, score: ratings[d.id], section: 'Reading & Writing' })),
+  ];
+
+  // Sort by score ascending (weakest first), break ties by section balance
+  const sorted = [...allDomains].sort((a, b) => a.score - b.score);
+
+  // Pick top 3 priority domains, ensuring we have at least 1 from each section if both are weak
+  const priorities = pickPriorities(sorted, gap);
+
+  // Render priorities
+  const prioEl = document.getElementById('r-priorities');
+  prioEl.innerHTML = priorities.map((d, i) => `
+    <div class="priority-item">
+      <div class="priority-rank">${i + 1}</div>
+      <div>
+        <div class="priority-name">${d.name}</div>
+        <div class="priority-section">${d.section}  ·  Self-rated ${d.score}/5</div>
+      </div>
+    </div>
+  `).join('');
+
+  /* ---- Habit pills + note ---- */
+  const pillsEl = document.getElementById('r-habit-pills');
+  const noteEl  = document.getElementById('r-habit-note');
+  const { pillsHTML, note } = habitAnalysis(habits);
+  pillsEl.innerHTML = pillsHTML;
+  noteEl.textContent = note;
+
+  /* ---- Weekly plan ---- */
+  const planEl = document.getElementById('r-week-plan');
+  planEl.innerHTML = buildWeeklyPlan(priorities, habits, gap).map(row => `
+    <div class="week-row">
+      <span class="week-day">${row.day}</span>
+      <span class="week-focus">${row.focus}</span>
+    </div>
+  `).join('');
+
+  /* ---- Next steps ---- */
+  const stepsEl = document.getElementById('r-next-steps');
+  stepsEl.innerHTML = buildNextSteps(name, priorities, habits, gap, weeks).map((s, i) => `
+    <div class="next-item">
+      <div class="next-num">${i + 1}</div>
+      <div class="next-text">${s}</div>
+    </div>
+  `).join('');
+
+  /* ---- Save to Supabase ---- */
+  const record = {
+    student_code:    studentCode,
+    name,
+    grade:           parseInt(grade),
+    school_name:     schoolName,
+    cohort,
+    parent_name:     parentName,
+    parent_contact:  parentContact,
+    current_score:   currentScore,
+    target_score:    targetScore,
+    test_date:       testDate,
+    math_ratings:    Object.fromEntries(MATH_DOMAINS.map(d => [d.id, ratings[d.id]])),
+    ebrw_ratings:    Object.fromEntries(EBRW_DOMAINS.map(d => [d.id, ratings[d.id]])),
+    study_habits:    { ...habits },
+    priority_domains: priorities.map(p => ({ id: p.id, name: p.name, section: p.section, score: p.score })),
+  };
+  saveToSupabase(record);
+}
+
+/* -----------------------------------------------
+   HELPER: Pick top priority domains
+----------------------------------------------- */
+function pickPriorities(sorted, gap) {
+  // If gap is large (>200), pull 3 weakest regardless of section
+  // Otherwise, try to balance Math + EBRW
+  const result = [];
+  const math   = sorted.filter(d => d.section === 'Math');
+  const ebrw   = sorted.filter(d => d.section === 'Reading & Writing');
+
+  if (gap > 200) {
+    return sorted.slice(0, 3);
+  }
+
+  // Alternate: take top 1 from each, then 1 more from the weakest overall
+  if (math[0] && ebrw[0]) {
+    const firstMath = math[0];
+    const firstEbrw = ebrw[0];
+    // third: whichever remaining is weakest
+    const remaining = sorted.filter(d => d.id !== firstMath.id && d.id !== firstEbrw.id);
+    return [firstMath, firstEbrw, remaining[0]].filter(Boolean);
+  }
+
+  return sorted.slice(0, 3);
+}
+
+/* -----------------------------------------------
+   HELPER: Habit analysis
+----------------------------------------------- */
+function habitAnalysis(h) {
+  const pills = [];
+  let note = '';
+
+  // Hours
+  if (h.hours === 'Under 3 hours') {
+    pills.push({ text: h.hours + '/week', type: 'warn' });
+    note += 'Limited time means we have to be ruthlessly focused. Every session has one clear goal. ';
+  } else if (h.hours === '8+ hours') {
+    pills.push({ text: h.hours + '/week', type: 'good' });
+    note += 'Strong time investment — we can run full drills across all domains. ';
+  } else {
+    pills.push({ text: h.hours + '/week', type: 'neutral' });
+    note += 'Solid weekly time to make real progress. ';
+  }
+
+  // Style
+  if (h.style === 'Self-directed') {
+    pills.push({ text: 'Self-directed', type: 'good' });
+    note += 'You work independently — we\'ll give you structured resources you can run with on your own. ';
+  } else if (h.style === 'Avoids studying alone') {
+    pills.push({ text: 'Needs accountability', type: 'warn' });
+    note += 'Accountability matters for you — short, frequent check-ins and session goals will help. ';
+  } else if (h.style === 'Needs structure') {
+    pills.push({ text: 'Needs structure', type: 'neutral' });
+    note += 'We\'ll give you a fixed weekly schedule so there\'s no decision fatigue about what to do next. ';
+  } else {
+    pills.push({ text: 'Flexible', type: 'neutral' });
+    note += 'You adapt well — we\'ll mix self-paced work with structured check-ins. ';
+  }
+
+  // Obstacle
+  if (h.obstacle === 'Anxiety / pressure') {
+    pills.push({ text: 'Manages test stress', type: 'warn' });
+    note += 'Test anxiety is real — pacing practice and timed drills will be built in gradually, not all at once.';
+  } else if (h.obstacle === "Don't know what to study") {
+    pills.push({ text: 'Needs direction', type: 'neutral' });
+    note += 'This profile eliminates the guesswork — your priorities are clear from here.';
+  } else if (h.obstacle === 'Time / schedule') {
+    pills.push({ text: 'Schedule-constrained', type: 'neutral' });
+    note += 'We\'ll keep sessions short and focused so they can fit into a busy schedule.';
+  } else {
+    pills.push({ text: 'Motivation gaps', type: 'warn' });
+    note += 'Momentum matters — short wins on your weaker areas first to build confidence.';
+  }
+
+  const pillsHTML = pills.map(p =>
+    `<span class="habit-pill ${p.type}">${p.text}</span>`
+  ).join('');
+
+  return { pillsHTML, note };
+}
+
+/* -----------------------------------------------
+   HELPER: Weekly plan
+----------------------------------------------- */
+function buildWeeklyPlan(priorities, h, gap) {
+  const p = priorities;
+  const isLowTime = h.hours === 'Under 3 hours';
+  const isHighTime = h.hours === '8+ hours';
+
+  if (isLowTime) {
+    return [
+      { day: 'Mon',  focus: `${p[0]?.name} — concept review (30 min)` },
+      { day: 'Wed',  focus: `${p[1]?.name} — practice set (30 min)` },
+      { day: 'Sat',  focus: `Timed mini-drill: mix of top 2 areas (45 min)` },
+    ];
+  }
+
+  if (isHighTime) {
+    return [
+      { day: 'Mon',  focus: `${p[0]?.name} — concept + drill (60 min)` },
+      { day: 'Tue',  focus: `${p[1]?.name} — concept + drill (60 min)` },
+      { day: 'Wed',  focus: `${p[2]?.name} — practice set (45 min)` },
+      { day: 'Thu',  focus: `Timed mixed drill — all 3 priority areas (60 min)` },
+      { day: 'Sat',  focus: `Full section practice test (Math or R&W)` },
+      { day: 'Sun',  focus: `Review errors from Saturday's test (45 min)` },
+    ];
+  }
+
+  // Default: 3-5 or 5-8 hrs
+  return [
+    { day: 'Mon',  focus: `${p[0]?.name} — concept review (45 min)` },
+    { day: 'Wed',  focus: `${p[1]?.name} — practice set (45 min)` },
+    { day: 'Thu',  focus: `${p[0]?.name} or ${p[2]?.name} — drill (45 min)` },
+    { day: 'Sat',  focus: `Timed mixed drill + error review (60 min)` },
+  ];
+}
+
+/* -----------------------------------------------
+   HELPER: Next steps
+----------------------------------------------- */
+function buildNextSteps(name, priorities, h, gap, weeks) {
+  const steps = [];
+
+  steps.push(`<strong>First session focus:</strong> ${priorities[0]?.name}. Start with one concept review, then 10 practice questions. No full-section tests yet.`);
+
+  if (h.obstacle === 'Anxiety / pressure') {
+    steps.push(`<strong>Test pressure:</strong> Hold off on timed practice for the first two weeks. Build content confidence first, then introduce the clock.`);
+  } else {
+    steps.push(`<strong>Build the baseline:</strong> Do one untimed practice set in each of your top 3 areas this week to get a real sense of current level.`);
+  }
+
+  if (weeks < 8) {
+    steps.push(`<strong>Limited runway (${weeks} weeks):</strong> Focus only on your top 2 priority domains. Don't spread thin — deeper > broader at this stage.`);
+  } else {
+    steps.push(`<strong>${weeks} weeks is workable:</strong> Spend the first half building skills, second half on timed practice and full sections.`);
+  }
+
+  steps.push(`<strong>Track your wrong answers</strong> in a simple error log. At the end of each week, look for patterns — most score gains come from fixing the same few recurring mistakes.`);
+
+  return steps;
+}
+
+/* -----------------------------------------------
+   STUDENT CODE GENERATION
+----------------------------------------------- */
+function generateStudentCode() {
+  const year = new Date().getFullYear();
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `DL-${year}-${rand}`;
+}
+
+/* -----------------------------------------------
+   SUPABASE CONFIG
+----------------------------------------------- */
+function getConfig() {
+  return {
+    url: localStorage.getItem('dl_sb_url') || '',
+    key: localStorage.getItem('dl_sb_key') || '',
+  };
+}
+
+function openSettings() {
+  const cfg = getConfig();
+  document.getElementById('sb-url').value = cfg.url;
+  document.getElementById('sb-key').value = cfg.key;
+  document.getElementById('sb-cohort-default').value = localStorage.getItem('dl_cohort_default') || '';
+  document.getElementById('settings-overlay').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+
+function maybeCloseSettings(e) {
+  if (e.target === document.getElementById('settings-overlay')) closeSettings();
+}
+
+function saveSettings() {
+  const url = document.getElementById('sb-url').value.trim();
+  const key = document.getElementById('sb-key').value.trim();
+  const cohort = document.getElementById('sb-cohort-default').value.trim();
+  localStorage.setItem('dl_sb_url', url);
+  localStorage.setItem('dl_sb_key', key);
+  if (cohort) localStorage.setItem('dl_cohort_default', cohort);
+  document.getElementById('settings-status').innerHTML = '<span style="color:var(--good);font-weight:600;">✓ Saved.</span> Reload the page to apply the default cohort.';
+  setTimeout(closeSettings, 1200);
+}
+
+/* -----------------------------------------------
+   SUPABASE SAVE
+----------------------------------------------- */
+async function saveToSupabase(record) {
+  const { url, key } = getConfig();
+  const statusEl = document.getElementById('r-save-status');
+
+  if (!url || !key) {
+    statusEl.textContent = 'Supabase not configured — profile not saved. Click ⚙ to set up.';
+    statusEl.className = 'save-status err';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${url}/rest/v1/students`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': key,
+        'Authorization': `Bearer ${key}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(record),
+    });
+
+    if (res.ok) {
+      statusEl.textContent = `✓ Saved to database  ·  ${record.student_code}`;
+      statusEl.className = 'save-status ok';
+    } else {
+      const err = await res.json().catch(() => ({}));
+      statusEl.textContent = `Save failed: ${err.message || res.status}`;
+      statusEl.className = 'save-status err';
+    }
+  } catch (e) {
+    statusEl.textContent = `Save failed: ${e.message}`;
+    statusEl.className = 'save-status err';
+  }
+}
+
+/* -----------------------------------------------
+   AUTO-FILL DEFAULT COHORT ON LOAD
+----------------------------------------------- */
+window.addEventListener('DOMContentLoaded', () => {
+  const defaultCohort = localStorage.getItem('dl_cohort_default');
+  if (defaultCohort) {
+    const el = document.getElementById('cohort');
+    if (el && !el.value) el.value = defaultCohort;
+  }
+});
+function weeksUntil(dateStr) {
+  const now  = new Date();
+  const then = new Date(dateStr);
+  const diff = Math.max(0, Math.floor((then - now) / (1000 * 60 * 60 * 24 * 7)));
+  return diff;
+}
+
+/* -----------------------------------------------
+   RESTART
+----------------------------------------------- */
+function restartForm() {
+  // Clear ratings
+  Object.keys(ratings).forEach(k => delete ratings[k]);
+  habits.hours = habits.style = habits.obstacle = null;
+
+  // Reset UI
+  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]').forEach(i => i.value = '');
+  document.getElementById('grade').value = '';
+
+  document.getElementById('results').style.display      = 'none';
+  document.getElementById('form-wrapper').style.display = 'block';
+  document.getElementById(`step-1`).style.display       = 'block';
+  [2, 3, 4].forEach(s => document.getElementById(`step-${s}`).style.display = 'none');
+  currentStep = 1;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+</script>
+</body>
+</html>
