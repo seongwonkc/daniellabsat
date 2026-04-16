@@ -131,7 +131,7 @@ const DOMAIN_META = {
 function buildQuestionBank() {
   const bank = {};
   const allRW   = [...RW1_QUESTIONS, ...RW2_EASY_QUESTIONS, ...RW2_HARD_QUESTIONS];
-  const allMath = [...MATH_QUESTIONS];
+  const allMath = typeof MATH_QUESTIONS !== 'undefined' ? [...MATH_QUESTIONS] : [];
 
   allRW.forEach(q => {
     const d = q.domain;
