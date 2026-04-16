@@ -262,7 +262,7 @@ function htmlPicker() {
 function startDomain(domainId) {
   const qs=shuffle([...(QUESTION_BANK[domainId]||[])]);
   if (!qs.length) return;
-  S.domain=domainId; S.questions=qs; S.qIndex=0; S.responses={}; S.view='quiz';
+  S.domain=domainId; S.questions=qs; S.qIndex=0; S.responses={}; S.selected={}; S.view='quiz';
   render();
 }
 
