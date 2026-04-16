@@ -58,6 +58,27 @@
 .dc-rating.mid  { background:#FFF3CD;color:#856404; }
 .dc-rating.high { background:#E8F7EE;color:var(--success); }
 
+/* Highlighter */
+.hl-toolbar {
+  display:none; position:fixed; z-index:200;
+  background:#1e1e1e; border-radius:6px; padding:4px 6px;
+  gap:4px; align-items:center; box-shadow:0 4px 16px rgba(0,0,0,0.25);
+}
+.hl-toolbar.visible { display:flex; }
+.hl-btn { width:22px;height:22px;border-radius:4px;border:1.5px solid rgba(255,255,255,0.2);cursor:pointer;transition:transform .1s; }
+.hl-btn:hover { transform:scale(1.15); }
+.hl-btn-clear { font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);background:none;border:none;cursor:pointer;padding:0 4px;font-family:var(--font); }
+.hl-btn-clear:hover { color:#fff; }
+mark.hl-yellow { background:#FFF176; color:inherit; border-radius:2px; }
+mark.hl-green  { background:#B9F6CA; color:inherit; border-radius:2px; }
+
+/* Flag */
+.flag-btn { background:none;border:none;cursor:pointer;font-size:16px;opacity:0.35;transition:opacity .15s,color .15s;padding:0 4px;line-height:1; }
+.flag-btn:hover  { opacity:0.7; }
+.flag-btn.active { opacity:1; color:#E53935; }
+.bb-dot.flagged::after { content:'';position:absolute;top:-2px;right:-2px;width:6px;height:6px;border-radius:50%;background:#E53935;border:1px solid #fff; }
+.bb-dot { position:relative; }
+
 /* Results */
 .dl-results { max-width:560px;margin:0 auto;padding:60px 24px;text-align:center; }
 .dl-results-score { font-size:64px;font-weight:700;color:var(--blue);line-height:1;margin-bottom:8px; }
@@ -80,10 +101,15 @@
   <div class="nav-logo">The<strong>Daniel</strong>Lab <span>Practice</span></div>
   <div id="nav-timer"></div>
   <div class="nav-step" id="nav-label"></div>
-  <button onclick="goBack()" style="font-size:11px;opacity:0.45;background:none;border:none;cursor:pointer;color:inherit;padding:0 4px;">← Back</button>
+  <button id="btn-exit-save" style="font-size:11px;opacity:0.45;background:none;border:none;cursor:pointer;color:inherit;padding:0 4px;">Exit & save</button>
 </nav>
 
 <div id="app"></div>
+<div class="hl-toolbar" id="hl-toolbar">
+  <button class="hl-btn" style="background:#FFF176;" id="hl-yellow" title="Highlight yellow"></button>
+  <button class="hl-btn" style="background:#B9F6CA;" id="hl-green"  title="Highlight green"></button>
+  <button class="hl-btn-clear" id="hl-clear">✕</button>
+</div>
 
 <script>
 'use strict';
@@ -164,6 +190,8 @@ const S = {
   qIndex:0,
   responses:{},
   selected:{},
+  flags:{},
+  highlights:{},
   responseTimes:{},
   elapsedInterval: null,
   elapsedSeconds: 0,      // { questionId: seconds }
@@ -181,7 +209,12 @@ function recordQuestionStart() {
   S.elapsedInterval = setInterval(() => {
     S.elapsedSeconds++;
     const el = document.getElementById('nav-timer');
-    if (el) { el.textContent = fmt(S.elapsedSeconds); el.classList.add('active'); }
+    if (el) {
+      el.textContent = fmt(S.elapsedSeconds);
+      el.classList.add('active');
+      el.classList.toggle('warn',     S.elapsedSeconds >= 90  && S.elapsedSeconds < 150);
+      el.classList.toggle('critical', S.elapsedSeconds >= 150);
+    }
   }, 1000);
 }
 function recordQuestionEnd(questionId) {
@@ -354,7 +387,12 @@ function htmlQuestion() {
     const cls=i===S.qIndex?'current':a!==undefined?'answered':'';
     return `<div class="bb-dot ${cls}" data-qi="${i}">${i+1}</div>`;
   }).join('');
-  const dotsStrip=`<div class="bb-dots-strip">${dots}</div>`;
+  const flagged = S.flags[q.id];
+  const dotsStrip=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div class="bb-dots-strip" style="margin-bottom:0;">${dots}</div>
+    <button class="flag-btn ${flagged?'active':''}" id="btn-flag" title="Flag for review">⚑</button>
+  </div>`;
 
   let passageHtml='';
   if (q.dualText) {
@@ -501,17 +539,70 @@ function bindEvents() {
         render();
       });
     }
+    on('btn-flag','click',()=>{ S.flags[q.id]=!S.flags[q.id]; render(); });
     on('btn-q-prev','click',()=>{ if(S.qIndex>0){S.qIndex--;render();} });
     on('btn-q-next','click',()=>{ S.qIndex++; render(); });
     on('btn-q-finish','click',()=>{ saveResults(); S.view='results'; render(); });
     onAll('.bb-dot[data-qi]','click',e=>{ S.qIndex=parseInt(e.currentTarget.dataset.qi,10); render(); });
+    initHighlighter();
   }
+
+  on('btn-exit-save','click', async ()=>{
+    if (S.view==='quiz' && Object.keys(S.responses).length > 0) {
+      await saveResults();
+    }
+    window.location.href='daniellab_student.html';
+  });
+}
+
+function initHighlighter() {
+  const toolbar = document.getElementById('hl-toolbar');
+  if (!toolbar) return;
+  let savedRange = null;
+
+  document.addEventListener('mouseup', e => {
+    if (e.target.closest('#hl-toolbar')) return;
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) { toolbar.classList.remove('visible'); return; }
+    const range = sel.getRangeAt(0);
+    if (!range.commonAncestorContainer.closest?.('.bb-passage,.bb-notes-box')) {
+      toolbar.classList.remove('visible'); return;
+    }
+    savedRange = range.cloneRange();
+    const rect = range.getBoundingClientRect();
+    toolbar.style.left = (rect.left + rect.width/2 - 56) + 'px';
+    toolbar.style.top  = (rect.top + window.scrollY - 44) + 'px';
+    toolbar.classList.add('visible');
+  });
+
+  function applyHighlight(color) {
+    if (!savedRange) return;
+    const mark = document.createElement('mark');
+    mark.className = color === 'yellow' ? 'hl-yellow' : 'hl-green';
+    try { savedRange.surroundContents(mark); }
+    catch {
+      const frag = savedRange.extractContents();
+      mark.appendChild(frag);
+      savedRange.insertNode(mark);
+    }
+    window.getSelection().removeAllRanges();
+    toolbar.classList.remove('visible');
+    savedRange = null;
+  }
+
+  document.getElementById('hl-yellow')?.addEventListener('click', () => applyHighlight('yellow'));
+  document.getElementById('hl-green')?.addEventListener('click',  () => applyHighlight('green'));
+  document.getElementById('hl-clear')?.addEventListener('click',  () => {
+    window.getSelection().removeAllRanges();
+    toolbar.classList.remove('visible');
+    savedRange = null;
+  });
 }
 
 /* ── Helpers ─────────────────────────────────────────────── */
 function retryDomain() {
   S.questions=shuffle([...(QUESTION_BANK[S.domain]||[])]);
-  S.qIndex=0; S.responses={}; S.selected={}; S.responseTimes={};
+  S.qIndex=0; S.responses={}; S.selected={}; S.responseTimes={}; S.flags={}; S.highlights={};
   S.sessionId=crypto.randomUUID();
   S.view='quiz'; render();
 }
