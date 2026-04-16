@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DanielLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:        #f5f4f2;
+  --surface:   #ffffff;
+  --border:    #e2e0dc;
+  --accent:    #c8102e;
+  --accent-dim:#a30d25;
+  --text:      #111111;
+  --muted:     #888888;
+  --radius:    10px;
+  --sans:      'DM Sans', sans-serif;
+  --serif:     'DM Serif Display', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 40px;
+}
+
+.logo {
+  font-family: var(--sans);
+  font-size: 1.6rem;
+  font-weight: 400;
+  text-align: center;
+  line-height: 1;
+}
+.logo .bold { color: var(--accent); font-weight: 700; }
+.logo .sub  { display: block; font-size: 0.7rem; color: var(--muted); letter-spacing: .08em; margin-top: 6px; }
+
+.branch-wrap {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+  max-width: 460px;
+}
+
+.branch-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+}
+.branch-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 16px rgba(200,16,46,0.08);
+  transform: translateY(-1px);
+}
+.branch-icon {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+}
+.branch-title {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+}
+.branch-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.branch-card .arrow {
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+@media (max-width: 400px) {
+  .branch-wrap { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="logo">
+  The<span class="bold">Daniel</span>Lab
+  <span class="sub">Seoul · Boston</span>
+</div>
+
+<div class="branch-wrap">
+  <a class="branch-card" href="daniellab_login.html">
+    <div class="branch-icon">📖</div>
+    <div class="branch-title">Students</div>
+    <div class="branch-sub">Log in with your student code and PIN</div>
+    <div class="arrow">Sign in →</div>
+  </a>
+  <a class="branch-card" href="daniellab_dashboard.html">
+    <div class="branch-icon">⚙️</div>
+    <div class="branch-title">Admin</div>
+    <div class="branch-sub">Manage cohorts, sessions, and student records</div>
+    <div class="arrow">Dashboard →</div>
+  </a>
+</div>
+
+</body>
+</html>
