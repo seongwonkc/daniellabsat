@@ -104,6 +104,7 @@ mark.hl-green  { background:#B9F6CA; color:inherit; border-radius:2px; }
   <div id="hl-toolbar" style="display:flex;gap:6px;align-items:center;opacity:0;transition:opacity .2s;" id="hl-toolbar">
     <button class="hl-btn" style="background:#FFF176;" id="hl-yellow" title="Yellow highlighter"></button>
     <button class="hl-btn" style="background:#B9F6CA;" id="hl-green"  title="Green highlighter"></button>
+    <button class="hl-btn-clear" id="hl-clear" title="Clear all highlights">✕</button>
   </div>
   <button id="btn-exit-save" style="font-size:11px;opacity:0.45;background:none;border:none;cursor:pointer;color:inherit;padding:0 4px;">Exit & save</button>
 </nav>
@@ -576,6 +577,18 @@ function initHighlighter() {
 
   document.getElementById('hl-yellow')?.addEventListener('click', () => setActive('yellow'));
   document.getElementById('hl-green')?.addEventListener('click',  () => setActive('green'));
+  document.getElementById('hl-clear')?.addEventListener('click',  () => {
+    const inPassage = document.querySelector('.bb-passage,.bb-notes-box');
+    if (inPassage) {
+      inPassage.querySelectorAll('mark.hl-yellow,mark.hl-green').forEach(mark => {
+        const parent = mark.parentNode;
+        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+        parent.removeChild(mark);
+        parent.normalize();
+      });
+    }
+    setActive(null);
+  });
   document.getElementById('hl-clear')?.addEventListener('click',  () => {
     window.getSelection().removeAllRanges();
     setActive(null);
