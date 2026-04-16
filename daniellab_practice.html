@@ -291,10 +291,12 @@ function htmlQuestion() {
     const letters=['A','B','C','D'].filter(l=>q.choices[l]);
     answerHtml=`<div class="bb-choices">
       ${letters.map(l=>{
-        let cls=resp===l?'selected':'';
+        let cls='';
         if (isAnswered) {
           if (l===q.answer) cls='selected';
           else if (resp===l) cls='wrong';
+        } else {
+          if (l===sel) cls='selected';
         }
         const circle=isAnswered&&l===q.answer?'✓':isAnswered&&resp===l?'✗':l;
         return `<button class="bb-choice ${cls}" data-letter="${l}" ${isAnswered?'disabled':''}>
