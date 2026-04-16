@@ -177,7 +177,7 @@ const DOMAIN_META = {
 // Group all questions by domain from the real arrays
 function buildQuestionBank() {
   const bank = {};
-  const allRW   = [...RW1_QUESTIONS, ...RW2_EASY_QUESTIONS, ...RW2_HARD_QUESTIONS];
+  const allRW = [...RW_ALL];
   const allMath = typeof MATH_QUESTIONS !== 'undefined' ? [...MATH_QUESTIONS] : [];
 
   allRW.forEach(q => {
