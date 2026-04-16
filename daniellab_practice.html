@@ -295,7 +295,7 @@ function htmlPicker() {
     <div class="dl-domain-card" onclick="startDomain('${id}')">
       ${r?`<div class="dc-rating ${rClass}">${r}/5</div>`:''}
       <div class="dc-name">${DOMAIN_META[id]?.name||id}</div>
-      <div class="dc-count">${qs} question${qs!==1?'s':''}</div>
+      <div class="dc-count">${qs} questions · 15 per session</div>
     </div>`;
   }
 
@@ -320,7 +320,7 @@ function htmlPicker() {
 function startDomain(domainId) {
   const qs=shuffle([...(QUESTION_BANK[domainId]||[])]);
   if (!qs.length) return;
-  S.domain=domainId; S.questions=qs; S.qIndex=0; S.responses={}; S.selected={}; S.view='quiz';
+  S.domain=domainId; S.questions=qs.slice(0,15); S.qIndex=0; S.responses={}; S.selected={}; S.view='quiz';
   render();
 }
 
