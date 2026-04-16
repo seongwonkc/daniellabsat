@@ -156,17 +156,29 @@ const S = {
   questions:[],
   qIndex:0,
   responses:{},
-  responseTimes:{},       // { questionId: seconds }
+  selected:{},
+  responseTimes:{},
+  elapsedInterval: null,
+  elapsedSeconds: 0,      // { questionId: seconds }
   studentRatings:{},
   sessionId: crypto.randomUUID(),
 };
 
 let questionStartTime = null;
 
+function fmt(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
 function recordQuestionStart() {
   questionStartTime = Date.now();
+  clearInterval(S.elapsedInterval);
+  S.elapsedSeconds = 0;
+  S.elapsedInterval = setInterval(() => {
+    S.elapsedSeconds++;
+    const el = document.getElementById('nav-timer');
+    if (el) { el.textContent = fmt(S.elapsedSeconds); el.classList.add('active'); }
+  }, 1000);
 }
 function recordQuestionEnd(questionId) {
+  clearInterval(S.elapsedInterval);
   if (!questionStartTime) return;
   S.responseTimes[questionId] = Math.round((Date.now() - questionStartTime) / 1000);
   questionStartTime = null;
@@ -321,7 +333,9 @@ function htmlQuestion() {
         ?`<button class="bb-btn bb-btn-primary" id="btn-q-next">Next →</button>`
         :q.isSPR
           ?`<button class="bb-btn bb-btn-primary" id="btn-q-check">Check answer</button>`
-          :''
+          :S.selected[q.id]
+            ?`<button class="bb-btn bb-btn-primary" id="btn-q-confirm">Confirm answer</button>`
+            :''
     }
   </div>`;
 
@@ -364,7 +378,7 @@ function htmlQuestion() {
 <div class="bb-math-layout">
   ${dotsStrip}
   <div class="bb-math-stem">
-    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Q${q.num} · ${typeLabel}</div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Q${S.qIndex+1} of ${tot} · ${typeLabel}Q${q.num} · ${typeLabel}</div>
     ${passageHtml?`<div style="margin-bottom:16px;">${passageHtml}</div>`:''}
     <div class="${q.katex?'katex-content':''}" style="font-size:15px;line-height:1.75;">${stem}</div>
   </div>
@@ -380,7 +394,7 @@ function htmlQuestion() {
   <div class="bb-divider-line"></div>
   <div class="bb-right-panel">
     ${dotsStrip}
-    <div class="bb-q-num">Q${q.num} of ${tot} <span class="bb-q-type-badge">${typeLabel}</span></div>
+    <div class="bb-q-num">Q${S.qIndex+1} of ${tot} <span class="bb-q-type-badge">${typeLabel}</span></div>
     <div class="bb-question-stem">${stem}</div>
     ${answerHtml}
     ${explanationHtml}
@@ -426,7 +440,7 @@ function htmlResults() {
     } else { ok=r===q.answer; }
     return `<div class="dl-review-row">
       <div class="dl-review-icon ${ok?'correct':'wrong'}">${ok?'✓':'✗'}</div>
-      <div class="dl-review-q">Q${q.num} — ${(q.type||'').replace(/_/g,' ')}
+      <div class="dl-review-q">Q${S.questions.indexOf(q)+1} — ${(q.type||'').replace(/_/g,' ')}
         ${!ok?`<div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Your answer: ${r||'—'} &nbsp; Correct: ${q.isSPR?q.sprAnswer:q.answer}</div>`:''}
       </div>
     </div>`;
@@ -458,8 +472,13 @@ function bindEvents() {
     if (!q.isSPR) {
       onAll('.bb-choice:not([disabled])','click',e=>{
         if (S.responses[q.id]) return;
+        S.selected[q.id]=e.currentTarget.dataset.letter;
+        render();
+      });
+      on('btn-q-confirm','click',()=>{
+        if (!S.selected[q.id]) return;
         recordQuestionEnd(q.id);
-        S.responses[q.id]=e.currentTarget.dataset.letter;
+        S.responses[q.id]=S.selected[q.id];
         render();
       });
     }
@@ -482,7 +501,7 @@ function bindEvents() {
 /* ── Helpers ─────────────────────────────────────────────── */
 function retryDomain() {
   S.questions=shuffle([...(QUESTION_BANK[S.domain]||[])]);
-  S.qIndex=0; S.responses={}; S.responseTimes={};
+  S.qIndex=0; S.responses={}; S.selected={}; S.responseTimes={};
   S.sessionId=crypto.randomUUID();
   S.view='quiz'; render();
 }
