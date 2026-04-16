@@ -463,11 +463,28 @@ body {
 <section class="page" id="page-practice">
   <div class="practice-intro">
     <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:6px;">Practice</h2>
-    <p>Pick a domain and work through a set of questions. Your score is saved automatically.</p>
+    <p>Domain drills and full mock tests — both in Digital SAT format.</p>
   </div>
 
-  <!-- Domain picker -->
-  <div id="domain-picker">
+  <!-- Two entry points -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:36px;">
+    <a href="daniellab_practice.html" style="text-decoration:none;">
+      <div class="card" style="cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div class="card-label">Domain Practice</div>
+        <div style="font-family:var(--serif);font-size:1.2rem;margin-bottom:6px;">Targeted drill</div>
+        <div style="font-size:.82rem;color:var(--muted);line-height:1.5;">Pick a domain, work through questions in Digital SAT format. Instant feedback after each answer.</div>
+        <div style="font-size:.8rem;font-weight:600;color:var(--accent);margin-top:12px;">Start →</div>
+      </div>
+    </a>
+    <a href="daniellab_mocktest.html" style="text-decoration:none;">
+      <div class="card" style="cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div class="card-label">Full Mock Test</div>
+        <div style="font-family:var(--serif);font-size:1.2rem;margin-bottom:6px;">Adaptive SAT</div>
+        <div style="font-size:.82rem;color:var(--muted);line-height:1.5;">3 timed modules. Adaptive format — your Module 1 score determines which Module 2 you receive. ~2 hours.</div>
+        <div style="font-size:.8rem;font-weight:600;color:var(--accent);margin-top:12px;">Begin test →</div>
+      </div>
+    </a>
+  </div>
     <div style="font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Math</div>
     <div class="domain-grid" id="math-domain-grid"></div>
     <div style="font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Reading & Writing</div>
