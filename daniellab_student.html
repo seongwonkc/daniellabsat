@@ -1087,34 +1087,45 @@ function renderScoreChart(mockTests) {
   canvas.style.display = 'block';
   emptyEl.style.display = 'none';
 
-  const labels = scored.map((n, i) =>
-    n.created_at ? n.created_at.slice(0, 10) : `#${i + 1}`
-  );
-  const data = scored.map(n => n.total_score);
+  const labels   = scored.map((n, i) => n.created_at ? n.created_at.slice(0, 10) : `#${i + 1}`);
+  const rwData   = scored.map(n => n.rw_score   || 0);
+  const mathData = scored.map(n => n.math_score || 0);
+  const totals   = scored.map(n => n.total_score || 0);
 
-  // Get student's target score for reference line
   const target = parseInt(sessionStorage.getItem('dl_student_target') || '0');
+  const yMax   = Math.min(1600, Math.max(target || 0, Math.max(...totals)) + 80);
+  const yMin   = Math.max(400,  Math.min(...totals) - 60);
 
   if (scoreChartInstance) scoreChartInstance.destroy();
 
+  const font = { family: "'DM Sans', sans-serif" };
+
   scoreChartInstance = new Chart(canvas, {
-    type: 'line',
     data: {
       labels,
       datasets: [
         {
-          label: 'Mock test score',
-          data,
-          borderColor: '#c8102e',
-          backgroundColor: 'rgba(200,16,46,0.06)',
-          borderWidth: 2,
-          pointBackgroundColor: '#c8102e',
-          pointRadius: 5,
-          pointHoverRadius: 7,
-          fill: true,
-          tension: 0.3,
+          type: 'bar',
+          label: 'Reading & Writing',
+          data: rwData,
+          backgroundColor: 'rgba(200,16,46,0.75)',
+          borderColor:     'rgba(200,16,46,0.9)',
+          borderWidth: 0,
+          stack: 'score',
+          order: 2,
+        },
+        {
+          type: 'bar',
+          label: 'Math',
+          data: mathData,
+          backgroundColor: 'rgba(30,90,180,0.7)',
+          borderColor:     'rgba(30,90,180,0.85)',
+          borderWidth: 0,
+          stack: 'score',
+          order: 2,
         },
         ...(target ? [{
+          type: 'line',
           label: 'Target',
           data: labels.map(() => target),
           borderColor: '#2a7a4f',
@@ -1122,15 +1133,17 @@ function renderScoreChart(mockTests) {
           borderDash: [6, 4],
           pointRadius: 0,
           fill: false,
+          order: 1,
         }] : []),
       ],
     },
     options: {
       responsive: true,
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
           labels: {
-            font: { family: "'DM Sans', sans-serif", size: 12 },
+            font: { ...font, size: 12 },
             color: '#888',
             boxWidth: 12,
           },
@@ -1140,27 +1153,31 @@ function renderScoreChart(mockTests) {
           borderColor: '#e2e0dc',
           borderWidth: 1,
           titleColor: '#111',
-          bodyColor: '#888',
-          titleFont: { family: "'DM Sans', sans-serif", weight: '600' },
-          bodyFont:  { family: "'DM Sans', sans-serif" },
+          bodyColor: '#555',
+          titleFont: { ...font, weight: '600' },
+          bodyFont:  font,
+          callbacks: {
+            afterBody: (items) => {
+              const total = items
+                .filter(i => i.dataset.type === 'bar' || i.dataset.stack === 'score')
+                .reduce((sum, i) => sum + (i.raw || 0), 0);
+              return total ? [`Total: ${total}`] : [];
+            },
+          },
         },
       },
       scales: {
         y: {
-          min: Math.max(400, Math.min(...data) - 50),
-          max: Math.min(1600, (target || Math.max(...data)) + 80),
-          ticks: {
-            font: { family: "'DM Sans', sans-serif", size: 11 },
-            color: '#888',
-          },
-          grid: { color: '#f0ede9' },
+          stacked: true,
+          min: yMin,
+          max: yMax,
+          ticks: { font: { ...font, size: 11 }, color: '#888' },
+          grid:  { color: '#f0ede9' },
         },
         x: {
-          ticks: {
-            font: { family: "'DM Sans', sans-serif", size: 11 },
-            color: '#888',
-          },
-          grid: { display: false },
+          stacked: true,
+          ticks: { font: { ...font, size: 11 }, color: '#888' },
+          grid:  { display: false },
         },
       },
     },
@@ -1173,7 +1190,7 @@ function renderScoreChart(mockTests) {
 async function loadProgress() {
   try {
     const [mockTests, notes] = await Promise.all([
-      sbFetch(`mock_tests?student_id=eq.${studentId}&select=total_score,created_at&order=created_at.asc`),
+      sbFetch(`mock_tests?student_id=eq.${studentId}&select=rw_score,math_score,total_score,created_at&order=created_at.asc`),
       sbFetch(`notes?student_id=eq.${studentId}&select=*&order=created_at.desc`),
     ]);
     renderScoreChart(mockTests || []);
