@@ -21,6 +21,16 @@
 <script src="data/data-eoi2.js"></script>
 <script src="data/data-eoi3.js"></script>
 <script src="data/data-eoi4.js"></script>
+<script src="data/data-cs3.js"></script>
+<script src="data/data-cs4.js"></script>
+<script src="data/data-cs5.js"></script>
+<script src="data/data-cs6.js"></script>
+<script src="data/data-cs7.js"></script>
+<script src="data/data-ii3.js"></script>
+<script src="data/data-ii4.js"></script>
+<script src="data/data-ii5.js"></script>
+<script src="data/data-ii6.js"></script>
+<script src="data/data-ii7.js"></script>
 <script src="data/data.daniellab.rw.js"></script>
 <style>
 .bb-question-layout {
@@ -60,11 +70,20 @@
 <nav id="top-nav">
   <div class="nav-logo" style="font-size:13px;font-weight:500;">The<strong>Daniel</strong>Lab <span>Mock Test</span></div>
   <div id="nav-timer"></div>
-  <div class="nav-step" id="nav-label"></div>
+  <div id="nav-label" class="nav-step"></div>
+  <div id="hl-toolbar" style="display:flex;gap:6px;align-items:center;opacity:0;transition:opacity .2s;">
+    <button class="hl-btn" style="background:#FFF176;" id="hl-yellow" title="Yellow highlighter"></button>
+    <button class="hl-btn" style="background:#B9F6CA;" id="hl-green"  title="Green highlighter"></button>
+    <button class="hl-btn-clear" id="hl-clear" title="Clear all highlights">✕</button>
+  </div>
   <button id="btn-exit" style="font-size:11px;opacity:0.45;background:none;border:none;cursor:pointer;color:inherit;padding:0 4px;">Exit</button>
 </nav>
 
 <div id="app"></div>
+<div id="hl-toolbar" style="display:flex;gap:6px;align-items:center;">
+  <button class="hl-btn" style="background:#FFF176;" id="hl-yellow" title="Yellow highlighter"></button>
+  <button class="hl-btn" style="background:#B9F6CA;" id="hl-green"  title="Green highlighter"></button>
+</div>
 
 <script>
 'use strict';
@@ -330,7 +349,7 @@ function htmlQuestion() {
     let txt=q.passage;
     if (q.underline) txt+=` <u>${q.underline}</u>`;
     passageHtml=`<div class="bb-panel-tag">Passage</div><div class="bb-passage">${txt}</div>
-    ${q.table?q.table.replace(/class="data-table"/g,'class="bb-data-table"'):''}`;
+    ${q.table?(q.table.trim().startsWith('<')?q.table.replace(/class="data-table"/g,'class="bb-data-table"'):parseTextTable(q.table)):''}`;
   } else if (q.table) {
     passageHtml=`<div class="bb-panel-tag">Data</div>${q.table.replace(/class="data-table"/g,'class="bb-data-table"')}`;
   }
@@ -485,6 +504,14 @@ function bindEvents() {
       }
     }
 
+    on('btn-flag','click',()=>{ S.flags[q.id]=!S.flags[q.id]; render(); });
+     on('btn-jump-flagged','click',()=>{
+      const flaggedIndices = S.questions.map((qq,i)=>S.flags[qq.id]?i:-1).filter(i=>i>=0);
+      if (!flaggedIndices.length) return;
+      const currentPos = flaggedIndices.indexOf(S.qIndex);
+      const next = flaggedIndices[(currentPos + 1) % flaggedIndices.length];
+      S.qIndex=next; render();
+    });
     on('btn-q-prev','click',()=>{ if(S.qIndex>0){S.qIndex--;render();} });
     on('btn-q-next','click',()=>{
       if (q.isSPR){ const inp=document.getElementById('spr-input'); if(!inp||!inp.value.trim()) return; recordQuestionEnd(q.id); setR(q.id,inp.value.trim()); }
@@ -501,7 +528,90 @@ function bindEvents() {
       submitModule(S.view);
     });
     onAll('.bb-dot[data-qi]','click',e=>{ S.qIndex=parseInt(e.currentTarget.dataset.qi,10); render(); });
+    initHighlighter();
   }
+
+  on('btn-exit-save','click', async ()=>{
+    if (S.view==='quiz' && Object.keys(S.responses).length > 0) {
+      await saveResults();
+    }
+    window.location.href='daniellab_student.html';
+  });
+}
+
+function initHighlighter() {
+  let activeColor = null; // 'yellow' | 'green' | null
+
+  function setActive(color) {
+    activeColor = activeColor === color ? null : color;
+    const yBtn = document.getElementById('hl-yellow');
+    const gBtn = document.getElementById('hl-green');
+    if (yBtn) yBtn.style.outline = activeColor==='yellow' ? '2px solid #fff' : 'none';
+    if (gBtn) gBtn.style.outline = activeColor==='green'  ? '2px solid #fff' : 'none';
+    document.body.style.cursor = activeColor ? 'text' : '';
+  }
+
+  document.getElementById('hl-yellow')?.addEventListener('click', () => setActive('yellow'));
+  document.getElementById('hl-green')?.addEventListener('click',  () => setActive('green'));
+  document.getElementById('hl-clear')?.addEventListener('click',  () => {
+    const inPassage = document.querySelector('.bb-passage,.bb-notes-box');
+    if (inPassage) {
+      inPassage.querySelectorAll('mark.hl-yellow,mark.hl-green').forEach(mark => {
+        const parent = mark.parentNode;
+        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+        parent.removeChild(mark);
+        parent.normalize();
+      });
+    }
+    setActive(null);
+  });
+  document.getElementById('hl-clear')?.addEventListener('click',  () => {
+    window.getSelection().removeAllRanges();
+    setActive(null);
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (e.target.closest('#hl-toolbar')) return;
+    if (!activeColor) return;
+
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return;
+
+    const range = sel.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    const inPassage = container.nodeType === 3
+      ? container.parentElement?.closest('.bb-passage,.bb-notes-box')
+      : container.closest?.('.bb-passage,.bb-notes-box');
+    if (!inPassage) { sel.removeAllRanges(); return; }
+
+    // Remove any existing highlights in range first
+    const existingMarks = inPassage.querySelectorAll('mark.hl-yellow,mark.hl-green');
+    existingMarks.forEach(mark => {
+      if (range.intersectsNode(mark)) {
+        const parent = mark.parentNode;
+        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+        parent.removeChild(mark);
+        parent.normalize();
+      }
+    });
+
+    // Re-get selection after DOM change
+    sel.removeAllRanges();
+    const newRange = range.cloneRange();
+
+    // Check if selection now covers text — if original was purely a removal, stop
+    if (newRange.collapsed) return;
+
+    const mark = document.createElement('mark');
+    mark.className = activeColor === 'yellow' ? 'hl-yellow' : 'hl-green';
+    try { newRange.surroundContents(mark); }
+    catch {
+      const frag = newRange.extractContents();
+      mark.appendChild(frag);
+      newRange.insertNode(mark);
+    }
+    sel.removeAllRanges();
+  });
 }
 
 /* ── Handlers ──────────────────────────────────────────── */

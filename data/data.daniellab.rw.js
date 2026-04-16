@@ -1,8 +1,8 @@
 'use strict';
 
 const RW_ALL = [
-  ...DL_CRAFT_STRUCTURE, ...DL_CS2,
-  ...DL_INFO_IDEAS,      ...DL_II2,
+  ...DL_CRAFT_STRUCTURE, ...DL_CS2, ...DL_CS3, ...DL_CS4, ...DL_CS5, ...DL_CS6, ...DL_CS7,
+  ...DL_INFO_IDEAS,      ...DL_II2, ...DL_II3, ...DL_II4, ...DL_II5, ...DL_II6, ...DL_II7,
   ...DL_SEC,             ...DL_SEC2, ...DL_SEC3,
   ...DL_EOI,             ...DL_EOI2, ...DL_EOI3, ...DL_EOI4,
 ];

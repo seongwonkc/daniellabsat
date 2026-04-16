@@ -21,6 +21,16 @@
 <script src="data/data-eoi2.js"></script>
 <script src="data/data-eoi3.js"></script>
 <script src="data/data-eoi4.js"></script>
+<script src="data/data-cs3.js"></script>
+<script src="data/data-cs4.js"></script>
+<script src="data/data-cs5.js"></script>
+<script src="data/data-cs6.js"></script>
+<script src="data/data-cs7.js"></script>
+<script src="data/data-ii3.js"></script>
+<script src="data/data-ii4.js"></script>
+<script src="data/data-ii5.js"></script>
+<script src="data/data-ii6.js"></script>
+<script src="data/data-ii7.js"></script>
 <script src="data/data.daniellab.rw.js"></script>
 <style>
 .bb-question-layout {
@@ -554,10 +564,12 @@ function bindEvents() {
       });
     }
     on('btn-flag','click',()=>{ S.flags[q.id]=!S.flags[q.id]; render(); });
-    on('btn-jump-flagged','click',()=>{
+     on('btn-jump-flagged','click',()=>{
       const flaggedIndices = S.questions.map((qq,i)=>S.flags[qq.id]?i:-1).filter(i=>i>=0);
-      const next = flaggedIndices.find(i=>i!==S.qIndex) ?? flaggedIndices[0];
-      if (next !== undefined) { S.qIndex=next; render(); }
+      if (!flaggedIndices.length) return;
+      const currentPos = flaggedIndices.indexOf(S.qIndex);
+      const next = flaggedIndices[(currentPos + 1) % flaggedIndices.length];
+      S.qIndex=next; render();
     });
     on('btn-q-prev','click',()=>{ if(S.qIndex>0){S.qIndex--;render();} });
     on('btn-q-next','click',()=>{ S.qIndex++; render(); });
