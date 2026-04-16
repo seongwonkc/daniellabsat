@@ -10,11 +10,11 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
   onload="document.dispatchEvent(new Event('katexReady'))"></script>
 <script src="config.js"></script>
-<script src="data-craft-structure.js"></script>
-<script src="data-info-ideas.js"></script>
-<script src="data-sec.js"></script>
-<script src="data-eoi.js"></script>
-<script src="data.daniellab.rw.js"></script>
+<script src="data/data-craft-structure.js"></script>
+<script src="data/data-info-ideas.js"></script>
+<script src="data/data-sec.js"></script>
+<script src="data/data-eoi.js"></script>
+<script src="data/data.daniellab.rw.js"></script>
 <style>
 .bb-question-layout {
   display: grid; grid-template-columns: 1fr 1px 1fr;
@@ -308,12 +308,10 @@ function htmlQuestion() {
   /* Passage */
   let passageHtml='';
   if (q.dualText) {
-    const t1 = typeof q.dualText === 'object' ? q.dualText.text1 : q.passage;
-    const t2 = typeof q.dualText === 'object' ? q.dualText.text2 : q.dualText;
     passageHtml=`<div class="bb-panel-tag">Texts</div>
     <div class="bb-dual-wrap">
-      <div class="bb-text-block"><div class="bb-text-label">Text 1</div><div class="bb-passage">${t1}</div></div>
-      <div class="bb-text-block"><div class="bb-text-label">Text 2</div><div class="bb-passage">${t2}</div></div>
+      <div class="bb-text-block"><div class="bb-text-label">Text 1</div><div class="bb-passage">${q.dualText.text1}</div></div>
+      <div class="bb-text-block"><div class="bb-text-label">Text 2</div><div class="bb-passage">${q.dualText.text2}</div></div>
     </div>`;
   } else if (q.notes) {
     passageHtml=`<div class="bb-panel-tag">Notes</div>
