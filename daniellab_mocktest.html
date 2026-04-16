@@ -105,7 +105,17 @@ const S = {
   rw2Responses:{}, rw2Score:null,
   mathResponses:{}, mathScore:null, mathTimeAtEnd:null,
   timerRemaining:0, timerInterval:null,
+  sessionId: crypto.randomUUID(),
+  responseTimes:{},       // { questionId: seconds }
 };
+
+let questionStartTime = null;
+function recordQuestionStart() { questionStartTime = Date.now(); }
+function recordQuestionEnd(qId) {
+  if (!questionStartTime) return;
+  S.responseTimes[qId] = Math.round((Date.now() - questionStartTime) / 1000);
+  questionStartTime = null;
+}
 
 function startTimer(seconds) {
   stopTimer();
@@ -171,7 +181,7 @@ function render() {
   if      (S.view==='intro')          app.innerHTML = htmlWelcome();
   else if (S.modulePhase==='intro')   app.innerHTML = htmlModuleIntro();
   else if (S.view==='done')           app.innerHTML = htmlResults();
-  else                                app.innerHTML = htmlQuestion();
+  else                              { app.innerHTML = htmlQuestion(); recordQuestionStart(); }
   bindEvents();
   renderKatex();
   window.scrollTo(0,0);
@@ -441,6 +451,7 @@ function bindEvents() {
 
     if (!q.isSPR) {
       onAll('.bb-choice','click',e=>{
+        recordQuestionEnd(q.id);
         setR(q.id,e.currentTarget.dataset.letter);
         render();
       });
@@ -466,12 +477,13 @@ function bindEvents() {
 
     on('btn-q-prev','click',()=>{ if(S.qIndex>0){S.qIndex--;render();} });
     on('btn-q-next','click',()=>{
-      if (q.isSPR){ const inp=document.getElementById('spr-input'); if(!inp||!inp.value.trim()) return; setR(q.id,inp.value.trim()); }
+      if (q.isSPR){ const inp=document.getElementById('spr-input'); if(!inp||!inp.value.trim()) return; recordQuestionEnd(q.id); setR(q.id,inp.value.trim()); }
       else if (!getResponses()[q.id]) return;
       S.qIndex++; render();
     });
     on('btn-q-submit','click',()=>{
-      if (q.isSPR){ const inp=document.getElementById('spr-input'); if(inp) setR(q.id,inp.value.trim()); }
+      if (q.isSPR){ const inp=document.getElementById('spr-input'); if(inp){ recordQuestionEnd(q.id); setR(q.id,inp.value.trim()); } }
+      else { recordQuestionEnd(q.id); }
       const qs=getQuestions(), rs=getResponses();
       const unanswered=qs.filter(qq=>!rs[qq.id]).length;
       if (unanswered>0&&!confirm(`${unanswered} unanswered question${unanswered>1?'s':''}. Submit anyway?`)) return;
@@ -507,24 +519,72 @@ function submitModule(module) {
 
 async function finishTest() {
   S.view='done'; S.modulePhase='done'; render();
+  const rwQs     = S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
   const rwRaw    = (S.rw1Score||0)+(S.rw2Score||0);
   const rwScaled = Math.round(200+(rwRaw/40)*600);
   const mathScaled=Math.round(200+((S.mathScore||0)/18)*600);
-  try {
-    await sbPost('mock_tests',{
-      student_id:studentId,
-      rw_score:rwScaled, math_score:mathScaled,
-      total_score:rwScaled+mathScaled,
-      module_type:S.moduleType,
-      rw1_responses:S.rw1Responses,
-      rw2_responses:S.rw2Responses,
-      math_responses:S.mathResponses,
-      time_remaining_math:S.mathTimeAtEnd,
+  const {url,key}=getConfig();
+  if (!url||!key) return;
+
+  // Save mock test aggregate
+  await sbPost('mock_tests',{
+    student_id:studentId,
+    rw_score:rwScaled, math_score:mathScaled,
+    total_score:rwScaled+mathScaled,
+    module_type:S.moduleType,
+    rw1_responses:S.rw1Responses,
+    rw2_responses:S.rw2Responses,
+    math_responses:S.mathResponses,
+    time_remaining_math:S.mathTimeAtEnd,
+  });
+
+  // Build per-response rows for all three modules
+  const allModules = [
+    { questions:RW1_QUESTIONS,  responses:S.rw1Responses  },
+    { questions:rwQs,           responses:S.rw2Responses  },
+    { questions:MATH_QUESTIONS, responses:S.mathResponses },
+  ];
+
+  const rows = [];
+  allModules.forEach(({questions, responses}) => {
+    questions.forEach(q => {
+      const r = responses[q.id];
+      let isCorrect = null;
+      if (r) {
+        if (q.isSPR) {
+          const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
+          const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+          isCorrect=false;
+          if (q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01) isCorrect=true;}
+          if (!isCorrect) isCorrect=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);
+        } else {
+          isCorrect = r===q.answer;
+        }
+      }
+      rows.push({
+        student_id:       studentId,
+        session_id:       S.sessionId,
+        session_type:     'mock',
+        question_id:      q.id,
+        domain:           q.domain,
+        question_type:    q.type,
+        student_answer:   r||null,
+        correct_answer:   q.isSPR ? q.sprAnswer : q.answer,
+        is_correct:       isCorrect,
+        time_on_question: S.responseTimes[q.id]||null,
+      });
     });
-  } catch(e){ console.error('Save failed:',e); }
+  });
+
+  await fetch(`${url}/rest/v1/responses`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':key,'Authorization':`Bearer ${key}`,'Prefer':'return=minimal'},
+    body: JSON.stringify(rows),
+  });
 }
 
 render();
 </script>
+<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi </body>nbsp;·</body>nbsp; Powered by Vector AI</footer>
 </body>
 </html>

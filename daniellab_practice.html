@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DanielLab · Mock Test</title>
+<title>DanielLab · Practice</title>
 <link rel="stylesheet" href="styles-bluebook.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
@@ -14,33 +14,52 @@
 <script src="scoring.js"></script>
 <style>
 .bb-question-layout {
-  display: grid; grid-template-columns: 1fr 1px 1fr;
-  height: calc(100vh - 55px); overflow: hidden;
+  display:grid; grid-template-columns:1fr 1px 1fr;
+  height:calc(100vh - 55px); overflow:hidden;
 }
-.bb-left-panel  { padding: var(--panel-padding,28px 32px); overflow-y: auto; }
-.bb-divider-line { background: var(--border-light); width: 1px; }
-.bb-right-panel  { padding: var(--panel-padding,28px 32px); overflow-y: auto; display: flex; flex-direction: column; }
+.bb-left-panel  { padding:var(--panel-padding,28px 32px); overflow-y:auto; }
+.bb-divider-line { background:var(--border-light); width:1px; }
+.bb-right-panel  { padding:var(--panel-padding,28px 32px); overflow-y:auto; display:flex; flex-direction:column; }
 .bb-panel-tag { font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:14px; }
 .bb-q-num { font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:16px;display:flex;align-items:center;gap:10px; }
 .bb-intro-stat-val { font-size:42px;font-weight:700;color:var(--text);line-height:1; }
 .bb-intro-stat-lbl { font-size:12px;color:var(--text-muted);letter-spacing:.04em;margin-top:4px; }
 .bb-intro-divider  { width:1px;height:48px;background:var(--border); }
 .bb-intro-desc { font-size:14px;color:var(--text-muted);line-height:1.65;margin-bottom:28px; }
+.bb-choice.wrong { border-color:var(--danger);background:var(--danger-light); }
+.bb-choice.wrong .bb-choice-circle { background:var(--danger);border-color:var(--danger);color:#fff; }
 @media (max-width:768px) {
   .bb-question-layout { grid-template-columns:1fr;grid-template-rows:auto 1px auto;height:auto;overflow:visible; }
   .bb-divider-line { height:1px;width:auto; }
 }
-.mt-results { max-width:680px;margin:0 auto;padding:48px 24px 80px; }
-.mt-score-row { display:flex;align-items:baseline;gap:16px;margin-bottom:32px;flex-wrap:wrap; }
-.mt-score-big { font-size:72px;font-weight:700;color:var(--blue);line-height:1; }
-.mt-breakdown { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px; }
-.mt-breakdown-card { background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px; }
-.mt-breakdown-card .label { font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px; }
-.mt-breakdown-card .val   { font-size:36px;font-weight:700;color:var(--text);line-height:1; }
-.mt-breakdown-card .sub   { font-size:12px;color:var(--text-muted);margin-top:4px; }
-.mt-domain-row { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light);font-size:13px; }
-.mt-domain-row:last-child { border-bottom:none; }
-.mt-domain-score { font-weight:600;color:var(--blue); }
+
+/* Picker */
+.dl-picker { max-width:760px;margin:0 auto;padding:40px 24px 80px; }
+.dl-picker-title { font-size:24px;font-weight:600;color:var(--text);margin-bottom:6px; }
+.dl-picker-sub  { font-size:14px;color:var(--text-muted);margin-bottom:36px; }
+.dl-section-label { font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;margin-top:28px; }
+.dl-domain-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px; }
+.dl-domain-card { border:1.5px solid var(--border);border-radius:var(--radius-lg);background:var(--bg);padding:16px 18px;cursor:pointer;transition:all .12s;text-align:left; }
+.dl-domain-card:hover { border-color:var(--blue-border);background:var(--blue-light); }
+.dl-domain-card .dc-name  { font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px; }
+.dl-domain-card .dc-count { font-size:12px;color:var(--text-dim); }
+.dl-domain-card .dc-rating { font-size:11px;font-weight:600;padding:2px 6px;border-radius:3px;float:right;margin-top:-2px; }
+.dc-rating.low  { background:#FFE8E8;color:var(--danger); }
+.dc-rating.mid  { background:#FFF3CD;color:#856404; }
+.dc-rating.high { background:#E8F7EE;color:var(--success); }
+
+/* Results */
+.dl-results { max-width:560px;margin:0 auto;padding:60px 24px;text-align:center; }
+.dl-results-score { font-size:64px;font-weight:700;color:var(--blue);line-height:1;margin-bottom:8px; }
+.dl-results-label { font-size:15px;color:var(--text-muted);margin-bottom:32px; }
+.dl-results-breakdown { background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:28px;text-align:left; }
+.dl-review-row { display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-light);font-size:13px; }
+.dl-review-row:last-child { border-bottom:none; }
+.dl-review-q { flex:1;color:var(--text);line-height:1.5; }
+.dl-review-icon { flex-shrink:0;width:20px;text-align:center;font-weight:700; }
+.dl-review-icon.correct { color:var(--success); }
+.dl-review-icon.wrong   { color:var(--danger); }
+@media (max-width:480px) { .dl-domain-grid { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -48,10 +67,10 @@
 <div id="progress-bar-wrap"><div id="progress-bar" style="width:0%"></div></div>
 
 <nav id="top-nav">
-  <div class="nav-logo" style="font-size:13px;font-weight:500;">The<strong>Daniel</strong>Lab <span>Mock Test</span></div>
+  <div class="nav-logo">The<strong>Daniel</strong>Lab <span>Practice</span></div>
   <div id="nav-timer"></div>
   <div class="nav-step" id="nav-label"></div>
-  <button id="btn-exit" style="font-size:11px;opacity:0.45;background:none;border:none;cursor:pointer;color:inherit;padding:0 4px;">Exit</button>
+  <button onclick="goBack()" style="font-size:11px;opacity:0.45;background:none;border:none;cursor:pointer;color:inherit;padding:0 4px;">← Back</button>
 </nav>
 
 <div id="app"></div>
@@ -63,246 +82,253 @@
 const studentId   = sessionStorage.getItem('dl_student_id');
 const studentName = sessionStorage.getItem('dl_student_name');
 if (!studentId) window.location.href = 'daniellab_login.html';
-
-document.getElementById('btn-exit').addEventListener('click', () => {
-  if (confirm('Exit the mock test? Progress will not be saved.'))
-    window.location.href = 'daniellab_student.html';
-});
+function goBack() { window.location.href = 'daniellab_student.html'; }
 
 /* ── Supabase ──────────────────────────────────────────── */
 function getConfig() {
   return {
-    url: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL) || localStorage.getItem('dl_sb_url') || '',
-    key: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_KEY) || localStorage.getItem('dl_sb_key') || '',
+    url:(typeof CONFIG!=='undefined'&&CONFIG.SUPABASE_URL)||localStorage.getItem('dl_sb_url')||'',
+    key:(typeof CONFIG!=='undefined'&&CONFIG.SUPABASE_KEY)||localStorage.getItem('dl_sb_key')||'',
   };
 }
-async function sbPost(path, body) {
-  const { url, key } = getConfig();
-  if (!url || !key) return;
-  await fetch(`${url}/rest/v1/${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json','apikey':key,'Authorization':`Bearer ${key}`,'Prefer':'return=minimal' },
-    body: JSON.stringify(body),
+async function sbPost(path,body) {
+  const {url,key}=getConfig(); if(!url||!key) return;
+  await fetch(`${url}/rest/v1/${path}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':key,'Authorization':`Bearer ${key}`,'Prefer':'return=minimal'},
+    body:JSON.stringify(body),
   });
 }
 
 /* ── KaTeX ─────────────────────────────────────────────── */
-window.katexLoaded = false;
-document.addEventListener('katexReady', () => { window.katexLoaded = true; renderKatex(); });
+window.katexLoaded=false;
+document.addEventListener('katexReady',()=>{ window.katexLoaded=true; renderKatex(); });
 function renderKatex() {
-  if (!window.katexLoaded || typeof renderMathInElement !== 'function') return;
-  renderMathInElement(document.getElementById('app'), {
+  if(!window.katexLoaded||typeof renderMathInElement!=='function') return;
+  renderMathInElement(document.getElementById('app'),{
     delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
     throwOnError:false,
   });
 }
 
-/* ── Timer ─────────────────────────────────────────────── */
+/* ── Domain bank — built from data.js at runtime ──────── */
+// Domain metadata: Vector taxonomy
+const DOMAIN_META = {
+  craft_structure: { name:'Craft & Structure',           section:'Reading & Writing' },
+  info_ideas:      { name:'Information & Ideas',          section:'Reading & Writing' },
+  sec:             { name:'Standard English Conventions', section:'Reading & Writing' },
+  eoi:             { name:'Expression of Ideas',          section:'Reading & Writing' },
+  algebra:         { name:'Algebra',                      section:'Math' },
+  advanced_math:   { name:'Advanced Math',                section:'Math' },
+  psda:            { name:'Problem Solving & Data',       section:'Math' },
+  geometry:        { name:'Geometry',                     section:'Math' },
+};
+
+// Group all questions by domain from the real arrays
+function buildQuestionBank() {
+  const bank = {};
+  const allRW   = [...RW1_QUESTIONS, ...RW2_EASY_QUESTIONS, ...RW2_HARD_QUESTIONS];
+  const allMath = [...MATH_QUESTIONS];
+
+  allRW.forEach(q => {
+    const d = q.domain;
+    if (!d) return;
+    if (!bank[d]) bank[d] = [];
+    // Deduplicate by id
+    if (!bank[d].find(x=>x.id===q.id)) bank[d].push(q);
+  });
+  allMath.forEach(q => {
+    const d = q.domain;
+    if (!d) return;
+    if (!bank[d]) bank[d] = [];
+    if (!bank[d].find(x=>x.id===q.id)) bank[d].push(q);
+  });
+  return bank;
+}
+
+/* ── State ─────────────────────────────────────────────── */
 const S = {
-  view:'intro', modulePhase:'intro', qIndex:0,
-  rw1Responses:{}, rw1Score:null,
-  moduleType:null,
-  rw2Responses:{}, rw2Score:null,
-  mathResponses:{}, mathScore:null, mathTimeAtEnd:null,
-  timerRemaining:0, timerInterval:null,
-  sessionId: crypto.randomUUID(),
+  view:'picker',
+  domain:null,
+  questions:[],
+  qIndex:0,
+  responses:{},
   responseTimes:{},       // { questionId: seconds }
+  studentRatings:{},
+  sessionId: crypto.randomUUID(),
 };
 
 let questionStartTime = null;
-function recordQuestionStart() { questionStartTime = Date.now(); }
-function recordQuestionEnd(qId) {
+
+function recordQuestionStart() {
+  questionStartTime = Date.now();
+}
+function recordQuestionEnd(questionId) {
   if (!questionStartTime) return;
-  S.responseTimes[qId] = Math.round((Date.now() - questionStartTime) / 1000);
+  S.responseTimes[questionId] = Math.round((Date.now() - questionStartTime) / 1000);
   questionStartTime = null;
 }
 
-function startTimer(seconds) {
-  stopTimer();
-  S.timerRemaining = seconds;
-  document.getElementById('nav-timer').classList.add('active');
-  updateTimerDisplay();
-  S.timerInterval = setInterval(() => {
-    S.timerRemaining = Math.max(0, S.timerRemaining - 1);
-    updateTimerDisplay();
-    if (S.timerRemaining === 0) { stopTimer(); autoSubmit(); }
-  }, 1000);
-}
-function stopTimer() {
-  if (S.timerInterval) { clearInterval(S.timerInterval); S.timerInterval = null; }
-  const el = document.getElementById('nav-timer');
-  if (el) el.classList.remove('active','warn','critical');
-}
-function fmt(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
-function updateTimerDisplay() {
-  const nav = document.getElementById('nav-timer');
-  if (!nav) return;
-  nav.textContent = fmt(S.timerRemaining);
-  nav.classList.toggle('warn',     S.timerRemaining<=300 && S.timerRemaining>60);
-  nav.classList.toggle('critical', S.timerRemaining<=60);
-}
-function autoSubmit() {
-  if      (S.view==='rw1')  submitModule('rw1');
-  else if (S.view==='rw2')  submitModule('rw2');
-  else if (S.view==='math') { S.mathTimeAtEnd=0; submitModule('math'); }
-}
+let QUESTION_BANK = {};
 
-/* ── Question helpers ──────────────────────────────────── */
-const MODULE_CFG = {
-  rw1:  { sub:'Module 1 of 2',             title:'Reading & Writing', q:20, min:25, desc:'Read each passage and answer the question. You may navigate back within this module.' },
-  rw2e: { sub:'Module 2 of 2 — Standard',  title:'Reading & Writing', q:20, min:25, desc:'Continue with the same format. You may not return to Module 1.' },
-  rw2h: { sub:'Module 2 of 2 — Advanced',  title:'Reading & Writing', q:20, min:25, desc:'Continue with the same format. You may not return to Module 1.' },
-  math: { sub:'Final Module',              title:'Math',              q:18, min:22, desc:'Some questions require a typed answer. A calculator is available for all questions.' },
-};
+/* ── Init ──────────────────────────────────────────────── */
+async function init() {
+  QUESTION_BANK = buildQuestionBank();
 
-function getQuestions() {
-  if (S.view==='rw1')  return RW1_QUESTIONS;
-  if (S.view==='rw2')  return S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
-  if (S.view==='math') return MATH_QUESTIONS;
-  return [];
+  const {url,key}=getConfig();
+  if (url&&key) {
+    try {
+      const res=await fetch(`${url}/rest/v1/students?id=eq.${studentId}&select=math_ratings,ebrw_ratings`,{
+        headers:{'apikey':key,'Authorization':`Bearer ${key}`}
+      });
+      const data=await res.json();
+      if (data&&data[0]) S.studentRatings={...data[0].math_ratings,...data[0].ebrw_ratings};
+    } catch {}
+  }
+  render();
 }
-function getResponses() {
-  if (S.view==='rw1')  return S.rw1Responses;
-  if (S.view==='rw2')  return S.rw2Responses;
-  if (S.view==='math') return S.mathResponses;
-  return {};
-}
-function setR(id, val) {
-  if      (S.view==='rw1')  S.rw1Responses[id]=val;
-  else if (S.view==='rw2')  S.rw2Responses[id]=val;
-  else if (S.view==='math') S.mathResponses[id]=val;
-}
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 /* ── Render ────────────────────────────────────────────── */
 function render() {
-  updateNav();
-  const app = document.getElementById('app');
-  if      (S.view==='intro')          app.innerHTML = htmlWelcome();
-  else if (S.modulePhase==='intro')   app.innerHTML = htmlModuleIntro();
-  else if (S.view==='done')           app.innerHTML = htmlResults();
-  else                              { app.innerHTML = htmlQuestion(); recordQuestionStart(); }
+  const app=document.getElementById('app');
+  if (S.view==='picker')  app.innerHTML=htmlPicker();
+  if (S.view==='quiz')  { app.innerHTML=htmlQuestion(); recordQuestionStart(); }
+  if (S.view==='results') app.innerHTML=htmlResults();
   bindEvents();
   renderKatex();
   window.scrollTo(0,0);
+  updateNav();
 }
 
 function updateNav() {
-  const bar = document.getElementById('progress-bar');
-  const lbl = document.getElementById('nav-label');
-  if (!bar||!lbl) return;
-  if (S.view==='intro'||S.view==='done') {
-    bar.style.width = S.view==='done' ? '100%' : '0%';
-    lbl.innerHTML = ''; return;
+  const bar=document.getElementById('progress-bar');
+  const lbl=document.getElementById('nav-label');
+  if (S.view==='picker')       { bar.style.width='0%'; lbl.innerHTML=''; }
+  else if (S.view==='quiz')    { bar.style.width=((S.qIndex/S.questions.length)*100)+'%'; lbl.innerHTML=`<strong>${DOMAIN_META[S.domain]?.name||S.domain}</strong> &nbsp;·&nbsp; Q ${S.qIndex+1} / ${S.questions.length}`; }
+  else                          { bar.style.width='100%'; lbl.innerHTML='Results'; }
+}
+
+/* ── Picker ─────────────────────────────────────────────── */
+function htmlPicker() {
+  const rwDomains   = ['craft_structure','info_ideas','sec','eoi'];
+  const mathDomains = ['algebra','advanced_math','psda','geometry'];
+
+  function card(id) {
+    const qs=(QUESTION_BANK[id]||[]).length;
+    if (qs===0) return '';
+    const r=S.studentRatings[id];
+    const rClass=!r?'':r<=2?'low':r<=3?'mid':'high';
+    return `
+    <div class="dl-domain-card" onclick="startDomain('${id}')">
+      ${r?`<div class="dc-rating ${rClass}">${r}/5</div>`:''}
+      <div class="dc-name">${DOMAIN_META[id]?.name||id}</div>
+      <div class="dc-count">${qs} question${qs!==1?'s':''}</div>
+    </div>`;
   }
-  const qs = getQuestions();
-  if (S.modulePhase==='active'&&qs.length) {
-    bar.style.width = ((S.qIndex/qs.length)*100)+'%';
-    const names = { rw1:'Reading & Writing · Module 1', rw2:`Reading & Writing · Module 2 (${S.moduleType||'standard'})`, math:'Math' };
-    lbl.innerHTML = `<strong>${names[S.view]}</strong> &nbsp;·&nbsp; Q ${S.qIndex+1} / ${qs.length}`;
-  } else { bar.style.width='5%'; lbl.innerHTML=''; }
-}
 
-/* ── Screens ───────────────────────────────────────────── */
-function htmlWelcome() {
   return `
-<div class="bb-screen">
-  <div class="bb-intro-card" style="max-width:560px;">
-    <div class="bb-intro-tag">DanielLab · Full Practice Test</div>
-    <div class="bb-title" style="margin-bottom:8px;">Digital SAT</div>
-    <div style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:28px;">
-      This test follows the adaptive Digital SAT format.<br>
-      Plan for approximately <strong>2 hours</strong>. Do not close the browser during the test.
-    </div>
-    <div class="bb-intro-stats">
-      <div><div class="bb-intro-stat-val">3</div><div class="bb-intro-stat-lbl">Modules</div></div>
-      <div class="bb-intro-divider"></div>
-      <div><div class="bb-intro-stat-val">58</div><div class="bb-intro-stat-lbl">Questions</div></div>
-      <div class="bb-intro-divider"></div>
-      <div><div class="bb-intro-stat-val">~2h</div><div class="bb-intro-stat-lbl">Total time</div></div>
-    </div>
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:28px;line-height:1.55;text-align:left;background:var(--bg-surface);border-radius:var(--radius);padding:14px 16px;">
-      <strong>How it adapts:</strong> Your Module 1 score determines which Module 2 you receive — standard or advanced.
-    </div>
-    <button class="bb-btn bb-btn-primary bb-btn-lg bb-btn-full" id="btn-start-test">Begin test →</button>
+<div class="dl-picker">
+  <div class="dl-picker-title">Practice</div>
+  <div class="dl-picker-sub">Questions drawn directly from the test bank. Pick a domain to drill.</div>
+
+  <div class="dl-section-label">Reading &amp; Writing</div>
+  <div class="dl-domain-grid">${rwDomains.map(card).join('')}</div>
+
+  <div class="dl-section-label">Math</div>
+  <div class="dl-domain-grid">${mathDomains.map(card).join('')}</div>
+
+  <div style="margin-top:40px;">
+    <a href="daniellab_mocktest.html" class="bb-btn bb-btn-secondary bb-btn-lg">Take a full mock test →</a>
   </div>
 </div>`;
 }
 
-function htmlModuleIntro() {
-  const c = { rw1:MODULE_CFG.rw1, rw2:S.moduleType==='hard'?MODULE_CFG.rw2h:MODULE_CFG.rw2e, math:MODULE_CFG.math }[S.view];
-  return `
-<div class="bb-screen">
-  <div class="bb-intro-card">
-    <div class="bb-intro-tag">${c.sub}</div>
-    <div class="bb-title" style="margin-bottom:0;">${c.title}</div>
-    <div class="bb-intro-stats">
-      <div><div class="bb-intro-stat-val">${c.q}</div><div class="bb-intro-stat-lbl">Questions</div></div>
-      <div class="bb-intro-divider"></div>
-      <div><div class="bb-intro-stat-val">${c.min}</div><div class="bb-intro-stat-lbl">Minutes</div></div>
-    </div>
-    <div class="bb-intro-desc">${c.desc}</div>
-    <button class="bb-btn bb-btn-primary bb-btn-lg bb-btn-full" id="btn-begin-module">Begin module →</button>
-  </div>
-</div>`;
+/* ── Start domain ───────────────────────────────────────── */
+function startDomain(domainId) {
+  const qs=shuffle([...(QUESTION_BANK[domainId]||[])]);
+  if (!qs.length) return;
+  S.domain=domainId; S.questions=qs; S.qIndex=0; S.responses={}; S.view='quiz';
+  render();
 }
 
+/* ── Question ───────────────────────────────────────────── */
 function htmlQuestion() {
-  const questions = getQuestions();
-  const responses = getResponses();
-  const q = questions[S.qIndex];
+  const q=S.questions[S.qIndex];
+  const tot=S.questions.length;
   if (!q) return '';
 
-  const isMath  = S.view==='math';
-  const resp    = responses[q.id];
-  const isLast  = S.qIndex===questions.length-1;
-  const answered = Object.values(responses).filter(v=>v!==undefined&&v!==null&&v!=='').length;
-  const allDone  = questions.every(qq=>{ const v=responses[qq.id]; return v!==undefined&&v!==null&&v!==''; });
+  const isMath=['algebra','advanced_math','psda','geometry'].includes(S.domain);
+  const resp=S.responses[q.id];
+  const isAnswered=resp!==undefined;
 
-  /* Answer HTML */
-  let answerHtml = '';
+  /* Determine correct answer — MCQ uses q.answer, SPR uses q.sprAnswer */
+  const correctAnswer = q.isSPR ? q.sprAnswer : q.answer;
+
+  let answerHtml='';
   if (q.isSPR) {
-    answerHtml = `
+    answerHtml=`
     <div class="bb-spr-wrap">
       <input class="bb-spr-input" id="spr-input" type="text" autocomplete="off" spellcheck="false"
-        placeholder="Answer" value="${resp!==undefined?esc(String(resp)):''}">
+        placeholder="Answer" value="${resp||''}">
       <div class="bb-spr-hint">Enter a number or expression (e.g. 26π or 26pi)</div>
     </div>`;
   } else if (q.choices) {
-    const letters = ['A','B','C','D'].filter(l=>q.choices[l]);
-    answerHtml = `<div class="bb-choices">
-      ${letters.map(l=>`
-      <button class="bb-choice ${resp===l?'selected':''}" data-letter="${l}">
-        <span class="bb-choice-circle">${l}</span>
-        <span>${q.choices[l]}</span>
-      </button>`).join('')}
+    const letters=['A','B','C','D'].filter(l=>q.choices[l]);
+    answerHtml=`<div class="bb-choices">
+      ${letters.map(l=>{
+        let cls=resp===l?'selected':'';
+        if (isAnswered) {
+          if (l===q.answer) cls='selected';
+          else if (resp===l) cls='wrong';
+        }
+        const circle=isAnswered&&l===q.answer?'✓':isAnswered&&resp===l?'✗':l;
+        return `<button class="bb-choice ${cls}" data-letter="${l}" ${isAnswered?'disabled':''}>
+          <span class="bb-choice-circle">${circle}</span>
+          <span>${q.choices[l]}</span>
+        </button>`;
+      }).join('')}
     </div>`;
   }
 
-  const canNext = q.isSPR
-    ? (resp!==undefined&&resp!==null&&String(resp).trim()!=='')
-    : !!resp;
+  /* Check if SPR answer is correct */
+  let sprCorrect=false;
+  if (q.isSPR&&isAnswered) {
+    const cleaned=(resp||'').toString().trim().toLowerCase().replace(/\s/g,'');
+    const expected=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+    if (q.sprAnswerNum!=null) {
+      const parsed=parseFloat(cleaned);
+      sprCorrect=!isNaN(parsed)&&Math.abs(parsed-q.sprAnswerNum)<0.01;
+    }
+    if (!sprCorrect) sprCorrect=[expected,expected.replace('π','pi'),expected.replace('π','p')].includes(cleaned);
+  }
+  const isCorrect = q.isSPR ? sprCorrect : (resp===q.answer);
 
-  const navHtml = `
-  <div class="bb-q-nav">
+  const explanationHtml = isAnswered&&q.explanation ? `
+    <div style="margin-top:12px;padding:14px 16px;background:${isCorrect?'var(--success-light)':'var(--danger-light)'};border-left:3px solid ${isCorrect?'var(--success)':'var(--danger)'};border-radius:0 var(--radius) var(--radius) 0;font-size:13px;color:var(--text);line-height:1.6;">
+      <strong>${isCorrect?'Correct.':q.isSPR?`Incorrect — answer is ${q.sprAnswer}.`:`Incorrect — answer is ${q.answer}.`}</strong> ${q.explanation||''}
+    </div>` : '';
+
+  const isLast=S.qIndex===S.questions.length-1;
+  const navHtml=`
+  <div class="bb-q-nav" style="margin-top:24px;">
     <button class="bb-btn bb-btn-ghost" id="btn-q-prev" ${S.qIndex===0?'disabled':''}>← Back</button>
-    ${isLast
-      ?`<div style="text-align:right;">
-          <button class="bb-btn bb-btn-primary" id="btn-q-submit">Submit module →</button>
-          ${!allDone?`<div class="bb-submit-note">${answered}/${questions.length} answered</div>`:''}
-        </div>`
-      :`<button class="bb-btn bb-btn-primary" id="btn-q-next" ${!canNext?'disabled':''}>Next →</button>`
+    ${isLast&&isAnswered
+      ?`<button class="bb-btn bb-btn-primary" id="btn-q-finish">See results →</button>`
+      :isAnswered
+        ?`<button class="bb-btn bb-btn-primary" id="btn-q-next">Next →</button>`
+        :q.isSPR
+          ?`<button class="bb-btn bb-btn-primary" id="btn-q-check">Check answer</button>`
+          :''
     }
   </div>`;
 
-  const dots = questions.map((qq,i)=>{
-    const a=responses[qq.id];
-    const cls=i===S.qIndex?'current':(a!==undefined&&a!==null&&a!=='')?'answered':'';
+  const dots=S.questions.map((qq,i)=>{
+    const a=S.responses[qq.id];
+    const cls=i===S.qIndex?'current':a!==undefined?'answered':'';
     return `<div class="bb-dot ${cls}" data-qi="${i}">${i+1}</div>`;
   }).join('');
-  const dotsStrip = `<div class="bb-dots-strip">${dots}</div>`;
+  const dotsStrip=`<div class="bb-dots-strip">${dots}</div>`;
 
-  /* Passage */
   let passageHtml='';
   if (q.dualText) {
     passageHtml=`<div class="bb-panel-tag">Texts</div>
@@ -325,30 +351,21 @@ function htmlQuestion() {
     passageHtml=`<div class="bb-panel-tag">Data</div>${q.table.replace(/class="data-table"/g,'class="bb-data-table"')}`;
   }
 
-  const typeLabel = (q.type||'').replace(/_/g,' ');
-  const stem = q.question||q.text||'';
-  const calcBtn = isMath
-    ? `<button class="bb-btn bb-btn-ghost" onclick="toggleCalc()" style="font-size:12px;padding:6px 12px;margin-left:auto;">🖩 Calculator</button>`
-    : '';
+  const typeLabel=(q.type||'').replace(/_/g,' ');
+  const stem=q.question||q.text||'';
 
   if (isMath||!passageHtml) {
     return `
 <div class="bb-math-layout">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">${dotsStrip}${calcBtn}</div>
+  ${dotsStrip}
   <div class="bb-math-stem">
     <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Q${q.num} · ${typeLabel}</div>
     ${passageHtml?`<div style="margin-bottom:16px;">${passageHtml}</div>`:''}
     <div class="${q.katex?'katex-content':''}" style="font-size:15px;line-height:1.75;">${stem}</div>
   </div>
   <div class="${q.katex?'katex-content':''}">${answerHtml}</div>
+  ${explanationHtml}
   ${navHtml}
-</div>
-<div id="calc-panel" class="bb-calc-panel" style="display:none;flex-direction:column;">
-  <div class="bb-calc-header">
-    <span>Calculator</span>
-    <button onclick="toggleCalc()" style="background:none;border:none;cursor:pointer;font-size:18px;color:#fff;line-height:1;">×</button>
-  </div>
-  <iframe src="https://www.desmos.com/scientific" class="bb-calc-iframe" title="Calculator"></iframe>
 </div>`;
   }
 
@@ -358,224 +375,155 @@ function htmlQuestion() {
   <div class="bb-divider-line"></div>
   <div class="bb-right-panel">
     ${dotsStrip}
-    <div class="bb-q-num">Q${q.num} of ${questions.length} <span class="bb-q-type-badge">${typeLabel}</span></div>
+    <div class="bb-q-num">Q${q.num} of ${tot} <span class="bb-q-type-badge">${typeLabel}</span></div>
     <div class="bb-question-stem">${stem}</div>
     ${answerHtml}
+    ${explanationHtml}
     ${navHtml}
   </div>
 </div>`;
 }
 
-function toggleCalc() {
-  const p=document.getElementById('calc-panel');
-  if (p) p.style.display = p.style.display==='none'?'flex':'none';
-}
-
 /* ── Results ───────────────────────────────────────────── */
 function htmlResults() {
-  const rwQs  = S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
-  const rw1Raw= S.rw1Score||0;
-  const rw2Raw= S.rw2Score||0;
-  const rwRaw = rw1Raw+rw2Raw;
-  const rwScaled   = Math.round(200+(rwRaw/40)*600);
-  const mathScaled = Math.round(200+((S.mathScore||0)/18)*600);
-  const total = rwScaled+mathScaled;
+  /* Count correct using proper scoring for SPR */
+  let correct=0;
+  S.questions.forEach(q=>{
+    const r=S.responses[q.id];
+    if (!r) return;
+    if (q.isSPR) {
+      const cleaned=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
+      const expected=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+      if (q.sprAnswerNum!=null) {
+        const parsed=parseFloat(cleaned);
+        if (!isNaN(parsed)&&Math.abs(parsed-q.sprAnswerNum)<0.01) { correct++; return; }
+      }
+      if ([expected,expected.replace('π','pi'),expected.replace('π','p')].includes(cleaned)) correct++;
+    } else {
+      if (r===q.answer) correct++;
+    }
+  });
+  const total=S.questions.length;
+  const pct=Math.round((correct/total)*100);
 
-  /* Domain breakdown using scoring.js */
-  const allRs  = {...S.rw1Responses,...S.rw2Responses,...S.mathResponses};
-  const rwDoms = rwDomainBreakdown(allRs, [...RW1_QUESTIONS,...rwQs]);
-  const mathDoms = mathDomainBreakdown(S.mathResponses);
+  const msg=pct>=80?'Strong work. Keep drilling harder questions in this domain.'
+    :pct>=60?'Solid effort. Review what you missed and look for the pattern.'
+    :'This is the data you need. Work through each explanation before retrying.';
 
-  const domainLabels = {
-    craft_structure:'Craft & Structure', info_ideas:'Information & Ideas',
-    sec:'Standard English', eoi:'Expression of Ideas',
-    algebra:'Algebra', advanced_math:'Advanced Math',
-    psda:'Problem Solving & Data', geometry:'Geometry & Trig',
-  };
-
-  const rwRows = Object.entries(rwDoms)
-    .filter(([,v])=>v.total>0)
-    .map(([k,v])=>`<div class="mt-domain-row"><span>${domainLabels[k]||k}</span><span class="mt-domain-score">${v.correct}/${v.total}</span></div>`)
-    .join('');
-  const mathRows = Object.entries(mathDoms)
-    .filter(([,v])=>v.t>0)
-    .map(([k,v])=>`<div class="mt-domain-row"><span>${domainLabels[k]||k}</span><span class="mt-domain-score">${v.c}/${v.t}</span></div>`)
-    .join('');
+  const reviewRows=S.questions.map(q=>{
+    const r=S.responses[q.id];
+    let ok=false;
+    if (q.isSPR) {
+      const cleaned=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
+      const expected=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+      if (q.sprAnswerNum!=null) { const p=parseFloat(cleaned); ok=!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01; }
+      if (!ok) ok=[expected,expected.replace('π','pi'),expected.replace('π','p')].includes(cleaned);
+    } else { ok=r===q.answer; }
+    return `<div class="dl-review-row">
+      <div class="dl-review-icon ${ok?'correct':'wrong'}">${ok?'✓':'✗'}</div>
+      <div class="dl-review-q">Q${q.num} — ${(q.type||'').replace(/_/g,' ')}
+        ${!ok?`<div style="font-size:12px;color:var(--text-dim);margin-top:2px;">Your answer: ${r||'—'} &nbsp; Correct: ${q.isSPR?q.sprAnswer:q.answer}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
 
   return `
-<div class="mt-results">
-  <div class="mt-score-row">
-    <div class="mt-score-big">${total}</div>
-    <div>
-      <div style="font-size:15px;font-weight:600;color:var(--text);">Estimated Score</div>
-      <div style="font-size:13px;color:var(--text-muted);">Digital SAT scale · Module 2: ${S.moduleType||'—'}</div>
-    </div>
-  </div>
-  <div class="mt-breakdown">
-    <div class="mt-breakdown-card">
-      <div class="label">Reading & Writing</div>
-      <div class="val">${rwScaled}</div>
-      <div class="sub">Raw: ${rwRaw}/40</div>
-    </div>
-    <div class="mt-breakdown-card">
-      <div class="label">Math</div>
-      <div class="val">${mathScaled}</div>
-      <div class="sub">Raw: ${S.mathScore||0}/18</div>
-    </div>
-  </div>
-  <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:28px;">
-    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;">Reading & Writing breakdown</div>
-    ${rwRows}
-    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin:16px 0 12px;">Math breakdown</div>
-    ${mathRows}
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;">
-    <a href="daniellab_student.html" class="bb-btn bb-btn-primary">← Return to portal</a>
-    <a href="daniellab_practice.html" class="bb-btn bb-btn-secondary">Practice weak areas →</a>
+<div class="dl-results">
+  <div class="dl-results-score">${correct}/${total}</div>
+  <div class="dl-results-label">${pct}% · ${DOMAIN_META[S.domain]?.name||S.domain}</div>
+  <p style="font-size:14px;color:var(--text-muted);margin-bottom:28px;line-height:1.6;">${msg}</p>
+  <div class="dl-results-breakdown">${reviewRows}</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <button class="bb-btn bb-btn-primary" onclick="retryDomain()">Try again</button>
+    <button class="bb-btn bb-btn-ghost" onclick="S.view='picker';render()">Pick another domain</button>
+    <a href="daniellab_mocktest.html" class="bb-btn bb-btn-secondary">Full mock test →</a>
   </div>
 </div>`;
 }
 
-/* ── Events ────────────────────────────────────────────── */
+/* ── Events ─────────────────────────────────────────────── */
 function bindEvents() {
-  const on    = (id,ev,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener(ev,fn); };
-  const onAll = (sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,fn));
+  const on    =(id,ev,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener(ev,fn); };
+  const onAll =(sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,fn));
 
-  if (S.view==='intro')        on('btn-start-test','click',()=>{ S.view='rw1';S.modulePhase='intro';render(); });
-  if (S.modulePhase==='intro') on('btn-begin-module','click',handleBeginModule);
-
-  if (S.modulePhase==='active') {
-    const questions=getQuestions();
-    const q=questions[S.qIndex];
+  if (S.view==='quiz') {
+    const q=S.questions[S.qIndex];
     if (!q) return;
 
     if (!q.isSPR) {
-      onAll('.bb-choice','click',e=>{
+      onAll('.bb-choice:not([disabled])','click',e=>{
+        if (S.responses[q.id]) return;
         recordQuestionEnd(q.id);
-        setR(q.id,e.currentTarget.dataset.letter);
+        S.responses[q.id]=e.currentTarget.dataset.letter;
         render();
       });
     }
-
     if (q.isSPR) {
-      const inp=document.getElementById('spr-input');
-      if (inp) {
-        inp.focus();
-        inp.addEventListener('input',()=>{
-          setR(q.id,inp.value);
-          const hasVal=inp.value.trim().length>0;
-          if (S.qIndex===questions.length-1) {
-            const sub=document.getElementById('btn-q-submit');
-            if (sub) sub.disabled=false;
-          } else {
-            const nxt=document.getElementById('btn-q-next');
-            if (nxt) nxt.disabled=!hasVal;
-          }
-        });
-      }
+      on('btn-q-check','click',()=>{
+        const inp=document.getElementById('spr-input');
+        if (!inp||!inp.value.trim()) return;
+        recordQuestionEnd(q.id);
+        S.responses[q.id]=inp.value.trim();
+        render();
+      });
     }
-
     on('btn-q-prev','click',()=>{ if(S.qIndex>0){S.qIndex--;render();} });
-    on('btn-q-next','click',()=>{
-      if (q.isSPR){ const inp=document.getElementById('spr-input'); if(!inp||!inp.value.trim()) return; recordQuestionEnd(q.id); setR(q.id,inp.value.trim()); }
-      else if (!getResponses()[q.id]) return;
-      S.qIndex++; render();
-    });
-    on('btn-q-submit','click',()=>{
-      if (q.isSPR){ const inp=document.getElementById('spr-input'); if(inp){ recordQuestionEnd(q.id); setR(q.id,inp.value.trim()); } }
-      else { recordQuestionEnd(q.id); }
-      const qs=getQuestions(), rs=getResponses();
-      const unanswered=qs.filter(qq=>!rs[qq.id]).length;
-      if (unanswered>0&&!confirm(`${unanswered} unanswered question${unanswered>1?'s':''}. Submit anyway?`)) return;
-      if (S.view==='math') S.mathTimeAtEnd=S.timerRemaining;
-      submitModule(S.view);
-    });
+    on('btn-q-next','click',()=>{ S.qIndex++; render(); });
+    on('btn-q-finish','click',()=>{ saveResults(); S.view='results'; render(); });
     onAll('.bb-dot[data-qi]','click',e=>{ S.qIndex=parseInt(e.currentTarget.dataset.qi,10); render(); });
   }
 }
 
-/* ── Handlers ──────────────────────────────────────────── */
-function handleBeginModule() {
-  S.modulePhase='active'; S.qIndex=0;
-  startTimer({rw1:1500,rw2:1500,math:1320}[S.view]||1500);
-  render();
+/* ── Helpers ─────────────────────────────────────────────── */
+function retryDomain() {
+  S.questions=shuffle([...(QUESTION_BANK[S.domain]||[])]);
+  S.qIndex=0; S.responses={}; S.responseTimes={};
+  S.sessionId=crypto.randomUUID();
+  S.view='quiz'; render();
 }
 
-function submitModule(module) {
-  stopTimer();
-  if (module==='rw1') {
-    S.rw1Score  = scoreRWModule(S.rw1Responses, RW1_QUESTIONS);
-    S.moduleType= S.rw1Score>=14?'hard':'easy';
-    S.view='rw2'; S.modulePhase='intro'; S.qIndex=0; render();
-  } else if (module==='rw2') {
-    const qs=S.moduleType==='hard'?RW2_HARD_QUESTIONS:RW2_EASY_QUESTIONS;
-    S.rw2Score=scoreRWModule(S.rw2Responses,qs);
-    S.view='math'; S.modulePhase='intro'; S.qIndex=0; render();
-  } else if (module==='math') {
-    S.mathScore=scoreMathModule(S.mathResponses,MATH_QUESTIONS);
-    finishTest();
-  }
-}
-
-async function finishTest() {
-  S.view='done'; S.modulePhase='done'; render();
-  const rwQs     = S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
-  const rwRaw    = (S.rw1Score||0)+(S.rw2Score||0);
-  const rwScaled = Math.round(200+(rwRaw/40)*600);
-  const mathScaled=Math.round(200+((S.mathScore||0)/18)*600);
+async function saveResults() {
   const {url,key}=getConfig();
   if (!url||!key) return;
 
-  // Save mock test aggregate
-  await sbPost('mock_tests',{
-    student_id:studentId,
-    rw_score:rwScaled, math_score:mathScaled,
-    total_score:rwScaled+mathScaled,
-    module_type:S.moduleType,
-    rw1_responses:S.rw1Responses,
-    rw2_responses:S.rw2Responses,
-    math_responses:S.mathResponses,
-    time_remaining_math:S.mathTimeAtEnd,
-  });
-
-  // Build per-response rows for all three modules
-  const allModules = [
-    { questions:RW1_QUESTIONS,  responses:S.rw1Responses  },
-    { questions:rwQs,           responses:S.rw2Responses  },
-    { questions:MATH_QUESTIONS, responses:S.mathResponses },
-  ];
-
-  const rows = [];
-  allModules.forEach(({questions, responses}) => {
-    questions.forEach(q => {
-      const r = responses[q.id];
-      let isCorrect = null;
-      if (r) {
-        if (q.isSPR) {
-          const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
-          const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
-          isCorrect=false;
-          if (q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01) isCorrect=true;}
-          if (!isCorrect) isCorrect=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);
-        } else {
-          isCorrect = r===q.answer;
-        }
+  const rows = S.questions.map(q => {
+    const r = S.responses[q.id];
+    let isCorrect = false;
+    if (r) {
+      if (q.isSPR) {
+        const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
+        const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+        if (q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01){isCorrect=true;}}
+        if (!isCorrect) isCorrect=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);
+      } else {
+        isCorrect = r===q.answer;
       }
-      rows.push({
-        student_id:       studentId,
-        session_id:       S.sessionId,
-        session_type:     'mock',
-        question_id:      q.id,
-        domain:           q.domain,
-        question_type:    q.type,
-        student_answer:   r||null,
-        correct_answer:   q.isSPR ? q.sprAnswer : q.answer,
-        is_correct:       isCorrect,
-        time_on_question: S.responseTimes[q.id]||null,
-      });
-    });
+    }
+    return {
+      student_id:       studentId,
+      session_id:       S.sessionId,
+      session_type:     'practice',
+      question_id:      q.id,
+      domain:           q.domain,
+      question_type:    q.type,
+      student_answer:   r||null,
+      correct_answer:   q.isSPR ? q.sprAnswer : q.answer,
+      is_correct:       r ? isCorrect : null,
+      time_on_question: S.responseTimes[q.id]||null,
+    };
   });
 
+  const correct = rows.filter(r=>r.is_correct).length;
+
+  // Save aggregate to practice_results
+  await sbPost('practice_results',{
+    student_id: studentId,
+    domain:     S.domain,
+    score:      correct,
+    total:      S.questions.length,
+  });
+
+  // Save per-response rows
   await fetch(`${url}/rest/v1/responses`,{
     method:'POST',
     headers:{'Content-Type':'application/json','apikey':key,'Authorization':`Bearer ${key}`,'Prefer':'return=minimal'},
@@ -583,7 +531,16 @@ async function finishTest() {
   });
 }
 
-render();
+function shuffle(arr) {
+  for (let i=arr.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+init();
 </script>
+<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi </body>nbsp;·</body>nbsp; Powered by Vector AI</footer>
 </body>
 </html>
