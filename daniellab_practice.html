@@ -334,10 +334,12 @@ function htmlQuestion() {
 
   let passageHtml='';
   if (q.dualText) {
+    const t1 = typeof q.dualText === 'object' ? q.dualText.text1 : q.passage;
+    const t2 = typeof q.dualText === 'object' ? q.dualText.text2 : q.dualText;
     passageHtml=`<div class="bb-panel-tag">Texts</div>
     <div class="bb-dual-wrap">
-      <div class="bb-text-block"><div class="bb-text-label">Text 1</div><div class="bb-passage">${q.dualText.text1}</div></div>
-      <div class="bb-text-block"><div class="bb-text-label">Text 2</div><div class="bb-passage">${q.dualText.text2}</div></div>
+      <div class="bb-text-block"><div class="bb-text-label">Text 1</div><div class="bb-passage">${t1}</div></div>
+      <div class="bb-text-block"><div class="bb-text-label">Text 2</div><div class="bb-passage">${t2}</div></div>
     </div>`;
   } else if (q.notes) {
     passageHtml=`<div class="bb-panel-tag">Notes</div>
