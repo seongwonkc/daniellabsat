@@ -511,13 +511,22 @@ body {
 <section class="page" id="page-progress">
   <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:24px;">Your progress</h2>
 
-  <div style="font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">
-    Score history
+  <!-- Score chart -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:14px;" id="chart-wrap">
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Projected score over time</div>
+    <canvas id="score-chart" height="120"></canvas>
+    <div id="chart-empty" style="display:none;text-align:center;padding:32px 0;color:var(--muted);font-size:.85rem;">No scores recorded yet.</div>
+  </div>
+
+  <div style="font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;margin-top:24px;">
+    Session notes
   </div>
   <div class="progress-timeline" id="progress-timeline" style="margin-bottom:32px;">
     <div class="empty-state">No session notes yet — check back after your first session.</div>
   </div>
 </section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <script>
 /* ============================================================
@@ -872,6 +881,8 @@ function populateOverview(s) {
   const gap   = (s.target_score || 0) - (s.current_score || 0);
   const weeks = s.test_date ? weeksUntil(s.test_date) : '?';
 
+  if (s.target_score) sessionStorage.setItem('dl_student_target', s.target_score);
+
   document.getElementById('ov-current').textContent = s.current_score || '?';
   document.getElementById('ov-target').textContent  = s.target_score  || '?';
   document.getElementById('ov-gap').textContent     = `+${gap} pts`;
@@ -934,6 +945,105 @@ function populateOverview(s) {
 }
 
 /* ============================================================
+   SCORE CHART
+============================================================ */
+let scoreChartInstance = null;
+
+function renderScoreChart(notes) {
+  const scored = notes.filter(n => n.projected_score).reverse(); // oldest first
+  const canvas  = document.getElementById('score-chart');
+  const emptyEl = document.getElementById('chart-empty');
+
+  if (scored.length === 0) {
+    canvas.style.display = 'none';
+    emptyEl.style.display = 'block';
+    return;
+  }
+
+  canvas.style.display = 'block';
+  emptyEl.style.display = 'none';
+
+  const labels = scored.map((n, i) =>
+    n.session_number ? `Session ${n.session_number}` : `#${i + 1}`
+  );
+  const data = scored.map(n => n.projected_score);
+
+  // Get student's target score for reference line
+  const target = parseInt(sessionStorage.getItem('dl_student_target') || '0');
+
+  if (scoreChartInstance) scoreChartInstance.destroy();
+
+  scoreChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Projected score',
+          data,
+          borderColor: '#c8102e',
+          backgroundColor: 'rgba(200,16,46,0.06)',
+          borderWidth: 2,
+          pointBackgroundColor: '#c8102e',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.3,
+        },
+        ...(target ? [{
+          label: 'Target',
+          data: labels.map(() => target),
+          borderColor: '#2a7a4f',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+        }] : []),
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: "'DM Sans', sans-serif", size: 12 },
+            color: '#888',
+            boxWidth: 12,
+          },
+        },
+        tooltip: {
+          backgroundColor: '#fff',
+          borderColor: '#e2e0dc',
+          borderWidth: 1,
+          titleColor: '#111',
+          bodyColor: '#888',
+          titleFont: { family: "'DM Sans', sans-serif", weight: '600' },
+          bodyFont:  { family: "'DM Sans', sans-serif" },
+        },
+      },
+      scales: {
+        y: {
+          min: Math.max(400, Math.min(...data) - 50),
+          max: Math.min(1600, (target || Math.max(...data)) + 80),
+          ticks: {
+            font: { family: "'DM Sans', sans-serif", size: 11 },
+            color: '#888',
+          },
+          grid: { color: '#f0ede9' },
+        },
+        x: {
+          ticks: {
+            font: { family: "'DM Sans', sans-serif", size: 11 },
+            color: '#888',
+          },
+          grid: { display: false },
+        },
+      },
+    },
+  });
+}
+
+/* ============================================================
    PROGRESS TAB — load notes
 ============================================================ */
 async function loadProgress() {
@@ -946,10 +1056,11 @@ async function loadProgress() {
 }
 
 function renderProgressTimeline(notes) {
-  const notesWithScore = notes.filter(n => n.projected_score || n.teacher_feedback);
+  renderScoreChart(notes);
+  const notesWithContent = notes.filter(n => n.projected_score || n.teacher_feedback);
   const el = document.getElementById('progress-timeline');
 
-  if (notesWithScore.length === 0) {
+  if (notesWithContent.length === 0) {
     el.innerHTML = `<div class="empty-state">No session notes yet — check back after your first session.</div>`;
     return;
   }
@@ -961,7 +1072,7 @@ function renderProgressTimeline(notes) {
     return 'flag-neutral';
   };
 
-  el.innerHTML = notesWithScore.map(n => `
+  el.innerHTML = notesWithContent.map(n => `
     <div class="progress-item">
       <div class="progress-dot"></div>
       <div class="progress-body">
