@@ -383,6 +383,41 @@ body {
 ============================ */
 .card-full { grid-column: 1 / -1; }
 
+/* XP + STREAK + ANALYTICS */
+.stat-row { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px; }
+.stat-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;text-align:center; }
+.stat-val { font-family:var(--serif);font-size:2rem;line-height:1;margin-bottom:4px; }
+.stat-label { font-size:0.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted); }
+.level-badge { display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:8px 16px;margin-bottom:14px; }
+.level-name { font-size:0.85rem;font-weight:600; }
+.level-xp { font-size:0.75rem;color:var(--muted); }
+.xp-bar-wrap { flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;min-width:60px; }
+.xp-bar-fill { height:100%;background:var(--accent);border-radius:99px;transition:width 0.5s ease; }
+.focus-callout { background:rgba(200,16,46,0.04);border:1px solid rgba(200,16,46,0.15);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px; }
+.focus-callout .fc-label { font-size:0.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:3px; }
+.focus-callout .fc-domain { font-size:0.95rem;font-weight:600; }
+.focus-callout .fc-stat { font-size:0.78rem;color:var(--muted);margin-top:2px; }
+.focus-callout a { font-family:var(--sans);font-size:0.82rem;font-weight:600;background:var(--accent);color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;white-space:nowrap;flex-shrink:0; }
+.accuracy-section { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:14px; }
+.accuracy-row { display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:0.82rem; }
+.accuracy-row:last-child { margin-bottom:0; }
+.accuracy-name { flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.accuracy-track { width:120px;height:6px;background:var(--border);border-radius:99px;overflow:hidden;flex-shrink:0; }
+.accuracy-fill { height:100%;border-radius:99px;background:var(--accent); }
+.accuracy-fill.mid { background:var(--warn); }
+.accuracy-fill.high { background:var(--good); }
+.accuracy-pct { font-size:0.72rem;font-weight:600;width:36px;text-align:right;color:var(--muted);flex-shrink:0; }
+.session-row { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:0.82rem;gap:8px; }
+.session-row:last-child { border-bottom:none; }
+.session-domain { font-weight:500;flex:1; }
+.session-score { font-weight:600; }
+.session-score.good { color:var(--good); }
+.session-score.ok { color:var(--warn); }
+.session-score.bad { color:var(--accent); }
+.session-date { color:var(--muted);font-size:0.75rem; }
+.streak-val { color:var(--accent); }
+@media (max-width:540px) { .stat-row { grid-template-columns:1fr 1fr; } }
+
 @media (max-width: 540px) {
   .overview-grid { grid-template-columns: 1fr; }
   .topnav { padding: 0 16px; }
@@ -413,7 +448,61 @@ body {
      OVERVIEW
 ========================= -->
 <section class="page active" id="page-overview">
-  <div class="overview-grid">
+  <div style="max-width:760px;margin:0 auto;padding:28px 0 0;">
+
+    <div class="level-badge">
+      <span id="ov-level-name" style="font-size:0.85rem;font-weight:600;">Loading…</span>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="ov-xp-bar" style="width:0%"></div></div>
+      <span class="level-xp" id="ov-xp-label"></span>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-val streak-val" id="ov-streak">—</div><div class="stat-label">Day streak 🔥</div></div>
+      <div class="stat-card"><div class="stat-val" id="ov-total-q">—</div><div class="stat-label">Questions done</div></div>
+      <div class="stat-card"><div class="stat-val" id="ov-accuracy">—</div><div class="stat-label">Overall accuracy</div></div>
+      <div class="stat-card"><div class="stat-val" id="ov-sessions">—</div><div class="stat-label">Sessions</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="card-label">Target</div>
+        <div class="score-display">
+          <span class="score-big" id="ov-current">—</span>
+          <span class="score-arrow">→</span>
+          <span class="score-big" id="ov-target">—</span>
+          <span class="score-gap" id="ov-gap"></span>
+        </div>
+      </div>
+      <div class="weeks-badge"><span class="dot"></span><span id="ov-weeks">— weeks to test date</span></div>
+    </div>
+
+    <div class="focus-callout" id="ov-focus-callout" style="display:none;">
+      <div>
+        <div class="fc-label">Focus area</div>
+        <div class="fc-domain" id="ov-focus-domain">—</div>
+        <div class="fc-stat" id="ov-focus-stat"></div>
+      </div>
+      <a href="daniellab_practice.html">Practice now →</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+      <div class="accuracy-section">
+        <div class="card-label" style="margin-bottom:14px;">Reading & Writing accuracy</div>
+        <div id="ov-rw-accuracy"><div style="color:var(--muted);font-size:.82rem;">Complete sessions to see accuracy.</div></div>
+      </div>
+      <div class="accuracy-section">
+        <div class="card-label" style="margin-bottom:14px;">Math accuracy</div>
+        <div id="ov-math-accuracy"><div style="color:var(--muted);font-size:.82rem;">Complete sessions to see accuracy.</div></div>
+      </div>
+    </div>
+
+    <div class="accuracy-section">
+      <div class="card-label" style="margin-bottom:14px;">Recent sessions</div>
+      <div id="ov-recent-sessions"><div style="color:var(--muted);font-size:.82rem;">No sessions yet.</div></div>
+    </div>
+
+  </div>
+</section>
     <!-- Score card -->
     <div class="card">
       <div class="card-label">Your target</div>
@@ -897,68 +986,128 @@ async function loadStudentData() {
 function populateOverview(s) {
   const gap   = (s.target_score || 0) - (s.current_score || 0);
   const weeks = s.test_date ? weeksUntil(s.test_date) : '?';
-
   if (s.target_score) sessionStorage.setItem('dl_student_target', s.target_score);
-
   document.getElementById('ov-current').textContent = s.current_score || '?';
   document.getElementById('ov-target').textContent  = s.target_score  || '?';
   document.getElementById('ov-gap').textContent     = `+${gap} pts`;
   document.getElementById('ov-weeks').textContent   = `${weeks} weeks to test date`;
-
-  /* Priorities */
-  const priorities = s.priority_domains || [];
-  document.getElementById('ov-priorities').innerHTML = priorities.length
-    ? priorities.map((p, i) => `
-        <div class="priority-row">
-          <div class="priority-num">${i + 1}</div>
-          <div>
-            <div class="priority-name">${p.name}</div>
-            <div class="priority-section">${p.section}</div>
-          </div>
-        </div>
-      `).join('')
-    : '<div style="color:var(--muted);font-size:.82rem;">Ask your teacher to generate your profile.</div>';
-
-  /* Domain bars */
-  const barColor = v => v <= 2 ? '' : v <= 3 ? 'mid' : 'high';
-  const mathDomains = Object.entries(s.math_ratings || {});
-  const ebrwDomains = Object.entries(s.ebrw_ratings || {});
-
-  document.getElementById('ov-math-bars').innerHTML = mathDomains.map(([id, score]) => `
-    <div class="domain-bar-row">
-      <span class="domain-bar-label">${DOMAIN_META[id]?.name || id}</span>
-      <div class="domain-bar-track">
-        <div class="domain-bar-fill ${barColor(score)}" style="width:${score * 20}%"></div>
-      </div>
-      <span style="font-size:.72rem;color:var(--muted);width:12px;text-align:right;">${score}</span>
-    </div>
-  `).join('') || '<div style="color:var(--muted);font-size:.82rem;">—</div>';
-
-  document.getElementById('ov-ebrw-bars').innerHTML = ebrwDomains.map(([id, score]) => `
-    <div class="domain-bar-row">
-      <span class="domain-bar-label">${DOMAIN_META[id]?.name || id}</span>
-      <div class="domain-bar-track">
-        <div class="domain-bar-fill ${barColor(score)}" style="width:${score * 20}%"></div>
-      </div>
-      <span style="font-size:.72rem;color:var(--muted);width:12px;text-align:right;">${score}</span>
-    </div>
-  `).join('') || '<div style="color:var(--muted);font-size:.82rem;">—</div>';
-
-  /* Study habits */
-  const h = s.study_habits || {};
-  document.getElementById('ov-habits').innerHTML = [
-    ['Hours per week', h.hours || '—'],
-    ['Study style',    h.style || '—'],
-    ['Main obstacle',  h.obstacle || '—'],
-  ].map(([k, v]) => `
-    <div class="habit-row">
-      <span class="habit-key">${k}</span>
-      <span class="habit-val">${v}</span>
-    </div>
-  `).join('');
-
-  /* Also build domain picker using student's actual ratings */
   buildDomainPicker(s.math_ratings || {}, s.ebrw_ratings || {});
+}
+
+/* ANALYTICS */
+const DOMAIN_NAMES = {
+  craft_structure:'Craft & Structure', info_ideas:'Information & Ideas',
+  sec:'Standard English', eoi:'Expression of Ideas',
+  algebra:'Algebra', advanced_math:'Advanced Math',
+  psda:'Problem Solving & Data', geometry:'Geometry',
+  evidence:'Command of Evidence', vocab:'Words in Context',
+  analysis:'Analysis in Hist/Sci', expression:'Expression of Ideas',
+  grammar:'Standard English', data:'Problem Solving & Data',
+  passport:'Advanced Math', additional:'Additional Topics', calc:'Calc Strategy',
+};
+const RW_DOMAINS   = ['craft_structure','info_ideas','sec','eoi','evidence','vocab','analysis','expression','grammar'];
+const MATH_DOMAINS = ['algebra','advanced_math','psda','geometry','data','passport','additional','calc'];
+const LEVELS = [
+  { name:'🌱 Beginner',   min:0    },
+  { name:'📖 Developing', min:100  },
+  { name:'⚡ Practicing', min:300  },
+  { name:'🎯 Proficient', min:600  },
+  { name:'🔥 Advanced',   min:1000 },
+  { name:'🏆 Expert',     min:1500 },
+];
+function getLevel(xp) { return [...LEVELS].reverse().find(l => xp >= l.min) || LEVELS[0]; }
+
+function getStreak() {
+  const key = `dl_streak_${studentId}`;
+  const today = new Date().toDateString();
+  const raw = localStorage.getItem(key);
+  if (!raw) return 0;
+  const { days, last } = JSON.parse(raw);
+  if (last === today) return days;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  return last === yesterday ? days : 0;
+}
+function updateStreak() {
+  const key = `dl_streak_${studentId}`;
+  const today = new Date().toDateString();
+  const raw = localStorage.getItem(key);
+  if (!raw) { localStorage.setItem(key, JSON.stringify({ days:1, last:today })); return; }
+  const { days, last } = JSON.parse(raw);
+  if (last === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  localStorage.setItem(key, JSON.stringify({ days: last===yesterday ? days+1 : 1, last: today }));
+}
+
+async function loadAnalytics() {
+  try {
+    const [responses, sessions] = await Promise.all([
+      sbFetch(`responses?student_id=eq.${studentId}&select=domain,is_correct&limit=500`),
+      sbFetch(`practice_results?student_id=eq.${studentId}&select=*&order=created_at.desc&limit=20`),
+    ]);
+    const resp = responses || [];
+    const sess = sessions  || [];
+
+    const xp = resp.reduce((acc, r) => acc + 1 + (r.is_correct ? 1 : 0), 0);
+    const level = getLevel(xp);
+    const nextLevel = LEVELS[LEVELS.indexOf(level) + 1];
+    const xpPct = nextLevel ? Math.min(100, Math.round(((xp - level.min) / (nextLevel.min - level.min)) * 100)) : 100;
+
+    document.getElementById('ov-level-name').textContent = level.name;
+    document.getElementById('ov-xp-bar').style.width = xpPct + '%';
+    document.getElementById('ov-xp-label').textContent = nextLevel ? `${xp} / ${nextLevel.min} XP` : `${xp} XP`;
+
+    const totalCorrect = resp.filter(r => r.is_correct).length;
+    document.getElementById('ov-streak').textContent   = getStreak() || '0';
+    document.getElementById('ov-total-q').textContent  = resp.length;
+    document.getElementById('ov-accuracy').textContent = resp.length ? `${Math.round((totalCorrect/resp.length)*100)}%` : '—';
+    document.getElementById('ov-sessions').textContent = sess.length;
+
+    const domainStats = {};
+    resp.forEach(r => {
+      if (!r.domain) return;
+      if (!domainStats[r.domain]) domainStats[r.domain] = { correct:0, total:0 };
+      domainStats[r.domain].total++;
+      if (r.is_correct) domainStats[r.domain].correct++;
+    });
+
+    function barColor(pct) { return pct >= 70 ? 'high' : pct >= 50 ? 'mid' : ''; }
+    function renderBars(domains, id) {
+      const el = document.getElementById(id);
+      const rows = domains.filter(d => domainStats[d]?.total > 0);
+      if (!rows.length) { el.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">Complete sessions to see accuracy.</div>'; return; }
+      el.innerHTML = rows.map(d => {
+        const s = domainStats[d];
+        const pct = Math.round((s.correct/s.total)*100);
+        return `<div class="accuracy-row">
+          <span class="accuracy-name">${DOMAIN_NAMES[d]||d}</span>
+          <div class="accuracy-track"><div class="accuracy-fill ${barColor(pct)}" style="width:${pct}%"></div></div>
+          <span class="accuracy-pct">${pct}%</span>
+        </div>`;
+      }).join('');
+    }
+    renderBars(RW_DOMAINS,   'ov-rw-accuracy');
+    renderBars(MATH_DOMAINS, 'ov-math-accuracy');
+
+    const weakest = Object.entries(domainStats).filter(([,s])=>s.total>=5).sort(([,a],[,b])=>(a.correct/a.total)-(b.correct/b.total))[0];
+    if (weakest) {
+      const [id, s] = weakest;
+      document.getElementById('ov-focus-domain').textContent = DOMAIN_NAMES[id]||id;
+      document.getElementById('ov-focus-stat').textContent   = `${Math.round((s.correct/s.total)*100)}% accuracy · ${s.total} questions`;
+      document.getElementById('ov-focus-callout').style.display = 'flex';
+    }
+
+    const sessEl = document.getElementById('ov-recent-sessions');
+    if (!sess.length) { sessEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No sessions yet.</div>'; }
+    else sessEl.innerHTML = sess.slice(0,8).map(r => {
+      const pct = Math.round((r.score/r.total)*100);
+      const cls = pct>=70?'good':pct>=50?'ok':'bad';
+      return `<div class="session-row">
+        <span class="session-domain">${DOMAIN_NAMES[r.domain]||r.domain}</span>
+        <span class="session-score ${cls}">${r.score}/${r.total} (${pct}%)</span>
+        <span class="session-date">${r.created_at?r.created_at.slice(0,10):'—'}</span>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('Analytics load failed:', e); }
 }
 
 /* ============================================================
@@ -1324,6 +1473,8 @@ function shuffle(arr) {
 loadStudentData();
 loadProgress();
 loadPracticeHistory();
+updateStreak();
+loadAnalytics();
 </script>
 <footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by Vector AI</footer>
 </body>
