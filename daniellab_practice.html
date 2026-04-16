@@ -393,7 +393,8 @@ function htmlQuestion() {
   const dots=S.questions.map((qq,i)=>{
     const a=S.responses[qq.id];
     const cls=i===S.qIndex?'current':a!==undefined?'answered':'';
-    return `<div class="bb-dot ${cls}" data-qi="${i}">${i+1}</div>`;
+    const isFlagged=S.flags[S.questions[i]?.id]?'flagged':'';
+    return `<div class="bb-dot ${cls} ${isFlagged}" data-qi="${i}">${i+1}</div>`;
   }).join('');
   const flagged = S.flags[q.id];
   const flaggedIndices = S.questions.map((qq,i)=>S.flags[qq.id]?i:-1).filter(i=>i>=0);
