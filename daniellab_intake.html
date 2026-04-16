@@ -678,12 +678,13 @@
   <div class="card" id="step-1">
     <div class="step-label">Step 1 — Student Info</div>
     <h2 class="card-title">Student intake.</h2>
-    <p class="card-subtitle">Internal record — fill in what you have. Student code is auto-generated on submit.</p>
+    <p class="card-subtitle">Internal record — fill in what you have. Student code is the login ID — customize it or leave it auto-generated.</p>
 
     <div class="field-group">
       <div class="field">
         <label for="name">Student Name</label>
-        <input type="text" id="name" placeholder="Full name" />
+        <input type="text" id="name" placeholder="Full name"
+               oninput="suggestCode()" />
       </div>
       <div class="field">
         <label for="grade">Grade</label>
@@ -694,6 +695,17 @@
           <option value="11">11th Grade</option>
           <option value="12">12th Grade</option>
         </select>
+      </div>
+    </div>
+
+    <div class="field-group single">
+      <div class="field">
+        <label for="student-code-input">Student Login ID</label>
+        <input type="text" id="student-code-input"
+               placeholder="e.g. Kim1 or Park3 — auto-fills from name"
+               autocomplete="off"
+               style="font-family:monospace;letter-spacing:.03em;" />
+        <div class="score-note">This is what the student types to log in. Keep it short — no spaces.</div>
       </div>
     </div>
 
@@ -1320,9 +1332,43 @@ function buildNextSteps(name, priorities, h, gap, weeks) {
 }
 
 /* -----------------------------------------------
-   STUDENT CODE GENERATION
+   STUDENT CODE — suggest from name, allow override
 ----------------------------------------------- */
+function suggestCode() {
+  const nameEl = document.getElementById('name');
+  const codeEl = document.getElementById('student-code-input');
+  // Only auto-fill if the teacher hasn't manually typed something
+  if (codeEl.dataset.manuallyEdited === 'true') return;
+  const name = nameEl.value.trim();
+  if (!name) { codeEl.placeholder = 'e.g. Kim1 or Park3 — auto-fills from name'; return; }
+  const parts = name.split(/\s+/);
+  const lastName = parts[parts.length - 1]; // Korean name order: last name first, or just use last word
+  const suggestion = lastName.slice(0, 6) + Math.floor(Math.random() * 9 + 1);
+  codeEl.placeholder = suggestion;
+}
+
+// Mark as manually edited if the teacher types in the field
+document.addEventListener('DOMContentLoaded', () => {
+  const codeEl = document.getElementById('student-code-input');
+  if (codeEl) {
+    codeEl.addEventListener('input', () => {
+      codeEl.dataset.manuallyEdited = codeEl.value.length > 0 ? 'true' : 'false';
+    });
+  }
+  const defaultCohort = localStorage.getItem('dl_cohort_default');
+  if (defaultCohort) {
+    const el = document.getElementById('cohort');
+    if (el && !el.value) el.value = defaultCohort;
+  }
+});
+
 function generateStudentCode() {
+  const codeEl  = document.getElementById('student-code-input');
+  const manual  = codeEl.value.trim().replace(/\s+/g, '');
+  if (manual) return manual;
+  // Fall back to placeholder suggestion or random
+  const ph = codeEl.placeholder;
+  if (ph && ph !== 'e.g. Kim1 or Park3 — auto-fills from name') return ph;
   const year = new Date().getFullYear();
   const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `DL-${year}-${rand}`;
@@ -1404,16 +1450,6 @@ async function saveToSupabase(record) {
   }
 }
 
-/* -----------------------------------------------
-   AUTO-FILL DEFAULT COHORT ON LOAD
------------------------------------------------ */
-window.addEventListener('DOMContentLoaded', () => {
-  const defaultCohort = localStorage.getItem('dl_cohort_default');
-  if (defaultCohort) {
-    const el = document.getElementById('cohort');
-    if (el && !el.value) el.value = defaultCohort;
-  }
-});
 function weeksUntil(dateStr) {
   const now  = new Date();
   const then = new Date(dateStr);
