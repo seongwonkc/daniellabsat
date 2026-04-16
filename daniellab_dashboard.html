@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DanielLab · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:        #f5f4f2;
+  --surface:   #ffffff;
+  --border:    #e2e0dc;
+  --accent:    #c8102e;
+  --accent-dim:#a30d25;
+  --text:      #111111;
+  --muted:     #888888;
+  --good:      #2a7a4f;
+  --warn:      #b45309;
+  --radius:    10px;
+  --serif:     'DM Serif Display', serif;
+  --sans:      'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ============================
+   LAYOUT
+============================ */
+.shell { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0 24px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  font-family: var(--sans);
+  font-size: 1.05rem;
+  font-weight: 400;
+  padding: 0 20px 24px;
+  border-bottom: 1px solid var(--border);
+  line-height: 1;
+}
+.sidebar-logo .bold { color: var(--accent); font-weight: 700; }
+.sidebar-logo .sub  { display: block; font-size: 0.6rem; color: var(--muted); letter-spacing: .06em; margin-top: 3px; }
+
+.sidebar-section {
+  padding: 16px 20px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.cohort-list { padding: 0 8px; }
+.cohort-item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.12s;
+}
+.cohort-item:hover { background: var(--bg); }
+.cohort-item.active { background: rgba(200,16,46,0.06); color: var(--accent); font-weight: 500; }
+.cohort-count { font-size: 0.72rem; color: var(--muted); background: var(--bg); padding: 1px 6px; border-radius: 99px; }
+.cohort-item.active .cohort-count { background: rgba(200,16,46,0.1); color: var(--accent); }
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 16px 20px 0;
+  border-top: 1px solid var(--border);
+}
+.btn-config {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-config:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Main content */
+.main {
+  flex: 1;
+  padding: 32px 32px 80px;
+  overflow-y: auto;
+  max-width: 900px;
+}
+
+/* ============================
+   HEADER ROW
+============================ */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.main-header h1 { font-family: var(--serif); font-size: 1.6rem; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.search-input {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text);
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--muted); }
+
+.btn {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 9px 18px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dim); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+/* ============================
+   STUDENT CARDS GRID
+============================ */
+.student-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.student-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.student-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(200,16,46,0.08); }
+.student-card .sc-code { font-size: 0.7rem; color: var(--muted); font-family: monospace; margin-bottom: 8px; }
+.student-card .sc-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+.student-card .sc-meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; }
+.student-card .sc-score {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.score-arrow { color: var(--muted); }
+.score-gap {
+  font-size: 0.72rem;
+  background: rgba(200,16,46,0.06);
+  color: var(--accent);
+  border: 1px solid rgba(200,16,46,0.15);
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  position: absolute;
+  top: 16px; right: 16px;
+}
+.status-dot.active  { background: var(--good); }
+.status-dot.paused  { background: var(--warn); }
+.status-dot.done    { background: var(--muted); }
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* ============================
+   STUDENT DETAIL PANEL
+============================ */
+.detail-panel {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: fadeUp 0.25s ease both;
+}
+.detail-panel.open { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-header {
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.panel-header-left {}
+.panel-code { font-size: 0.7rem; font-family: monospace; color: var(--muted); margin-bottom: 4px; }
+.panel-name { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 4px; }
+.panel-meta { font-size: 0.8rem; color: var(--muted); }
+.panel-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.panel-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.panel-col { padding: 24px 28px; }
+.panel-col:first-child { border-right: 1px solid var(--border); }
+
+.panel-section-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* Domain bars */
+.domain-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+.domain-bar-label { flex: 1; }
+.domain-bar-track {
+  width: 80px;
+  height: 6px;
+  background: var(--bg);
+  border-radius: 99px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.domain-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+.domain-bar-fill.mid { background: var(--warn); }
+.domain-bar-fill.high { background: var(--good); }
+
+/* Priority list */
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(200,16,46,0.06);
+  border: 1px solid rgba(200,16,46,0.15);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 6px;
+  margin-right: 4px;
+}
+
+/* Parent info */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.info-row:last-child { border-bottom: none; }
+.info-key { color: var(--muted); }
+.info-val { font-weight: 500; text-align: right; }
+
+/* ============================
+   NOTES SECTION
+============================ */
+.notes-section {
+  border-top: 1px solid var(--border);
+  padding: 24px 28px;
+}
+.notes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.notes-header h3 { font-size: 0.9rem; font-weight: 600; }
+
+/* Add note form */
+.note-form {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+.note-form-title { font-size: 0.8rem; font-weight: 600; margin-bottom: 14px; color: var(--muted); }
+.note-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.note-field label { font-size: 0.72rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+.note-field input, .note-field select {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  padding: 7px 10px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+}
+.note-field input:focus, .note-field select:focus { border-color: var(--accent); }
+textarea {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  padding: 8px 10px;
+  width: 100%;
+  outline: none;
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color 0.15s;
+  margin-bottom: 10px;
+}
+textarea:focus { border-color: var(--accent); }
+textarea::placeholder { color: var(--muted); }
+
+/* Note history */
+.note-timeline { display: flex; flex-direction: column; gap: 0; }
+.note-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.note-item:last-child { border-bottom: none; }
+.note-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.note-body { flex: 1; }
+.note-meta { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; }
+.note-text { font-size: 0.85rem; line-height: 1.5; }
+.note-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.note-chip {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.note-chip.score { background: rgba(200,16,46,0.05); border-color: rgba(200,16,46,0.15); color: var(--accent); }
+.note-chip.good  { background: rgba(42,122,79,0.06); border-color: rgba(42,122,79,0.15); color: var(--good); }
+
+.no-notes { font-size: 0.85rem; color: var(--muted); text-align: center; padding: 24px 0; }
+
+/* ============================
+   SETTINGS OVERLAY
+============================ */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+}
+.modal h3 { font-family: var(--serif); font-size: 1.3rem; margin-bottom: 6px; }
+.modal p  { font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.modal .note-field { margin-bottom: 14px; }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 1.2rem; line-height: 1;
+  padding: 4px 8px;
+}
+.modal-close:hover { color: var(--text); }
+
+/* ============================
+   STATUS BADGE
+============================ */
+.status-select {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+
+/* ============================
+   LOAD / ERROR STATES
+============================ */
+.state-msg {
+  padding: 48px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ============================
+   RESPONSIVE
+============================ */
+@media (max-width: 680px) {
+  .sidebar { display: none; }
+  .main { padding: 20px 16px 60px; }
+  .panel-body { grid-template-columns: 1fr; }
+  .panel-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .note-fields { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="settings-overlay" onclick="maybeCloseSettings(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSettings()">✕</button>
+    <h3>Supabase Config</h3>
+    <p>Stored in your browser only — never sent anywhere except your own Supabase instance.</p>
+    <div class="note-field">
+      <label>Project URL</label>
+      <input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" />
+    </div>
+    <div class="note-field">
+      <label>Anon Key</label>
+      <input type="text" id="sb-key" placeholder="eyJhbGci..." />
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="saveSettings()">Save & Reload</button>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      The<span class="bold">Daniel</span>Lab
+      <span class="sub">Seoul · Boston</span>
+    </div>
+    <div class="sidebar-section">Cohorts</div>
+    <div class="cohort-list" id="cohort-list">
+      <div class="cohort-item active" data-cohort="__all__" onclick="filterCohort('__all__', this)">
+        All students <span class="cohort-count" id="count-all">—</span>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <button class="btn-config" onclick="openSettings()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/>
+        </svg>
+        Supabase config
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="main-header">
+      <h1 id="main-title">All students</h1>
+      <div class="header-actions">
+        <input class="search-input" type="text" id="search" placeholder="Search name or code…" oninput="renderStudents()" />
+        <a href="daniellab_intake.html" class="btn btn-primary btn-sm">+ New intake</a>
+      </div>
+    </div>
+
+    <!-- STUDENT GRID -->
+    <div class="student-grid" id="student-grid">
+      <div class="state-msg" id="grid-state">Loading students…</div>
+    </div>
+
+    <!-- STUDENT DETAIL PANEL -->
+    <div class="detail-panel" id="detail-panel"></div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
+function getConfig() {
+  return {
+    url: localStorage.getItem('dl_sb_url') || '',
+    key: localStorage.getItem('dl_sb_key') || '',
+  };
+}
+function openSettings() {
+  const cfg = getConfig();
+  document.getElementById('sb-url').value = cfg.url;
+  document.getElementById('sb-key').value = cfg.key;
+  document.getElementById('settings-overlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+function maybeCloseSettings(e) {
+  if (e.target === document.getElementById('settings-overlay')) closeSettings();
+}
+function saveSettings() {
+  localStorage.setItem('dl_sb_url', document.getElementById('sb-url').value.trim());
+  localStorage.setItem('dl_sb_key', document.getElementById('sb-key').value.trim());
+  location.reload();
+}
+
+/* ============================================================
+   STATE
+============================================================ */
+let allStudents    = [];
+let currentCohort  = '__all__';
+let currentStudent = null;
+
+/* ============================================================
+   SUPABASE HELPERS
+============================================================ */
+async function sbFetch(path, opts = {}) {
+  const { url, key } = getConfig();
+  if (!url || !key) throw new Error('Not configured');
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    ...opts,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
+      ...opts.headers,
+    },
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.message || res.status);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function loadStudents() {
+  try {
+    const data = await sbFetch('students?select=*&order=intake_date.desc');
+    allStudents = data || [];
+    buildCohortList();
+    renderStudents();
+  } catch (e) {
+    document.getElementById('grid-state').textContent =
+      e.message === 'Not configured'
+        ? 'Supabase not configured. Click "Supabase config" in the sidebar.'
+        : `Error: ${e.message}`;
+  }
+}
+
+async function loadNotes(studentId) {
+  return sbFetch(`notes?student_id=eq.${studentId}&select=*&order=created_at.desc`);
+}
+
+async function saveNote(note) {
+  return sbFetch('notes', {
+    method: 'POST',
+    headers: { 'Prefer': 'return=representation' },
+    body: JSON.stringify(note),
+  });
+}
+
+async function updateStatus(studentId, status) {
+  return sbFetch(`students?id=eq.${studentId}`, {
+    method: 'PATCH',
+    headers: { 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ status }),
+  });
+}
+
+/* ============================================================
+   COHORT SIDEBAR
+============================================================ */
+function buildCohortList() {
+  const cohorts = [...new Set(allStudents.map(s => s.cohort).filter(Boolean))].sort();
+  const list = document.getElementById('cohort-list');
+
+  // Reset to just "All"
+  list.innerHTML = `
+    <div class="cohort-item ${currentCohort === '__all__' ? 'active' : ''}"
+         data-cohort="__all__" onclick="filterCohort('__all__', this)">
+      All students
+      <span class="cohort-count" id="count-all">${allStudents.length}</span>
+    </div>
+  `;
+
+  cohorts.forEach(cohort => {
+    const count = allStudents.filter(s => s.cohort === cohort).length;
+    const div = document.createElement('div');
+    div.className = `cohort-item ${currentCohort === cohort ? 'active' : ''}`;
+    div.dataset.cohort = cohort;
+    div.onclick = () => filterCohort(cohort, div);
+    div.innerHTML = `${cohort} <span class="cohort-count">${count}</span>`;
+    list.appendChild(div);
+  });
+}
+
+function filterCohort(cohort, el) {
+  currentCohort = cohort;
+  document.querySelectorAll('.cohort-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('main-title').textContent = cohort === '__all__' ? 'All students' : cohort;
+  document.getElementById('detail-panel').classList.remove('open');
+  renderStudents();
+}
+
+/* ============================================================
+   STUDENT GRID
+============================================================ */
+function renderStudents() {
+  const query = document.getElementById('search').value.trim().toLowerCase();
+  let filtered = currentCohort === '__all__'
+    ? allStudents
+    : allStudents.filter(s => s.cohort === currentCohort);
+
+  if (query) {
+    filtered = filtered.filter(s =>
+      (s.name || '').toLowerCase().includes(query) ||
+      (s.student_code || '').toLowerCase().includes(query) ||
+      (s.school_name || '').toLowerCase().includes(query)
+    );
+  }
+
+  const grid = document.getElementById('student-grid');
+  document.getElementById('grid-state')?.remove();
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state">No students found.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(s => {
+    const gap = s.target_score && s.current_score
+      ? `+${s.target_score - s.current_score}`
+      : s.target_score ? `→ ${s.target_score}` : '—';
+    return `
+      <div class="student-card" onclick="openStudent('${s.id}')">
+        <div class="status-dot ${s.status || 'active'}"></div>
+        <div class="sc-code">${s.student_code || '—'}</div>
+        <div class="sc-name">${s.name || 'Unnamed'}</div>
+        <div class="sc-meta">Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'}</div>
+        <div class="sc-score">
+          ${s.current_score || '?'} <span class="score-arrow">→</span> ${s.target_score || '?'}
+          <span class="score-gap">${gap} pts</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ============================================================
+   STUDENT DETAIL PANEL
+============================================================ */
+async function openStudent(id) {
+  const s = allStudents.find(x => x.id === id);
+  if (!s) return;
+  currentStudent = s;
+
+  const panel = document.getElementById('detail-panel');
+  panel.classList.remove('open');
+  panel.innerHTML = '<div class="state-msg">Loading…</div>';
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  let notes = [];
+  try { notes = await loadNotes(id) || []; } catch {}
+
+  renderPanel(s, notes);
+}
+
+function renderPanel(s, notes) {
+  const mathDomains  = s.math_ratings  ? Object.entries(s.math_ratings)  : [];
+  const ebrwDomains  = s.ebrw_ratings  ? Object.entries(s.ebrw_ratings)  : [];
+  const priorities   = s.priority_domains || [];
+  const weeksLeft    = s.test_date ? weeksUntil(s.test_date) : '?';
+  const gap          = (s.target_score || 0) - (s.current_score || 0);
+
+  const domainLabels = {
+    algebra:'Heart of Algebra', data:'Problem Solving & Data', passport:'Passport to Adv. Math',
+    additional:'Additional Topics', calc:'Calculator Strategy',
+    evidence:'Command of Evidence', vocab:'Words in Context', analysis:'Analysis in Hist./Sci.',
+    expression:'Expression of Ideas', grammar:'Standard English',
+  };
+
+  const barColor = v => v <= 2 ? '' : v <= 3 ? 'mid' : 'high';
+
+  document.getElementById('detail-panel').innerHTML = `
+    <!-- HEADER -->
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="panel-code">${s.student_code || '—'}</div>
+        <div class="panel-name">${s.name || 'Unnamed'}</div>
+        <div class="panel-meta">
+          Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'} ·
+          ${s.current_score || '?'} → ${s.target_score || '?'} (${gap > 0 ? '+' : ''}${gap} pts) ·
+          ${weeksLeft} weeks left
+        </div>
+      </div>
+      <div class="panel-actions">
+        <select class="status-select" onchange="changeStatus('${s.id}', this.value)">
+          <option value="active"  ${(s.status||'active') === 'active'  ? 'selected' : ''}>Active</option>
+          <option value="paused"  ${(s.status||'') === 'paused'  ? 'selected' : ''}>Paused</option>
+          <option value="done"    ${(s.status||'') === 'done'    ? 'selected' : ''}>Done</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('detail-panel').classList.remove('open')">Close</button>
+      </div>
+    </div>
+
+    <!-- BODY: domains + parent info -->
+    <div class="panel-body">
+      <div class="panel-col">
+        <div class="panel-section-label">Priority focus</div>
+        <div style="margin-bottom:18px;">
+          ${priorities.length
+            ? priorities.map((p,i) => `<div class="priority-badge">${i+1} · ${p.name}</div>`).join('')
+            : '<span style="color:var(--muted);font-size:.82rem;">Not generated yet</span>'}
+        </div>
+
+        <div class="panel-section-label">Math domains</div>
+        ${mathDomains.map(([id, score]) => `
+          <div class="domain-bar-row">
+            <span class="domain-bar-label">${domainLabels[id] || id}</span>
+            <div class="domain-bar-track">
+              <div class="domain-bar-fill ${barColor(score)}" style="width:${score * 20}%"></div>
+            </div>
+            <span style="font-size:.75rem;color:var(--muted);width:12px;text-align:right;">${score}</span>
+          </div>
+        `).join('')}
+
+        <div class="panel-section-label" style="margin-top:16px;">Reading & Writing</div>
+        ${ebrwDomains.map(([id, score]) => `
+          <div class="domain-bar-row">
+            <span class="domain-bar-label">${domainLabels[id] || id}</span>
+            <div class="domain-bar-track">
+              <div class="domain-bar-fill ${barColor(score)}" style="width:${score * 20}%"></div>
+            </div>
+            <span style="font-size:.75rem;color:var(--muted);width:12px;text-align:right;">${score}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="panel-col">
+        <div class="panel-section-label">Student info</div>
+        <div style="margin-bottom:20px;">
+          <div class="info-row"><span class="info-key">Parent</span><span class="info-val">${s.parent_name || '—'}</span></div>
+          <div class="info-row"><span class="info-key">Contact</span><span class="info-val">${s.parent_contact || '—'}</span></div>
+          <div class="info-row"><span class="info-key">School</span><span class="info-val">${s.school_name || '—'}</span></div>
+          <div class="info-row"><span class="info-key">Cohort</span><span class="info-val">${s.cohort || '—'}</span></div>
+          <div class="info-row"><span class="info-key">Test date</span><span class="info-val">${s.test_date || '—'}</span></div>
+          <div class="info-row"><span class="info-key">Intake</span><span class="info-val">${s.intake_date ? s.intake_date.slice(0,10) : '—'}</span></div>
+          <div class="info-row" style="align-items:center;">
+            <span class="info-key">Student PIN</span>
+            <span class="info-val" style="display:flex;align-items:center;gap:8px;">
+              <input type="text" id="pin-input-${s.id}"
+                placeholder="${s.pin ? '••••' : 'not set'}"
+                maxlength="8"
+                style="width:80px;padding:4px 8px;font-size:.82rem;background:var(--bg);border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--text);outline:none;" />
+              <button onclick="setStudentPin('${s.id}')"
+                style="font-family:var(--sans);font-size:.75rem;font-weight:600;padding:4px 10px;background:var(--accent);color:#fff;border:none;border-radius:5px;cursor:pointer;">
+                Set
+              </button>
+            </span>
+          </div>
+        </div>
+
+        <div class="panel-section-label">Study habits</div>
+        ${s.study_habits ? `
+          <div class="info-row"><span class="info-key">Hours/week</span><span class="info-val">${s.study_habits.hours || '—'}</span></div>
+          <div class="info-row"><span class="info-key">Style</span><span class="info-val">${s.study_habits.style || '—'}</span></div>
+          <div class="info-row"><span class="info-key">Obstacle</span><span class="info-val">${s.study_habits.obstacle || '—'}</span></div>
+        ` : '<span style="color:var(--muted);font-size:.82rem;">—</span>'}
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="notes-section">
+      <div class="notes-header">
+        <h3>Session log</h3>
+      </div>
+
+      <!-- Add note form -->
+      <div class="note-form">
+        <div class="note-form-title">Add session note</div>
+        <div class="note-fields">
+          <div class="note-field">
+            <label>Session #</label>
+            <input type="number" id="note-session" placeholder="e.g. 3" min="1" />
+          </div>
+          <div class="note-field">
+            <label>Projected score</label>
+            <input type="number" id="note-projected" placeholder="e.g. 1350" min="400" max="1600" />
+          </div>
+          <div class="note-field">
+            <label>Overall progress</label>
+            <select id="note-progress">
+              <option value="">—</option>
+              <option value="on track">On track</option>
+              <option value="ahead">Ahead</option>
+              <option value="behind">Behind</option>
+              <option value="stalled">Stalled</option>
+            </select>
+          </div>
+        </div>
+        <textarea id="note-feedback" placeholder="Teacher feedback, observations, focus for next session…"></textarea>
+        <textarea id="note-text" placeholder="Additional notes…" style="min-height:48px;"></textarea>
+        <button class="btn btn-primary btn-sm" onclick="submitNote('${s.id}')">Save note</button>
+      </div>
+
+      <!-- Note history -->
+      <div class="note-timeline" id="note-timeline">
+        ${renderNoteTimeline(notes)}
+      </div>
+    </div>
+  `;
+}
+
+function renderNoteTimeline(notes) {
+  if (!notes || notes.length === 0) {
+    return '<div class="no-notes">No session notes yet.</div>';
+  }
+  return notes.map(n => `
+    <div class="note-item">
+      <div class="note-dot"></div>
+      <div class="note-body">
+        <div class="note-meta">
+          ${n.created_at ? n.created_at.slice(0,10) : ''}
+          ${n.session_number ? ` · Session ${n.session_number}` : ''}
+        </div>
+        ${n.teacher_feedback ? `<div class="note-text" style="margin-bottom:4px;">${n.teacher_feedback}</div>` : ''}
+        ${n.note_text        ? `<div class="note-text" style="color:var(--muted);">${n.note_text}</div>` : ''}
+        <div class="note-chips">
+          ${n.projected_score ? `<span class="note-chip score">Projected: ${n.projected_score}</span>` : ''}
+          ${n.progress_flag   ? `<span class="note-chip ${n.progress_flag === 'on track' || n.progress_flag === 'ahead' ? 'good' : ''}">${n.progress_flag}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   SUBMIT NOTE
+============================================================ */
+async function submitNote(studentId) {
+  const session    = parseInt(document.getElementById('note-session').value) || null;
+  const projected  = parseInt(document.getElementById('note-projected').value) || null;
+  const progress   = document.getElementById('note-progress').value || null;
+  const feedback   = document.getElementById('note-feedback').value.trim();
+  const noteText   = document.getElementById('note-text').value.trim();
+
+  if (!feedback && !noteText) return;
+
+  try {
+    const saved = await saveNote({
+      student_id:       studentId,
+      session_number:   session,
+      projected_score:  projected,
+      progress_flag:    progress,
+      teacher_feedback: feedback,
+      note_text:        noteText,
+    });
+
+    // Clear form
+    ['note-session','note-projected','note-feedback','note-text'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('note-progress').value = '';
+
+    // Refresh notes in panel
+    const notes = await loadNotes(studentId);
+    document.getElementById('note-timeline').innerHTML = renderNoteTimeline(notes);
+
+    // If projected score updated, also refresh the student card
+    if (projected) {
+      const s = allStudents.find(x => x.id === studentId);
+      if (s) s.latest_projected = projected;
+    }
+  } catch (e) {
+    alert(`Failed to save note: ${e.message}`);
+  }
+}
+
+/* ============================================================
+   SET PIN
+============================================================ */
+async function setStudentPin(studentId) {
+  const input = document.getElementById(`pin-input-${studentId}`);
+  const pin   = input.value.trim();
+  if (!pin) return;
+  try {
+    await sbFetch(`students?id=eq.${studentId}`, {
+      method: 'PATCH',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ pin }),
+    });
+    const s = allStudents.find(x => x.id === studentId);
+    if (s) s.pin = pin;
+    input.value = '';
+    input.placeholder = '••••  set';
+  } catch (e) {
+    alert(`Failed to set PIN: ${e.message}`);
+  }
+}
+
+/* ============================================================
+   STATUS CHANGE
+============================================================ */
+async function changeStatus(studentId, status) {
+  try {
+    await updateStatus(studentId, status);
+    const s = allStudents.find(x => x.id === studentId);
+    if (s) s.status = status;
+    renderStudents();
+  } catch (e) {
+    alert(`Failed to update status: ${e.message}`);
+  }
+}
+
+/* ============================================================
+   UTILS
+============================================================ */
+function weeksUntil(dateStr) {
+  const now  = new Date();
+  const then = new Date(dateStr);
+  return Math.max(0, Math.floor((then - now) / (1000 * 60 * 60 * 24 * 7)));
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+loadStudents();
+</script>
+</body>
+</html>
