@@ -6,6 +6,7 @@
 <title>DanielLab · Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="config.js"></script>
 <style>
 :root {
   --bg:        #f5f4f2;
@@ -548,8 +549,8 @@ textarea::placeholder { color: var(--muted); }
 ============================================================ */
 function getConfig() {
   return {
-    url: localStorage.getItem('dl_sb_url') || '',
-    key: localStorage.getItem('dl_sb_key') || '',
+    url: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL) || localStorage.getItem('dl_sb_url') || '',
+    key: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_KEY) || localStorage.getItem('dl_sb_key') || '',
   };
 }
 function openSettings() {

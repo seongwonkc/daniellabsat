@@ -6,6 +6,7 @@
 <title>DanielLab · Student Login</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="config.js"></script>
 <style>
 :root {
   --bg:        #f5f4f2;
@@ -174,17 +175,10 @@ input[type="password"] { letter-spacing: 0.2em; font-size: 1.1rem; }
    ⚙ ADMIN: Set these two values before giving this file
    to students. Copy from your Supabase project settings.
 ============================================================ */
-const SUPABASE_URL = '';   // e.g. 'https://xxxx.supabase.co'
-const SUPABASE_KEY = '';   // anon / public key
-
-/* ============================================================
-   Falls back to localStorage if running on admin device
-   during development. Remove this fallback before deploying.
-============================================================ */
 function getConfig() {
   return {
-    url: SUPABASE_URL || localStorage.getItem('dl_sb_url') || '',
-    key: SUPABASE_KEY || localStorage.getItem('dl_sb_key') || '',
+    url: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL) || localStorage.getItem('dl_sb_url') || '',
+    key: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_KEY) || localStorage.getItem('dl_sb_key') || '',
   };
 }
 

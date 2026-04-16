@@ -6,6 +6,7 @@
 <title>DanielLab · My Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="config.js"></script>
 <style>
 :root {
   --bg:        #f5f4f2;
@@ -522,13 +523,10 @@ body {
 /* ============================================================
    ⚙ ADMIN: Set these before deploying to students.
 ============================================================ */
-const SUPABASE_URL = '';
-const SUPABASE_KEY = '';
-
 function getConfig() {
   return {
-    url: SUPABASE_URL || localStorage.getItem('dl_sb_url') || '',
-    key: SUPABASE_KEY || localStorage.getItem('dl_sb_key') || '',
+    url: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL) || localStorage.getItem('dl_sb_url') || '',
+    key: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_KEY) || localStorage.getItem('dl_sb_key') || '',
   };
 }
 
