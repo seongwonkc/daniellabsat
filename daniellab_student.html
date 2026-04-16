@@ -577,7 +577,7 @@ body {
 
   <!-- Score chart -->
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:14px;" id="chart-wrap">
-    <div style="font-size:.68rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Projected score over time</div>
+    <div style="font-size:.68rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Mock test score over time</div>
     <canvas id="score-chart" height="120"></canvas>
     <div id="chart-empty" style="display:none;text-align:center;padding:32px 0;color:var(--muted);font-size:.85rem;">No scores recorded yet.</div>
   </div>
@@ -1073,8 +1073,8 @@ async function loadAnalytics() {
 ============================================================ */
 let scoreChartInstance = null;
 
-function renderScoreChart(notes) {
-  const scored = notes.filter(n => n.projected_score).reverse(); // oldest first
+function renderScoreChart(mockTests) {
+  const scored = [...mockTests].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   const canvas  = document.getElementById('score-chart');
   const emptyEl = document.getElementById('chart-empty');
 
@@ -1088,9 +1088,9 @@ function renderScoreChart(notes) {
   emptyEl.style.display = 'none';
 
   const labels = scored.map((n, i) =>
-    n.session_number ? `Session ${n.session_number}` : `#${i + 1}`
+    n.created_at ? n.created_at.slice(0, 10) : `#${i + 1}`
   );
-  const data = scored.map(n => n.projected_score);
+  const data = scored.map(n => n.total_score);
 
   // Get student's target score for reference line
   const target = parseInt(sessionStorage.getItem('dl_student_target') || '0');
@@ -1103,7 +1103,7 @@ function renderScoreChart(notes) {
       labels,
       datasets: [
         {
-          label: 'Projected score',
+          label: 'Mock test score',
           data,
           borderColor: '#c8102e',
           backgroundColor: 'rgba(200,16,46,0.06)',
@@ -1172,15 +1172,16 @@ function renderScoreChart(notes) {
 ============================================================ */
 async function loadProgress() {
   try {
-    const notes = await sbFetch(
-      `notes?student_id=eq.${studentId}&select=*&order=created_at.desc`
-    );
+    const [mockTests, notes] = await Promise.all([
+      sbFetch(`mock_tests?student_id=eq.${studentId}&select=total_score,created_at&order=created_at.asc`),
+      sbFetch(`notes?student_id=eq.${studentId}&select=*&order=created_at.desc`),
+    ]);
+    renderScoreChart(mockTests || []);
     renderProgressTimeline(notes || []);
   } catch {}
 }
 
 function renderProgressTimeline(notes) {
-  renderScoreChart(notes);
   const notesWithContent = notes.filter(n => n.projected_score || n.teacher_feedback);
   const el = document.getElementById('progress-timeline');
 
