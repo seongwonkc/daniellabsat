@@ -281,6 +281,7 @@ function htmlQuestion() {
 
   const isMath=['algebra','advanced_math','psda','geometry'].includes(S.domain);
   const resp=S.responses[q.id];
+  const sel=S.selected[q.id];
   const isAnswered=resp!==undefined;
 
   /* Determine correct answer — MCQ uses q.answer, SPR uses q.sprAnswer */
