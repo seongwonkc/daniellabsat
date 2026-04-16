@@ -1,6 +1,11 @@
 'use strict';
 
-const RW_ALL = [...DL_CRAFT_STRUCTURE, ...DL_INFO_IDEAS, ...DL_SEC, ...DL_EOI];
+const RW_ALL = [
+  ...DL_CRAFT_STRUCTURE, ...DL_CS2,
+  ...DL_INFO_IDEAS,      ...DL_II2,
+  ...DL_SEC,             ...DL_SEC2, ...DL_SEC3,
+  ...DL_EOI,             ...DL_EOI2, ...DL_EOI3, ...DL_EOI4,
+];
 
 const RW1_QUESTIONS      = _dlShuffle([...RW_ALL]).slice(0, 20);
 const RW2_EASY_QUESTIONS = _dlShuffle([...RW_ALL]).slice(0, 20);
