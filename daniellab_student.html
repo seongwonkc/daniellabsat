@@ -1112,6 +1112,7 @@ function renderScoreChart(mockTests) {
           borderColor:     'rgba(200,16,46,0.9)',
           borderWidth: 0,
           stack: 'score',
+          maxBarThickness: 80,
           order: 2,
         },
         {
@@ -1122,6 +1123,7 @@ function renderScoreChart(mockTests) {
           borderColor:     'rgba(30,90,180,0.85)',
           borderWidth: 0,
           stack: 'score',
+          maxBarThickness: 80,
           order: 2,
         },
         ...(target ? [{
@@ -1169,7 +1171,7 @@ function renderScoreChart(mockTests) {
       scales: {
         y: {
           stacked: true,
-          min: yMin,
+          min: 0,
           max: yMax,
           ticks: { font: { ...font, size: 11 }, color: '#888' },
           grid:  { color: '#f0ede9' },
