@@ -195,8 +195,8 @@ input[type="password"] { letter-spacing: 0.2em; font-size: 1.1rem; }
     <div class="field">
       <label for="code">Student Code</label>
       <input type="text" id="code" placeholder="DL-2025-XXXX"
-             autocomplete="off" autocapitalize="characters"
-             oninput="this.value = this.value.toUpperCase(); checkFirstVisit();"
+             autocomplete="off" autocapitalize="off"
+             oninput="checkFirstVisit();"
              onkeydown="if(event.key==='Enter') document.getElementById('pin').focus()" />
     </div>
 
@@ -279,7 +279,7 @@ function toggleLoginBtn() {
 }
 
 async function attemptLogin() {
-  const code  = document.getElementById('code').value.trim().toUpperCase();
+  const code  = document.getElementById('code').value.trim();
   const pin   = document.getElementById('pin').value.trim();
   const btn   = document.getElementById('login-btn');
   const errEl = document.getElementById('error-msg');
