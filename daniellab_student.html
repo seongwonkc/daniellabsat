@@ -214,63 +214,6 @@ body {
   border-radius: var(--radius);
 }
 
-/* ── Projected score estimate ── */
-.proj-estimate {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px;
-  background: rgba(42,122,79,0.05);
-  border: 1px solid rgba(42,122,79,0.18);
-  border-radius: 8px;
-  margin-top: 10px;
-}
-.proj-estimate-label { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--good); }
-.proj-estimate-val   { font-family: var(--serif); font-size: 1.4rem; color: var(--text); }
-.proj-estimate-sub   { font-size: .72rem; color: var(--muted); }
-
-/* ── Time analysis ── */
-.time-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 7px 0; border-bottom: 1px solid var(--border);
-  font-size: .82rem;
-}
-.time-row:last-child { border-bottom: none; }
-.time-domain { flex: 1; color: var(--text); }
-.time-val    { font-weight: 600; width: 48px; text-align: right; }
-.time-badge  { font-size: .68rem; font-weight: 600; padding: 2px 7px; border-radius: 4px; width: 52px; text-align: center; }
-.time-fast   { background: rgba(42,122,79,0.08);  color: var(--good); }
-.time-ok     { background: rgba(180,83,9,0.08);   color: var(--warn); }
-.time-slow   { background: rgba(200,16,46,0.08);  color: var(--accent); }
-
-/* ── Mistake patterns ── */
-.mistake-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 7px 0; border-bottom: 1px solid var(--border);
-  font-size: .82rem;
-}
-.mistake-row:last-child { border-bottom: none; }
-.mistake-info  { flex: 1; }
-.mistake-domain { font-weight: 600; color: var(--text); }
-.mistake-type   { color: var(--muted); font-size: .75rem; margin-top: 1px; }
-.mistake-count  { font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;
-  background: rgba(200,16,46,0.07); color: var(--accent); }
-
-/* ── Assignments ── */
-.assignment-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 9px 0; border-bottom: 1px solid var(--border);
-}
-.assignment-row:last-child { border-bottom: none; }
-.assignment-check {
-  width: 18px; height: 18px; border-radius: 4px;
-  border: 1.5px solid var(--border); background: var(--surface);
-  cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  transition: all .12s;
-}
-.assignment-check.done { background: var(--good); border-color: var(--good); color: #fff; font-size: 11px; }
-.assignment-domain { flex: 1; font-size: .85rem; font-weight: 500; }
-.assignment-domain.done { text-decoration: line-through; color: var(--muted); }
-.assignment-note { font-size: .75rem; color: var(--muted); }
-
 /* ============================
    PRACTICE PAGE
 ============================ */
@@ -529,23 +472,6 @@ body {
           <span class="score-big" id="ov-target">—</span>
           <span class="score-gap" id="ov-gap"></span>
         </div>
-        <div id="ov-proj-estimate" style="display:none;">
-          <div class="proj-estimate">
-            <div>
-              <div class="proj-estimate-label">Practice estimate</div>
-              <div class="proj-estimate-val" id="ov-proj-total">—</div>
-            </div>
-            <div style="width:1px;height:32px;background:var(--border);"></div>
-            <div>
-              <div class="proj-estimate-sub">RW</div>
-              <div style="font-weight:600;font-size:.9rem;" id="ov-proj-rw">—</div>
-            </div>
-            <div>
-              <div class="proj-estimate-sub">Math</div>
-              <div style="font-weight:600;font-size:.9rem;" id="ov-proj-math">—</div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="weeks-badge"><span class="dot"></span><span id="ov-weeks">— weeks to test date</span></div>
     </div>
@@ -559,12 +485,6 @@ body {
       <a href="daniellab_practice.html">Practice now →</a>
     </div>
 
-    <!-- Assignments -->
-    <div class="accuracy-section" id="ov-assignments-wrap" style="display:none;margin-bottom:14px;">
-      <div class="card-label" style="margin-bottom:14px;">Assigned practice 📋</div>
-      <div id="ov-assignments"></div>
-    </div>
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
       <div class="accuracy-section">
         <div class="card-label" style="margin-bottom:14px;">Reading & Writing accuracy</div>
@@ -573,18 +493,6 @@ body {
       <div class="accuracy-section">
         <div class="card-label" style="margin-bottom:14px;">Math accuracy</div>
         <div id="ov-math-accuracy"><div style="color:var(--muted);font-size:.82rem;">Complete sessions to see accuracy.</div></div>
-      </div>
-    </div>
-
-    <!-- Time analysis + Mistake patterns -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-      <div class="accuracy-section">
-        <div class="card-label" style="margin-bottom:14px;">Avg time per question ⏱</div>
-        <div id="ov-time-analysis"><div style="color:var(--muted);font-size:.82rem;">Complete sessions to see timing.</div></div>
-      </div>
-      <div class="accuracy-section">
-        <div class="card-label" style="margin-bottom:14px;">Most common mistakes</div>
-        <div id="ov-mistakes"><div style="color:var(--muted);font-size:.82rem;">Complete sessions to see patterns.</div></div>
       </div>
     </div>
 
@@ -624,6 +532,7 @@ body {
       </div>
     </a>
   </div>
+  <div id="domain-picker">
     <div style="font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Math</div>
     <div class="domain-grid" id="math-domain-grid"></div>
     <div style="font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Reading & Writing</div>
@@ -1091,29 +1000,27 @@ function updateStreak() {
 async function loadAnalytics() {
   try {
     const [responses, sessions] = await Promise.all([
-      sbFetch(`responses?student_id=eq.${studentId}&select=domain,is_correct,time_on_question,question_type,session_type&limit=1000`),
+      sbFetch(`responses?student_id=eq.${studentId}&select=domain,is_correct&limit=500`),
       sbFetch(`practice_results?student_id=eq.${studentId}&select=*&order=created_at.desc&limit=20`),
     ]);
     const resp = responses || [];
     const sess = sessions  || [];
 
-    // ── XP + Level ──────────────────────────────────────────
     const xp = resp.reduce((acc, r) => acc + 1 + (r.is_correct ? 1 : 0), 0);
     const level = getLevel(xp);
     const nextLevel = LEVELS[LEVELS.indexOf(level) + 1];
     const xpPct = nextLevel ? Math.min(100, Math.round(((xp - level.min) / (nextLevel.min - level.min)) * 100)) : 100;
+
     document.getElementById('ov-level-name').textContent = level.name;
     document.getElementById('ov-xp-bar').style.width = xpPct + '%';
     document.getElementById('ov-xp-label').textContent = nextLevel ? `${xp} / ${nextLevel.min} XP` : `${xp} XP`;
 
-    // ── Stat cards ───────────────────────────────────────────
     const totalCorrect = resp.filter(r => r.is_correct).length;
     document.getElementById('ov-streak').textContent   = getStreak() || '0';
     document.getElementById('ov-total-q').textContent  = resp.length;
     document.getElementById('ov-accuracy').textContent = resp.length ? `${Math.round((totalCorrect/resp.length)*100)}%` : '—';
     document.getElementById('ov-sessions').textContent = sess.length;
 
-    // ── Domain accuracy stats ────────────────────────────────
     const domainStats = {};
     resp.forEach(r => {
       if (!r.domain) return;
@@ -1140,7 +1047,6 @@ async function loadAnalytics() {
     renderBars(RW_DOMAINS,   'ov-rw-accuracy');
     renderBars(MATH_DOMAINS, 'ov-math-accuracy');
 
-    // ── Focus callout ────────────────────────────────────────
     const weakest = Object.entries(domainStats).filter(([,s])=>s.total>=5).sort(([,a],[,b])=>(a.correct/a.total)-(b.correct/b.total))[0];
     if (weakest) {
       const [id, s] = weakest;
@@ -1149,79 +1055,6 @@ async function loadAnalytics() {
       document.getElementById('ov-focus-callout').style.display = 'flex';
     }
 
-    // ── Feature 5: Projected score from practice ─────────────
-    const practiceResp = resp.filter(r => r.session_type === 'practice');
-    function sectionEstimate(domains) {
-      const hits = practiceResp.filter(r => domains.includes(r.domain) && r.is_correct !== null);
-      if (hits.length < 10) return null;
-      const acc = hits.filter(r => r.is_correct).length / hits.length;
-      return Math.round(200 + acc * 600);
-    }
-    const projRW   = sectionEstimate(RW_DOMAINS);
-    const projMath = sectionEstimate(MATH_DOMAINS);
-    if (projRW || projMath) {
-      const projTotal = (projRW || 0) + (projMath || 0);
-      document.getElementById('ov-proj-total').textContent = (projRW && projMath) ? projTotal : '—';
-      document.getElementById('ov-proj-rw').textContent   = projRW   || '—';
-      document.getElementById('ov-proj-math').textContent = projMath || '—';
-      document.getElementById('ov-proj-estimate').style.display = 'block';
-    }
-
-    // ── Feature 1: Time analysis ─────────────────────────────
-    const timeByDomain = {};
-    resp.forEach(r => {
-      if (!r.domain || !r.time_on_question) return;
-      if (!timeByDomain[r.domain]) timeByDomain[r.domain] = { total:0, count:0 };
-      timeByDomain[r.domain].total += r.time_on_question;
-      timeByDomain[r.domain].count++;
-    });
-    const timeEl = document.getElementById('ov-time-analysis');
-    const allDomains = [...RW_DOMAINS, ...MATH_DOMAINS];
-    const timeRows = allDomains.filter(d => timeByDomain[d]?.count >= 3);
-    if (!timeRows.length) {
-      timeEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">Complete sessions to see timing.</div>';
-    } else {
-      const isMath = d => MATH_DOMAINS.includes(d);
-      timeEl.innerHTML = timeRows.map(d => {
-        const avg = Math.round(timeByDomain[d].total / timeByDomain[d].count);
-        const mins = Math.floor(avg/60), secs = String(avg%60).padStart(2,'0');
-        const fast = isMath(d) ? 90  : 60;
-        const slow = isMath(d) ? 150 : 90;
-        const cls  = avg < fast ? 'time-fast' : avg < slow ? 'time-ok' : 'time-slow';
-        const lbl  = avg < fast ? 'Fast' : avg < slow ? 'OK' : 'Slow';
-        return `<div class="time-row">
-          <span class="time-domain">${DOMAIN_NAMES[d]||d}</span>
-          <span class="time-val">${mins}:${secs}</span>
-          <span class="time-badge ${cls}">${lbl}</span>
-        </div>`;
-      }).join('');
-    }
-
-    // ── Feature 3: Mistake patterns ──────────────────────────
-    const mistakeMap = {};
-    resp.filter(r => r.is_correct === false && r.domain && r.question_type).forEach(r => {
-      const key = `${r.domain}||${r.question_type}`;
-      mistakeMap[key] = (mistakeMap[key] || 0) + 1;
-    });
-    const mistakeEl = document.getElementById('ov-mistakes');
-    const topMistakes = Object.entries(mistakeMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    if (!topMistakes.length) {
-      mistakeEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">Complete sessions to see patterns.</div>';
-    } else {
-      mistakeEl.innerHTML = topMistakes.map(([key, count]) => {
-        const [domain, qtype] = key.split('||');
-        const qtypeLabel = (qtype||'').replace(/_/g,' ');
-        return `<div class="mistake-row">
-          <div class="mistake-info">
-            <div class="mistake-domain">${DOMAIN_NAMES[domain]||domain}</div>
-            <div class="mistake-type">${qtypeLabel}</div>
-          </div>
-          <span class="mistake-count">${count}✗</span>
-        </div>`;
-      }).join('');
-    }
-
-    // ── Recent sessions ──────────────────────────────────────
     const sessEl = document.getElementById('ov-recent-sessions');
     if (!sess.length) { sessEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No sessions yet.</div>'; }
     else sessEl.innerHTML = sess.slice(0,8).map(r => {
@@ -1233,7 +1066,6 @@ async function loadAnalytics() {
         <span class="session-date">${r.created_at?r.created_at.slice(0,10):'—'}</span>
       </div>`;
     }).join('');
-
   } catch(e) { console.error('Analytics load failed:', e); }
 }
 
@@ -1595,48 +1427,6 @@ function shuffle(arr) {
 }
 
 /* ============================================================
-   FEATURE 4: ASSIGNMENTS
-============================================================ */
-const DOMAIN_LABELS_ALL = {
-  craft_structure:'Craft & Structure', info_ideas:'Information & Ideas',
-  sec:'Standard English Conventions', eoi:'Expression of Ideas',
-  algebra:'Algebra', advanced_math:'Advanced Math',
-  psda:'Problem Solving & Data', geometry:'Geometry & Trigonometry',
-};
-
-async function loadAssignments() {
-  try {
-    const data = await sbFetch(`assignments?student_id=eq.${studentId}&order=created_at.asc`);
-    const assignments = data || [];
-    const wrap = document.getElementById('ov-assignments-wrap');
-    const el   = document.getElementById('ov-assignments');
-    if (!assignments.length) { wrap.style.display = 'none'; return; }
-    wrap.style.display = 'block';
-    el.innerHTML = assignments.map(a => `
-      <div class="assignment-row" id="asgn-row-${a.id}">
-        <div class="assignment-check ${a.completed?'done':''}" onclick="toggleAssignment('${a.id}', ${a.completed})">
-          ${a.completed ? '✓' : ''}
-        </div>
-        <div style="flex:1;">
-          <div class="assignment-domain ${a.completed?'done':''}">${DOMAIN_LABELS_ALL[a.domain]||a.domain}</div>
-          ${a.note ? `<div class="assignment-note">${a.note}</div>` : ''}
-        </div>
-      </div>`).join('');
-  } catch(e) { console.error('Assignments load failed:', e); }
-}
-
-async function toggleAssignment(id, currentlyDone) {
-  const {url, key} = getConfig();
-  if (!url || !key) return;
-  await fetch(`${url}/rest/v1/assignments?id=eq.${id}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type':'application/json', 'apikey':key, 'Authorization':`Bearer ${key}`, 'Prefer':'return=minimal' },
-    body: JSON.stringify({ completed: !currentlyDone }),
-  });
-  loadAssignments();
-}
-
-/* ============================================================
    INIT
 ============================================================ */
 loadStudentData();
@@ -1644,8 +1434,7 @@ loadProgress();
 loadPracticeHistory();
 updateStreak();
 loadAnalytics();
-loadAssignments();
 </script>
-<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by SENECA AI</footer>
+<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by Vector AI</footer>
 </body>
 </html>
