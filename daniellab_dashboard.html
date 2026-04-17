@@ -1527,7 +1527,7 @@ async function loadCohortView() {
   grid.innerHTML = '<div class="state-msg">Loading…</div>';
   try {
     const [students, mockTests] = await Promise.all([
-      sbFetch('students?select=id,name,cohort,current_score,target_score,test_date,teacher&order=cohort.asc'),
+      sbFetch('students?select=id,name,cohort,current_score,target_score,test_date,teacher_rw_id,teacher_math_id,teacher_ta_id&order=cohort.asc'),
       sbFetch('mock_tests?select=student_id,rw_score,math_score,total_score,created_at&order=created_at.desc'),
     ]);
 
