@@ -1760,14 +1760,17 @@ async function openTeacherPanel(id) {
       .filter(s => s.teacher_rw_id === id || s.teacher_math_id === id || s.teacher_ta_id === id)
       .map(s => s.id);
 
-    const idList = myStudentIds.length ? `(${myStudentIds.map(i=>`"${i}"`).join(',')})` : '("__none__")';
+    const idList = myStudentIds.length
+      ? `(${myStudentIds.join(',')})`
+      : '(00000000-0000-0000-0000-000000000000)';
 
+    const safe = fn => fn.catch(() => []);
     const [ratings, logs, mockTests, notes, assignments] = await Promise.all([
-      sbFetch(`session_ratings?teacher_id=eq.${id}&select=*&order=created_at.desc`),
-      sbFetch(`teacher_logs?teacher_id=eq.${id}&select=*,students(name)&order=created_at.desc`),
-      sbFetch(`mock_tests?student_id=in.${idList}&select=student_id,rw_score,math_score,created_at&order=created_at.asc`),
-      sbFetch(`notes?teacher_id=eq.${id}&select=id,created_at&order=created_at.desc&limit=100`),
-      sbFetch(`assignments?teacher_id=eq.${id}&select=id,completed,created_at&order=created_at.desc&limit=200`),
+      safe(sbFetch(`session_ratings?teacher_id=eq.${id}&select=*&order=created_at.desc`)),
+      safe(sbFetch(`teacher_logs?teacher_id=eq.${id}&select=*&order=created_at.desc`)),
+      safe(sbFetch(`mock_tests?student_id=in.${idList}&select=student_id,rw_score,math_score,created_at&order=created_at.asc`)),
+      safe(sbFetch(`notes?teacher_id=eq.${id}&select=id,created_at&order=created_at.desc&limit=100`)),
+      safe(sbFetch(`assignments?teacher_id=eq.${id}&select=id,completed,created_at&order=created_at.desc&limit=200`)),
     ]);
 
     renderTeacherPanel(t, myStudentIds, ratings||[], logs||[], mockTests||[], notes||[], assignments||[]);
@@ -1882,7 +1885,7 @@ function renderTeacherPanel(t, studentIds, ratings, logs, mockTests, notes, assi
               <span class="log-type-badge ${l.type}">${l.type}</span>
               <div class="log-body">
                 ${l.text}
-                <div class="log-meta">${l.created_at?.slice(0,10)||''}${l.students?.name ? ' · re: '+l.students.name : ''}</div>
+                <div class="log-meta">${l.created_at?.slice(0,10)||''}${l.student_id ? ' · re: '+(allStudents.find(s=>s.id===l.student_id)?.name||'') : ''}</div>
               </div>
             </div>`).join('')}
       </div>
