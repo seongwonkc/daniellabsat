@@ -1,0 +1,643 @@
+[
+  {
+    "id": "alg_e_005",
+    "num": 1,
+    "type": "linear_eq_write",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": false,
+    "context": "A parking garage charges a flat entry fee of $4.00 plus $2.50 for each hour a car is parked. A driver paid $16.50 in total.",
+    "stimulus": null,
+    "table": null,
+    "question": "Which equation represents the number of hours h the driver parked?",
+    "choices": {
+      "A": "2.50h + 4 = 16.50",
+      "B": "4h + 2.50 = 16.50",
+      "C": "2.50h − 4 = 16.50",
+      "D": "6.50h = 16.50"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "Total cost = $2.50 per hour × h hours + $4.00 flat entry fee = 2.50h + 4. Set equal to 16.50. Choice B swaps the hourly rate and the flat fee. Choice C subtracts the flat fee instead of adding it. Choice D combines both dollar amounts into a single per-hour rate."
+  },
+  {
+    "id": "alg_e_006",
+    "num": 2,
+    "type": "linear_func_build",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": false,
+    "context": "A storage tank contains 240 gallons of water. Water drains from the tank at a rate of 12 gallons per minute. The function W(t) gives the volume of water, in gallons, remaining in the tank after t minutes.",
+    "stimulus": null,
+    "table": null,
+    "question": "Which equation defines W(t)?",
+    "choices": {
+      "A": "W(t) = 240 − 12t",
+      "B": "W(t) = 12t − 240",
+      "C": "W(t) = 240 + 12t",
+      "D": "W(t) = 12t"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "Starting volume is 240 gallons, decreasing at 12 gallons per minute, so W(t) = 240 − 12t. Choice B inverts the sign structure (produces negative values immediately for small t). Choice C increases instead of decreasing, reversing the direction of the drain. Choice D ignores the initial volume entirely."
+  },
+  {
+    "id": "alg_e_007",
+    "num": 3,
+    "type": "linear_eq",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": false,
+    "context": "A baker uses 3/4 cup of sugar in each batch of cookies. The baker used 9 cups of sugar in total.",
+    "stimulus": null,
+    "table": null,
+    "question": "How many batches of cookies did the baker make?",
+    "choices": null,
+    "answer": "12",
+    "isSPR": true,
+    "explanation": "Set up the equation: (3/4)n = 9. Solve: n = 9 ÷ (3/4) = 9 × (4/3) = 12. Valid entry: 12."
+  },
+  {
+    "id": "alg_e_008",
+    "num": 4,
+    "type": "linear_func_table",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": false,
+    "context": null,
+    "stimulus": null,
+    "table": "| x | f(x) |\n|---|---|\n| 0 | 5 |\n| 1 | 8 |\n| 2 | 11 |",
+    "question": "For the linear function f, the table shows three values of x and their corresponding values of f(x). Which equation defines f(x)?",
+    "choices": {
+      "A": "f(x) = 3x + 5",
+      "B": "f(x) = 5x + 3",
+      "C": "f(x) = 5x + 8",
+      "D": "f(x) = 8x + 5"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "When x = 0, f(0) = 5, so the y-intercept is 5. The slope is (8 − 5)/(1 − 0) = 3. Equation: f(x) = 3x + 5. Choice B swaps slope and y-intercept. Choice C uses f(1) as the y-intercept and f(0) as the slope. Choice D uses f(1) as the slope."
+  },
+  {
+    "id": "alg_e_009",
+    "num": 5,
+    "type": "linear_func_interp",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": true,
+    "context": "A scientist uses the function P(d) = 200 + 40d to model the number of bacteria in a colony d days after an experiment began.",
+    "stimulus": null,
+    "table": null,
+    "question": "What is the best interpretation of 200 in this context?",
+    "choices": {
+      "A": "The number of bacteria in the colony increases by 200 each day.",
+      "B": "At the start of the experiment, the colony contained 200 bacteria.",
+      "C": "After 200 days, the colony contained 40 bacteria.",
+      "D": "The colony will reach 200 bacteria after 40 days."
+    },
+    "answer": "B",
+    "isSPR": false,
+    "explanation": "200 is the value of P(0), the population when d = 0 (the start of the experiment). Choice A describes 40, the daily rate of increase. Choice C misidentifies 200 as a time input rather than a starting population. Choice D inverts the roles of both constants."
+  },
+  {
+    "id": "alg_e_010",
+    "num": 6,
+    "type": "linear_eq",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": false,
+    "context": "Lena buys a book for $14 and several pens that cost $1.50 each. She spends $23 in total.",
+    "stimulus": null,
+    "table": null,
+    "question": "How many pens did Lena buy?",
+    "choices": null,
+    "answer": "6",
+    "isSPR": true,
+    "explanation": "Equation: 14 + 1.50p = 23. Subtract 14: 1.50p = 9. Divide: p = 6. Valid entry: 6."
+  },
+  {
+    "id": "alg_e_011",
+    "num": 7,
+    "type": "linear_eq_write",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": false,
+    "context": "Carlos earns $18 per hour working part-time. He also received a one-time bonus of $45. His total earnings from one week of work and the bonus were $261.",
+    "stimulus": null,
+    "table": null,
+    "question": "Which equation could be used to find h, the number of hours Carlos worked that week?",
+    "choices": {
+      "A": "18h + 45 = 261",
+      "B": "45h + 18 = 261",
+      "C": "18h − 45 = 261",
+      "D": "18(h + 45) = 261"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "Hourly earnings plus bonus equals total: 18h + 45 = 261. Choice B swaps the hourly wage and the bonus amount. Choice C subtracts the bonus from earnings instead of adding. Choice D treats the bonus as additional hours, incorrectly placing it inside the parenthesis."
+  },
+  {
+    "id": "alg_e_012",
+    "num": 8,
+    "type": "linear_func_build",
+    "domain": "algebra",
+    "difficulty": "easy",
+    "calcAgnostic": false,
+    "context": "A cell phone plan charges a monthly fee of $25 plus $0.10 per text message. The function C(n) gives the total monthly cost, in dollars, for sending n text messages.",
+    "stimulus": null,
+    "table": null,
+    "question": "Which equation defines C(n)?",
+    "choices": {
+      "A": "C(n) = 0.10n + 25",
+      "B": "C(n) = 25n + 0.10",
+      "C": "C(n) = 25.10n",
+      "D": "C(n) = 0.10n − 25"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "Monthly fee $25 plus $0.10 per text gives C(n) = 0.10n + 25. Choice B swaps the per-text rate and the monthly fee. Choice C adds both constants into a single composite rate. Choice D subtracts the monthly fee rather than adding it."
+  },
+  {
+    "id": "alg_m_001",
+    "num": 9,
+    "type": "linear_func_graph",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": null,
+    "stimulus": {
+      "type": "coordinate_plane",
+      "xRange": [-3, 5],
+      "yRange": [-6, 6],
+      "gridLines": true,
+      "axisLabels": { "x": "x", "y": "y" },
+      "elements": [
+        {
+          "kind": "line",
+          "through": [[0, 2], [3, -4]],
+          "label": null,
+          "style": { "strokeColor": "#2d70b3", "strokeWidth": 2 }
+        },
+        {
+          "kind": "point",
+          "coords": [0, 2],
+          "label": "(0, 2)",
+          "style": { "fillColor": "#2d70b3" }
+        },
+        {
+          "kind": "point",
+          "coords": [3, -4],
+          "label": "(3, −4)",
+          "style": { "fillColor": "#2d70b3" }
+        }
+      ]
+    },
+    "table": null,
+    "question": "What is an equation of the line shown?",
+    "choices": {
+      "A": "y = −2x + 2",
+      "B": "y = 2x + 2",
+      "C": "y = −2x − 2",
+      "D": "y = −\\(\\frac{1}{2}\\)x + 2"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "The graph shows a y-intercept of 2. Using labeled points (0, 2) and (3, −4): slope = (−4 − 2)/(3 − 0) = −6/3 = −2. Equation: y = −2x + 2. Choice B has the wrong slope sign (positive instead of negative). Choice C has the wrong sign on the y-intercept. Choice D uses \\(\\Delta x / \\Delta y\\) instead of \\(\\Delta y / \\Delta x\\), giving the reciprocal slope."
+  },
+  {
+    "id": "alg_m_002",
+    "num": 10,
+    "type": "system_linear",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": "4x + y = 22\nx + y = 7",
+    "stimulus": null,
+    "table": null,
+    "question": "The solution to the given system of equations is (x, y). What is the value of y?",
+    "choices": {
+      "A": "2",
+      "B": "5",
+      "C": "−2",
+      "D": "7"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "Subtract the second equation from the first: (4x + y) − (x + y) = 22 − 7 → 3x = 15 → x = 5. Substitute into x + y = 7: y = 2. Choice B is the value of x, not y (wrong variable). Choice C results from a sign error when subtracting equations. Choice D is the constant in the second equation, not the value of y."
+  },
+  {
+    "id": "alg_m_003",
+    "num": 11,
+    "type": "linear_inequality",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": "A theater has 400 total seats. Floor seats cost $35 each and balcony seats cost $20 each. The theater needs to sell tickets worth more than $11,000 for the event to be profitable.",
+    "stimulus": null,
+    "table": null,
+    "question": "If all 400 seats are sold and f represents the number of floor seats sold, which inequality represents the condition for the event to be profitable?",
+    "choices": {
+      "A": "35f + 20(400 − f) > 11000",
+      "B": "35f + 20(400 − f) ≥ 11000",
+      "C": "35f + 20f > 11000",
+      "D": "20f + 35(400 − f) > 11000"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "With f floor seats at $35 and (400 − f) balcony seats at $20, total revenue = 35f + 20(400 − f). 'More than $11,000' is a strict inequality → > 11,000. Choice B uses ≥, which corresponds to 'at least' rather than 'more than.' Choice C applies both ticket prices to the same f seats without accounting for the remaining (400 − f) seats. Choice D swaps the price assigned to floor versus balcony seats."
+  },
+  {
+    "id": "alg_m_004",
+    "num": 12,
+    "type": "system_eval_expression",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": "3x + 4y = 17\n3x − 2y = 5",
+    "stimulus": null,
+    "table": null,
+    "question": "The solution to the given system of equations is (x, y). What is the value of x + y?",
+    "choices": null,
+    "answer": "5",
+    "isSPR": true,
+    "explanation": "Subtract the second equation from the first: (3x + 4y) − (3x − 2y) = 17 − 5 → 6y = 12 → y = 2. Substitute into the second equation: 3x − 4 = 5 → 3x = 9 → x = 3. Then x + y = 3 + 2 = 5. Valid entry: 5."
+  },
+  {
+    "id": "alg_m_005",
+    "num": 13,
+    "type": "linear_func_interp",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": true,
+    "context": "A car rental company uses the function C(m) = 0.22m + 35 to calculate the total rental cost, in dollars, where m is the number of miles driven.",
+    "stimulus": null,
+    "table": null,
+    "question": "What is the best interpretation of 35 in this context?",
+    "choices": {
+      "A": "The rental costs $35 more for each additional mile driven.",
+      "B": "A customer who drives 35 miles pays $0.22.",
+      "C": "The base rental fee, before any miles are driven, is $35.",
+      "D": "The total cost of renting the car for 35 days is $0.22."
+    },
+    "answer": "C",
+    "isSPR": false,
+    "explanation": "35 is the value of C(0), the cost when m = 0, which represents the base fee before any miles are driven. Choice A describes 0.22, the per-mile rate. Choice B inverts the relationship, treating 35 as an input and 0.22 as the output. Choice D confuses miles with days and inverts which number is the rate."
+  },
+  {
+    "id": "alg_m_006",
+    "num": 14,
+    "type": "pct_increase_equation",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": "A store increased the price of a jacket by 20%. After the increase, the jacket costs $84.",
+    "stimulus": null,
+    "table": null,
+    "question": "Which equation can be used to find p, the original price of the jacket in dollars?",
+    "choices": {
+      "A": "p + 0.20p = 84",
+      "B": "p − 0.20p = 84",
+      "C": "p + 20 = 84",
+      "D": "0.20p = 84"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "After a 20% increase, the new price is the original plus 20% of the original: p + 0.20p = 1.20p = 84. Choice B models a 20% decrease. Choice C treats the percentage increase as a flat $20 addition rather than 20% of p. Choice D sets only the increase equal to the final price, omitting the original price p."
+  },
+  {
+    "id": "alg_m_007",
+    "num": 15,
+    "type": "factor_polynomial",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": true,
+    "context": null,
+    "stimulus": null,
+    "table": null,
+    "question": "Which of the following is equivalent to \\(14x^3 - 21x^2\\)?",
+    "choices": {
+      "A": "\\(7x^2(2x - 3)\\)",
+      "B": "\\(7x^2(2x + 3)\\)",
+      "C": "\\(21x^2(x - 1)\\)",
+      "D": "\\(7x(2x - 3)\\)"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "The greatest common factor of \\(14x^3\\) and \\(21x^2\\) is \\(7x^2\\). Dividing: \\(14x^3 \\div 7x^2 = 2x\\) and \\(21x^2 \\div 7x^2 = 3\\). Result: \\(7x^2(2x - 3)\\). Choice B changes subtraction to addition, giving \\(14x^3 + 21x^2\\). Choice C uses 21 as the coefficient GCF instead of 7, yielding \\(21x^3 - 21x^2\\). Choice D factors out only \\(7x\\) instead of \\(7x^2\\), giving \\(14x^2 - 21x\\)."
+  },
+  {
+    "id": "alg_m_008",
+    "num": 16,
+    "type": "system_linear",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": "The sum of two numbers is 23. Three times the larger number minus twice the smaller number equals 39.",
+    "stimulus": null,
+    "table": null,
+    "question": "What is the value of the larger number?",
+    "choices": {
+      "A": "6",
+      "B": "13",
+      "C": "17",
+      "D": "23"
+    },
+    "answer": "C",
+    "isSPR": false,
+    "explanation": "Let x = larger number, y = smaller. System: x + y = 23 and 3x − 2y = 39. Multiply the first equation by 2: 2x + 2y = 46. Add to the second: 5x = 85 → x = 17. Then y = 23 − 17 = 6. Choice A (6) is the value of the smaller number. Choice B (13) results from an arithmetic error in elimination. Choice D (23) is the sum of both numbers, not the larger one."
+  },
+  {
+    "id": "alg_m_009",
+    "num": 17,
+    "type": "piecewise_cost",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": "An internet service provider charges $40 per month for up to 100 gigabytes (GB) of data. For any data used above 100 GB, the provider charges an additional $0.15 per GB over 100.",
+    "stimulus": null,
+    "table": null,
+    "question": "Which function gives the monthly charge C(g), in dollars, for using g gigabytes, where g > 100?",
+    "choices": {
+      "A": "C(g) = 0.15(g − 100) + 40",
+      "B": "C(g) = 0.15g + 40",
+      "C": "C(g) = 0.15g − 100 + 40",
+      "D": "C(g) = 0.15(g + 100) + 40"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "For g > 100, the overage is (g − 100) GB charged at $0.15/GB, plus the base $40 fee: C(g) = 0.15(g − 100) + 40. Choice B applies the $0.15 rate to all g GB rather than just the overage above 100. Choice C subtracts 100 from the constant 40 instead of from g. Choice D adds 100 to g, charging the overage rate on usage plus the threshold instead of usage minus the threshold."
+  },
+  {
+    "id": "alg_m_010",
+    "num": 18,
+    "type": "linear_func_graph",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": null,
+    "stimulus": {
+      "type": "coordinate_plane",
+      "xRange": [-4, 4],
+      "yRange": [-4, 7],
+      "gridLines": true,
+      "axisLabels": { "x": "x", "y": "y" },
+      "elements": [
+        {
+          "kind": "line",
+          "through": [[-2, 5], [1, -1]],
+          "label": null,
+          "style": { "strokeColor": "#2d70b3", "strokeWidth": 2 }
+        },
+        {
+          "kind": "point",
+          "coords": [-2, 5],
+          "label": "(−2, 5)",
+          "style": { "fillColor": "#2d70b3" }
+        },
+        {
+          "kind": "point",
+          "coords": [1, -1],
+          "label": "(1, −1)",
+          "style": { "fillColor": "#2d70b3" }
+        }
+      ]
+    },
+    "table": null,
+    "question": "What is an equation of the line shown?",
+    "choices": {
+      "A": "y = −2x + 1",
+      "B": "y = 2x + 1",
+      "C": "y = −2x − 1",
+      "D": "y = −2x + 5"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "Using labeled points (−2, 5) and (1, −1): slope = (−1 − 5)/(1 − (−2)) = −6/3 = −2. Using point-slope with (1, −1): −1 = −2(1) + b → b = 1. Equation: y = −2x + 1. Choice B has the wrong slope sign. Choice C has the correct slope but a sign error on the y-intercept. Choice D uses the y-coordinate of the labeled point (−2, 5) as the y-intercept instead of computing it correctly."
+  },
+  {
+    "id": "alg_m_011",
+    "num": 19,
+    "type": "linear_inequality",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": "A small business owner has a monthly budget of at most $1,200 for two expenses: advertising and supplies. Each unit of advertising costs $80 and each unit of supplies costs $60.",
+    "stimulus": null,
+    "table": null,
+    "question": "If the owner purchases a units of advertising and s units of supplies, which inequality represents all combinations within the monthly budget?",
+    "choices": {
+      "A": "80a + 60s ≤ 1200",
+      "B": "80a + 60s < 1200",
+      "C": "80a + 60s ≥ 1200",
+      "D": "60a + 80s ≤ 1200"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "Total spending = 80a + 60s, which must be at most $1,200 → ≤ 1,200. Choice B uses strict less than, but 'at most' includes equality. Choice C reverses the direction ('at least' rather than 'at most'). Choice D swaps the per-unit costs for advertising and supplies."
+  },
+  {
+    "id": "alg_m_012",
+    "num": 20,
+    "type": "linear_func_table",
+    "domain": "algebra",
+    "difficulty": "medium",
+    "calcAgnostic": false,
+    "context": null,
+    "stimulus": null,
+    "table": "| x | f(x) |\n|---|---|\n| −2 | 1 |\n| 0 | 7 |\n| 2 | 13 |",
+    "question": "For the linear function f, the table shows three values of x and their corresponding values of f(x). Which equation defines f(x)?",
+    "choices": {
+      "A": "f(x) = 3x + 7",
+      "B": "f(x) = 7x + 3",
+      "C": "f(x) = 3x − 7",
+      "D": "f(x) = 6x + 7"
+    },
+    "answer": "A",
+    "isSPR": false,
+    "explanation": "When x = 0, f(0) = 7, so the y-intercept is 7. Slope = (13 − 7)/(2 − 0) = 3. Equation: f(x) = 3x + 7. Verify: f(−2) = 3(−2) + 7 = 1 ✓. Choice B swaps slope and y-intercept. Choice C has the correct slope but the wrong sign on the y-intercept. Choice D results from computing the slope as (13 − 1)/(2 − (−2)) = 12/2 = 6, an error from dividing the total rise by only half the run."
+  },
+  {
+    "id": "alg_h_001",
+    "num": 21,
+    "type": "sum_of_solutions",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": true,
+    "context": "x(x − 7) = 3(x + 4)",
+    "stimulus": null,
+    "table": null,
+    "question": "What is the sum of the solutions to the given equation?",
+    "choices": null,
+    "answer": "10",
+    "isSPR": true,
+    "explanation": "Expand both sides: x² − 7x = 3x + 12. Rearrange: x² − 10x − 12 = 0. By Vieta's formulas, the sum of the solutions equals −(−10)/1 = 10. (Students who solve by quadratic formula can verify: the two roots add to 10.) Valid entry: 10."
+  },
+  {
+    "id": "alg_h_002",
+    "num": 22,
+    "type": "system_solution_count",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": true,
+    "context": "6x − 2y = 10",
+    "stimulus": null,
+    "table": null,
+    "question": "Which of the following equations, when combined with the given equation to form a system of two linear equations, results in the system having no solution?",
+    "choices": {
+      "A": "y = 3x − 5",
+      "B": "y = 3x + 8",
+      "C": "3x + 2y = 14",
+      "D": "12x − 4y = 20"
+    },
+    "answer": "B",
+    "isSPR": false,
+    "explanation": "Rewrite the given equation: 6x − 2y = 10 → y = 3x − 5 (slope = 3, y-intercept = −5). A system has no solution when both equations define parallel lines: same slope, different y-intercept. Choice A (y = 3x − 5) is the same line → infinitely many solutions. Choice B (y = 3x + 8) has slope 3 and y-intercept 8 ≠ −5 → parallel lines → no solution ✓. Choice C (3x + 2y = 14 → y = 7 − 1.5x) has slope −1.5, producing one unique intersection. Choice D (12x − 4y = 20 → y = 3x − 5) is the same line as the given equation → infinitely many solutions."
+  },
+  {
+    "id": "alg_h_003",
+    "num": 23,
+    "type": "linear_func_constant",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": false,
+    "context": "For a solar panel installation, the function P(t) = (1/k)(t − a) + 220 gives the predicted daily energy output, in kilowatt-hours, where t is the number of days since installation. The panel's predicted output is 220 kilowatt-hours on day 180 and 230 kilowatt-hours on day 280.",
+    "stimulus": null,
+    "table": null,
+    "question": "What is the value of a?",
+    "choices": null,
+    "answer": "180",
+    "isSPR": true,
+    "explanation": "Substitute t = 180, P(180) = 220 into the function: 220 = (1/k)(180 − a) + 220. Subtract 220 from both sides: 0 = (1/k)(180 − a). Since 1/k ≠ 0, it follows that 180 − a = 0, so a = 180. The second data point confirms k = 10: 230 = (1/10)(280 − 180) + 220 = 10 + 220 = 230 ✓. Valid entry: 180."
+  },
+  {
+    "id": "alg_h_004",
+    "num": 24,
+    "type": "sum_of_solutions",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": true,
+    "context": "3(x² − 4) = x(x + 2)",
+    "stimulus": null,
+    "table": null,
+    "question": "What is the sum of the solutions to the given equation?",
+    "choices": {
+      "A": "−2",
+      "B": "1",
+      "C": "3",
+      "D": "−6"
+    },
+    "answer": "B",
+    "isSPR": false,
+    "explanation": "Expand both sides: 3x² − 12 = x² + 2x. Rearrange: 2x² − 2x − 12 = 0 → x² − x − 6 = 0. By Vieta's formulas, sum of solutions = −(−1)/1 = 1. (Factoring confirms: (x − 3)(x + 2) = 0, solutions are 3 and −2, sum = 1 ✓.) Choice A (−2) and Choice C (3) are the individual roots; the question asks for their sum. Choice D (−6) is the constant term c, confusing the sum formula (−b/a) with the product formula (c/a)."
+  },
+  {
+    "id": "alg_h_005",
+    "num": 25,
+    "type": "system_solution_count",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": true,
+    "context": "kx + 4y = 12\n3x + 2y = 6\nIn the given system of equations, k is a constant.",
+    "stimulus": null,
+    "table": null,
+    "question": "For what value of k does the system have infinitely many solutions?",
+    "choices": {
+      "A": "2",
+      "B": "3",
+      "C": "6",
+      "D": "12"
+    },
+    "answer": "C",
+    "isSPR": false,
+    "explanation": "For infinitely many solutions, the two equations must represent the same line (one must be a scalar multiple of the other). Multiply the second equation by 2: 6x + 4y = 12. This matches the first equation exactly when k = 6. Choice A (2) gives 2x + 4y = 12, a different line with one intersection. Choice B (3) gives 3x + 4y = 12, also a different line. Choice D (12) gives 12x + 4y = 12, a different line."
+  },
+  {
+    "id": "alg_h_006",
+    "num": 26,
+    "type": "linear_func_constant",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": false,
+    "context": "For a streaming service, the function R(s) = (1/5)(s − b) + 120 models the monthly revenue, in thousands of dollars, where s is the number of subscribers in thousands. The service earns $120 thousand in monthly revenue when it has 40 thousand subscribers and $160 thousand when it has 240 thousand subscribers.",
+    "stimulus": null,
+    "table": null,
+    "question": "What is the value of b?",
+    "choices": {
+      "A": "5",
+      "B": "40",
+      "C": "120",
+      "D": "160"
+    },
+    "answer": "B",
+    "isSPR": false,
+    "explanation": "Substitute s = 40, R(40) = 120: 120 = (1/5)(40 − b) + 120. Subtract 120: 0 = (1/5)(40 − b). So 40 − b = 0 → b = 40. Choice A (5) is the value of k in the (1/k) factor, not b. Choice C (120) is the value of R when s = b (the constant output term), not the constant b itself. Choice D (160) is the revenue at s = 240, not the value of b."
+  },
+  {
+    "id": "alg_h_007",
+    "num": 27,
+    "type": "piecewise_cost",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": false,
+    "context": "A shipping company charges $8 for each package weighing up to 5 pounds. For packages weighing more than 5 pounds, the company charges $8 plus $1.50 for each pound over 5 pounds.",
+    "stimulus": null,
+    "table": null,
+    "question": "A customer paid $17 to ship a package. What was the weight of the package, in pounds?",
+    "choices": {
+      "A": "6",
+      "B": "8",
+      "C": "9",
+      "D": "11"
+    },
+    "answer": "D",
+    "isSPR": false,
+    "explanation": "Since the charge exceeds the $8 base rate, the package weighs more than 5 pounds. Apply the overage formula: 8 + 1.50(w − 5) = 17 → 1.50(w − 5) = 9 → w − 5 = 6 → w = 11. Since 11 > 5, the overage formula applies ✓. Choice A (6) is the overage in pounds (w − 5), not the total weight. Choice B (8) is the base charge in dollars, which a student might mistake for a weight. Choice C (9) is the overage charge in dollars, not the weight."
+  },
+  {
+    "id": "alg_h_008",
+    "num": 28,
+    "type": "system_eval_expression",
+    "domain": "algebra",
+    "difficulty": "hard",
+    "calcAgnostic": false,
+    "context": "\\(\\frac{x}{3} + \\frac{y}{4} = 5\\)\n\\(\\frac{x}{3} - \\frac{y}{4} = 1\\)",
+    "stimulus": null,
+    "table": null,
+    "question": "The solution to the given system of equations is (x, y). What is the value of xy?",
+    "choices": null,
+    "answer": "72",
+    "isSPR": true,
+    "explanation": "Add the two equations: \\(\\frac{2x}{3} = 6\\) → x = 9. Subtract the second equation from the first: \\(\\frac{y}{2} = 4\\) → y = 8. Then xy = 9 × 8 = 72. A common trap is solving for x or y individually and entering that value, or computing x + y = 17 rather than the product xy. Valid entry: 72."
+  }
+]
+
+VALIDATION
+Count: 28 | Easy: 8 | Medium: 12 | Hard: 8 | SPR: 6 | Dups: none
+
+Subtype usage:
+linear_eq: 2 (alg_e_007, alg_e_010)
+linear_eq_write: 2 (alg_e_005, alg_e_011)
+linear_func_build: 2 (alg_e_006, alg_e_012)
+linear_func_table: 2 (alg_e_008, alg_m_012)
+linear_func_interp: 2 (alg_e_009, alg_m_005)
+linear_func_graph: 2 (alg_m_001, alg_m_010)
+system_linear: 2 (alg_m_002, alg_m_008)
+linear_inequality: 2 (alg_m_003, alg_m_011)
+system_eval_expression: 2 (alg_m_004, alg_h_008)
+pct_increase_equation: 1 (alg_m_006)
+factor_polynomial: 1 (alg_m_007)
+piecewise_cost: 2 (alg_m_009, alg_h_007)
+sum_of_solutions: 2 (alg_h_001, alg_h_004)
+system_solution_count: 2 (alg_h_002, alg_h_005)
+linear_func_constant: 2 (alg_h_003, alg_h_006)
+
+IDs used (paste into Run 2 prompt):
+alg_e_005, alg_e_006, alg_e_007, alg_e_008, alg_e_009, alg_e_010, alg_e_011, alg_e_012,
+alg_m_001, alg_m_002, alg_m_003, alg_m_004, alg_m_005, alg_m_006, alg_m_007, alg_m_008,
+alg_m_009, alg_m_010, alg_m_011, alg_m_012,
+alg_h_001, alg_h_002, alg_h_003, alg_h_004, alg_h_005, alg_h_006, alg_h_007, alg_h_008
+
+Subtypes at quota (cannot reuse in Run 2):
+linear_eq, linear_eq_write, linear_func_build, linear_func_table, linear_func_interp,
+linear_func_graph, system_linear, linear_inequality, system_eval_expression, piecewise_cost,
+sum_of_solutions, system_solution_count, linear_func_constant
