@@ -450,7 +450,10 @@ function htmlQuestion() {
     passageHtml=`<div class="bb-panel-tag">Passage</div><div class="bb-passage">${txt}</div>
     ${q.table?(q.table.trim().startsWith('<')?q.table.replace(/class="data-table"/g,'class="bb-data-table"'):parseTextTable(q.table)):''}`;
   } else if (q.table) {
-    passageHtml=`<div class="bb-panel-tag">Data</div>${q.table.replace(/class="data-table"/g,'class="bb-data-table"')}`;
+    const tableHtml = q.table.trim().startsWith('<')
+      ? q.table.replace(/class="data-table"/g,'class="bb-data-table"')
+      : parseTextTable(q.table);
+    passageHtml=`<div class="bb-panel-tag">Data</div>${tableHtml}`;
   }
 
   const typeLabel=(q.type||'').replace(/_/g,' ');
