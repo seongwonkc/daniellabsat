@@ -107,6 +107,11 @@ mark.hl-green  { background:#B9F6CA; color:inherit; border-radius:2px; }
 .bb-calc-panel { position:fixed;bottom:0;right:24px;width:340px;height:420px;background:#fff;border:1.5px solid var(--border);border-bottom:none;border-radius:10px 10px 0 0;z-index:100;flex-direction:column;box-shadow:0 -4px 24px rgba(0,0,0,0.1); }
 .bb-calc-header { display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600; }
 .bb-calc-iframe { flex:1;border:none;border-radius:0 0 10px 10px; }
+
+.dc-progress-bar { height:3px;background:var(--border);border-radius:99px;margin-top:10px;overflow:hidden; }
+.dc-progress-fill { height:100%;border-radius:99px;background:var(--blue);transition:width .3s; }
+.dc-progress-fill.done { background:var(--success); }
+.dc-answered { font-size:11px;color:var(--text-dim);margin-top:5px; }
 </style>
 </head>
 <body>
@@ -210,6 +215,8 @@ function buildQuestionBank() {
 /* ── State ─────────────────────────────────────────────── */
 const S = {
   view:'picker',
+  answeredIds: {},
+  missedIds: {},
   domain:null,
   questions:[],
   qIndex:0,
@@ -258,11 +265,27 @@ async function init() {
   const {url,key}=getConfig();
   if (url&&key) {
     try {
-      const res=await fetch(`${url}/rest/v1/students?id=eq.${studentId}&select=math_ratings,ebrw_ratings`,{
-        headers:{'apikey':key,'Authorization':`Bearer ${key}`}
-      });
-      const data=await res.json();
-      if (data&&data[0]) S.studentRatings={...data[0].math_ratings,...data[0].ebrw_ratings};
+      const [studentRes, responsesRes] = await Promise.all([
+        fetch(`${url}/rest/v1/students?id=eq.${studentId}&select=math_ratings,ebrw_ratings`,
+          {headers:{'apikey':key,'Authorization':`Bearer ${key}`}}),
+        fetch(`${url}/rest/v1/responses?student_id=eq.${studentId}&select=question_id,domain,is_correct&limit=5000`,
+          {headers:{'apikey':key,'Authorization':`Bearer ${key}`}}),
+      ]);
+      const studentData = await studentRes.json();
+      if (studentData&&studentData[0]) S.studentRatings={...studentData[0].math_ratings,...studentData[0].ebrw_ratings};
+
+      const responseData = await responsesRes.json();
+      if (Array.isArray(responseData)) {
+        responseData.forEach(r => {
+          if (!r.domain) return;
+          if (!S.answeredIds[r.domain]) S.answeredIds[r.domain] = new Set();
+          S.answeredIds[r.domain].add(r.question_id);
+          if (r.is_correct === false) {
+            if (!S.missedIds[r.domain]) S.missedIds[r.domain] = new Set();
+            S.missedIds[r.domain].add(r.question_id);
+          }
+        });
+      }
     } catch {}
   }
   render();
@@ -302,11 +325,17 @@ function htmlPicker() {
     if (qs===0) return '';
     const r=S.studentRatings[id];
     const rClass=!r?'':r<=2?'low':r<=3?'mid':'high';
+    const answered=(S.answeredIds[id]?.size||0);
+    const missed=(S.missedIds[id]?.size||0);
+    const pct=qs>0?Math.round((answered/qs)*100):0;
+    const fillClass=pct>=100?'done':'';
     return `
-    <div class="dl-domain-card" onclick="startDomain('${id}')">
+    <div class="dl-domain-card" onclick="openModePicker('${id}')">
       ${r?`<div class="dc-rating ${rClass}">${r}/5</div>`:''}
       <div class="dc-name">${DOMAIN_META[id]?.name||id}</div>
       <div class="dc-count">${qs} questions · 15 per session</div>
+      <div class="dc-progress-bar"><div class="dc-progress-fill ${fillClass}" style="width:${pct}%"></div></div>
+      <div class="dc-answered">${answered}/${qs} answered${missed>0?` · ${missed} to review`:''}</div>
     </div>`;
   }
 
@@ -327,10 +356,63 @@ function htmlPicker() {
 </div>`;
 }
 
+/* ── Mode picker ────────────────────────────────────────── */
+function openModePicker(domainId) {
+  const allQs = QUESTION_BANK[domainId]||[];
+  if (!allQs.length) return;
+  const answered = S.answeredIds[domainId]||new Set();
+  const missed   = S.missedIds[domainId]||new Set();
+  const unanswered = allQs.filter(q => !answered.has(q.id));
+  const missedQs   = allQs.filter(q => missed.has(q.id));
+
+  if (answered.size === 0) { startDomain(domainId, 'all'); return; }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'mode-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `
+    <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:28px 24px;width:320px;max-width:90vw;">
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">${DOMAIN_META[domainId]?.name||domainId}</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:18px;">${answered.size}/${allQs.length} answered · Choose what to drill</div>
+      <button onclick="closePicker();startDomain('${domainId}','unanswered')" ${unanswered.length===0?'disabled':''} style="width:100%;text-align:left;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-lg);background:var(--bg);cursor:pointer;margin-bottom:8px;opacity:${unanswered.length===0?.4:1};">
+        <span style="font-size:13px;font-weight:600;color:var(--text);display:block;">Unanswered only</span>
+        <span style="font-size:11px;color:var(--text-dim);margin-top:2px;display:block;">${unanswered.length} question${unanswered.length!==1?'s':''} remaining${unanswered.length===0?' — all done!':''}</span>
+      </button>
+      <button onclick="closePicker();startDomain('${domainId}','missed')" ${missedQs.length===0?'disabled':''} style="width:100%;text-align:left;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-lg);background:var(--bg);cursor:pointer;margin-bottom:8px;opacity:${missedQs.length===0?.4:1};">
+        <span style="font-size:13px;font-weight:600;color:var(--text);display:block;">Review missed</span>
+        <span style="font-size:11px;color:var(--text-dim);margin-top:2px;display:block;">${missedQs.length} question${missedQs.length!==1?'s':''} to review${missedQs.length===0?' — none missed':''}</span>
+      </button>
+      <button onclick="closePicker();startDomain('${domainId}','all')" style="width:100%;text-align:left;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-lg);background:var(--bg);cursor:pointer;margin-bottom:8px;">
+        <span style="font-size:13px;font-weight:600;color:var(--text);display:block;">All questions</span>
+        <span style="font-size:11px;color:var(--text-dim);margin-top:2px;display:block;">Random selection from full bank</span>
+      </button>
+      <button onclick="closePicker()" style="font-size:12px;color:var(--text-dim);background:none;border:none;cursor:pointer;margin-top:4px;width:100%;text-align:center;">Cancel</button>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target===overlay) closePicker(); });
+  document.body.appendChild(overlay);
+}
+
+function closePicker() {
+  document.getElementById('mode-overlay')?.remove();
+}
+
 /* ── Start domain ───────────────────────────────────────── */
-function startDomain(domainId) {
-  const qs=shuffle([...(QUESTION_BANK[domainId]||[])]);
-  if (!qs.length) return;
+function startDomain(domainId, mode='all') {
+  const allQs = QUESTION_BANK[domainId]||[];
+  if (!allQs.length) return;
+  let pool;
+  if (mode==='unanswered') {
+    const answered = S.answeredIds[domainId]||new Set();
+    pool = allQs.filter(q => !answered.has(q.id));
+    if (!pool.length) pool = allQs;
+  } else if (mode==='missed') {
+    const missed = S.missedIds[domainId]||new Set();
+    pool = allQs.filter(q => missed.has(q.id));
+    if (!pool.length) pool = allQs;
+  } else {
+    pool = allQs;
+  }
+  const qs=shuffle([...pool]);
   S.domain=domainId; S.questions=qs.slice(0,15); S.qIndex=0; S.responses={}; S.selected={}; S.view='quiz';
   render();
 }
