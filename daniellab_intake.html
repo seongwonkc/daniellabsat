@@ -720,6 +720,21 @@
       </div>
     </div>
 
+    <div class="field-group triple">
+      <div class="field">
+        <label for="teacher-rw">RW Teacher</label>
+        <input type="text" id="teacher-rw" placeholder="e.g. Sarah Kim" />
+      </div>
+      <div class="field">
+        <label for="teacher-math">Math Teacher</label>
+        <input type="text" id="teacher-math" placeholder="e.g. Kevin Choi" />
+      </div>
+      <div class="field">
+        <label for="teacher-ta">TA (optional)</label>
+        <input type="text" id="teacher-ta" placeholder="" />
+      </div>
+    </div>
+
     <div class="field-group">
       <div class="field">
         <label for="parent-name">Parent Name</label>
@@ -1176,6 +1191,9 @@ function buildResults() {
     grade:           parseInt(grade),
     school_name:     schoolName,
     cohort,
+    teacher_rw:      document.getElementById('teacher-rw').value.trim()   || null,
+    teacher_math:    document.getElementById('teacher-math').value.trim() || null,
+    teacher_ta:      document.getElementById('teacher-ta').value.trim()   || null,
     parent_name:     parentName,
     parent_contact:  parentContact,
     current_score:   currentScore,
