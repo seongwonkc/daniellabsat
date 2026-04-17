@@ -80,8 +80,8 @@ def make_svg(stimulus):
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 def clean_latex(s):
-    """Strip \\( \\) inline wrappers."""
-    return re.sub(r'\\\\\(|\\\\\)', '', s).strip()
+    """Strip \\( \\) inline wrappers. JSON gives single-backslash \\( in Python string."""
+    return re.sub(r'\\\(|\\\)', '', s).strip()
 
 def is_equation_context(ctx):
     if not ctx: return False
@@ -93,7 +93,24 @@ def is_equation_context(ctx):
 
 def context_to_katex(ctx):
     lines = [clean_latex(l.strip()) for l in ctx.strip().split('\n') if l.strip()]
-    return ' \\n '.join(f'$${l}$$' for l in lines)
+    if len(lines) == 1:
+        return f'$${lines[0]}$$'
+    # Multiple equations: one $$ block with \\ line break (LaTeX newline in display math)
+    return '$$' + ' \\\\ '.join(lines) + '$$'
+
+def escape_currency(s):
+    """Replace currency $ signs (e.g. $14, $1.50) with &#36; so KaTeX ignores them."""
+    import re
+    return re.sub(r'\$(?=[\d(])', '&#36;', s)
+
+def normalize_latex(s):
+    """Convert \\( \\) inline math delimiters to $ $ for consistency."""
+    if not s: return s
+    s = re.sub(r'\\\(', '$', s)
+    s = re.sub(r'\\\)', '$', s)
+    s = re.sub(r'\\\[', '$$', s)
+    s = re.sub(r'\\\]', '$$', s)
+    return s
 
 def js_escape(s):
     """Escape for JS single-quoted string — no literal newlines."""
@@ -116,6 +133,8 @@ def convert_question(q):
     expl     = q.get('explanation', '')
 
     text = (context.rstrip() + ' ' + question) if (context and not is_equation_context(context)) else question
+    text = escape_currency(normalize_latex(text))
+    expl = normalize_latex(expl)
 
     katex = context_to_katex(context) if (context and is_equation_context(context)) else None
     graph = make_svg(stimulus) if (stimulus and stimulus.get('type') == 'coordinate_plane') else None
@@ -130,7 +149,7 @@ def convert_question(q):
 
     choices_str = 'null'
     if choices and not is_spr:
-        items = ', '.join(f"{js_escape(k)}: {js_escape(v)}" for k, v in choices.items())
+        items = ', '.join(f"{js_escape(k)}: {js_escape(normalize_latex(v))}" for k, v in choices.items())
         choices_str = '{ ' + items + ' }'
 
     return '\n'.join([
