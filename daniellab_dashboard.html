@@ -641,7 +641,55 @@ textarea::placeholder { color: var(--muted); }
 }
 .teacher-drill-back:hover { color: var(--text); }
 
-/* Mini sparkline in student panel */
+/* Teacher roster */
+.teacher-roster-table { width:100%; border-collapse:collapse; font-size:.85rem; margin-bottom:8px; }
+.teacher-roster-table th { font-size:.68rem; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); padding:6px 10px; border-bottom:2px solid var(--border); text-align:left; }
+.teacher-roster-table td { padding:10px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.teacher-roster-table tr:last-child td { border-bottom:none; }
+.teacher-roster-table tr.clickable:hover td { background:var(--bg); cursor:pointer; }
+.role-badge { font-size:.7rem; font-weight:600; padding:2px 7px; border-radius:3px; border:1px solid var(--border); background:var(--bg); }
+.role-badge.rw   { color:#1a56db; border-color:rgba(26,86,219,.2); background:rgba(26,86,219,.05); }
+.role-badge.math { color:#2a7a4f; border-color:rgba(42,122,79,.2); background:rgba(42,122,79,.05); }
+.role-badge.ta   { color:var(--muted); }
+.inactive-row td { opacity:.45; }
+
+/* Teacher detail panel */
+.teacher-panel {
+  display:none; border:1.5px solid var(--border); border-radius:var(--radius);
+  background:var(--surface); margin-bottom:24px; overflow:hidden;
+}
+.teacher-panel.open { display:block; }
+.teacher-panel-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 24px; border-bottom:1px solid var(--border);
+}
+.teacher-panel-name { font-family:var(--serif); font-size:1.3rem; }
+.teacher-panel-meta { font-size:.8rem; color:var(--muted); margin-top:2px; }
+.teacher-stat-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:0; border-bottom:1px solid var(--border);
+}
+.teacher-stat-cell {
+  padding:16px 20px; border-right:1px solid var(--border);
+}
+.teacher-stat-cell:last-child { border-right:none; }
+.teacher-stat-val { font-size:1.4rem; font-weight:700; color:var(--text); line-height:1; margin-bottom:4px; }
+.teacher-stat-lbl { font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+.teacher-panel-body { display:grid; grid-template-columns:1fr 1fr; }
+.teacher-panel-col { padding:20px 24px; }
+.teacher-panel-col:first-child { border-right:1px solid var(--border); }
+.tp-section-lbl { font-size:.68rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.log-entry { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--border-light,#f0ede9); font-size:.83rem; }
+.log-entry:last-child { border-bottom:none; }
+.log-type-badge { font-size:.65rem; font-weight:700; padding:2px 6px; border-radius:3px; flex-shrink:0; margin-top:1px; }
+.log-type-badge.compliment { background:rgba(42,122,79,.1); color:#2a7a4f; }
+.log-type-badge.complaint  { background:rgba(200,16,46,.08); color:var(--accent); }
+.log-type-badge.note       { background:var(--bg); color:var(--muted); border:1px solid var(--border); }
+.log-body { flex:1; line-height:1.5; }
+.log-meta { font-size:.72rem; color:var(--muted); margin-top:2px; }
+.rating-stars { display:flex; gap:4px; margin-bottom:12px; }
+.rating-star { font-size:20px; cursor:pointer; color:#ddd; transition:color .1s; }
+.rating-star.on { color:#f5a623; }
 .mini-chart-wrap {
   margin-top: 12px; background: var(--bg); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 14px 16px;
@@ -702,15 +750,15 @@ textarea::placeholder { color: var(--muted); }
       </div>
       <div class="edit-field">
         <label>RW Teacher</label>
-        <input type="text" id="edit-teacher-rw" placeholder="e.g. Sarah Kim" />
+        <select id="edit-teacher-rw"><option value="">— None —</option></select>
       </div>
       <div class="edit-field">
         <label>Math Teacher</label>
-        <input type="text" id="edit-teacher-math" placeholder="e.g. Kevin Choi" />
+        <select id="edit-teacher-math"><option value="">— None —</option></select>
       </div>
       <div class="edit-field">
         <label>TA (optional)</label>
-        <input type="text" id="edit-teacher-ta" placeholder="e.g. James Park" />
+        <select id="edit-teacher-ta"><option value="">— None —</option></select>
       </div>
       <div class="edit-field">
         <label>Test Date</label>
@@ -742,6 +790,39 @@ textarea::placeholder { color: var(--muted); }
       <button class="btn btn-ghost" onclick="closeEdit()">Cancel</button>
     </div>
     <div class="pin-error" id="edit-error" style="text-align:left;margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- ADD / EDIT TEACHER MODAL -->
+<div class="overlay" id="teacher-overlay" onclick="maybeCloseTeacherModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTeacherModal()">✕</button>
+    <h3 id="teacher-modal-title">Add teacher</h3>
+    <div class="edit-grid">
+      <div class="edit-field" style="grid-column:1/-1;">
+        <label>Name</label>
+        <input type="text" id="tm-name" placeholder="Full name" />
+      </div>
+    </div>
+    <div class="edit-grid">
+      <div class="edit-field">
+        <label>Primary role</label>
+        <select id="tm-role">
+          <option value="rw">Reading & Writing</option>
+          <option value="math">Math</option>
+          <option value="ta">TA</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>Email (optional)</label>
+        <input type="text" id="tm-email" placeholder="teacher@email.com" />
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveTeacher()">Save</button>
+      <button class="btn btn-ghost" onclick="closeTeacherModal()">Cancel</button>
+    </div>
+    <div class="pin-error" id="teacher-modal-error" style="text-align:left;margin-top:8px;"></div>
   </div>
 </div>
 
@@ -822,7 +903,10 @@ textarea::placeholder { color: var(--muted); }
     <div class="view-section" id="view-teachers">
       <div class="main-header" style="margin-bottom:24px;">
         <h1 id="teacher-view-title">Teacher performance</h1>
+        <button class="btn btn-primary btn-sm" onclick="openAddTeacher()">+ Add teacher</button>
       </div>
+      <div id="teacher-roster" style="margin-bottom:16px;"></div>
+      <div class="teacher-panel" id="teacher-detail-panel"></div>
       <div id="teacher-view-body">
         <div class="state-msg">Loading teacher data…</div>
       </div>
@@ -872,9 +956,9 @@ function openEdit(studentId) {
   document.getElementById('edit-grade').value          = s.grade || '11';
   document.getElementById('edit-school').value         = s.school_name || '';
   document.getElementById('edit-cohort').value         = s.cohort || '';
-  document.getElementById('edit-teacher-rw').value    = s.teacher_rw   || '';
-  document.getElementById('edit-teacher-math').value  = s.teacher_math || '';
-  document.getElementById('edit-teacher-ta').value    = s.teacher_ta   || '';
+  populateTeacherSelect('edit-teacher-rw',   'rw',   s.teacher_rw_id   || '');
+  populateTeacherSelect('edit-teacher-math', 'math', s.teacher_math_id || '');
+  populateTeacherSelect('edit-teacher-ta',   'ta',   s.teacher_ta_id   || '');
   document.getElementById('edit-test-date').value      = s.test_date || '';
   document.getElementById('edit-current-score').value  = s.current_score || '';
   document.getElementById('edit-target-score').value   = s.target_score || '';
@@ -910,9 +994,9 @@ async function saveStudentEdit() {
     target_score:   parseInt(document.getElementById('edit-target-score').value) || null,
     parent_name:    document.getElementById('edit-parent-name').value.trim(),
     parent_contact: document.getElementById('edit-parent-contact').value.trim(),
-    teacher_rw:     document.getElementById('edit-teacher-rw').value.trim()   || null,
-    teacher_math:   document.getElementById('edit-teacher-math').value.trim() || null,
-    teacher_ta:     document.getElementById('edit-teacher-ta').value.trim()   || null,
+    teacher_rw_id:   document.getElementById('edit-teacher-rw').value   || null,
+    teacher_math_id: document.getElementById('edit-teacher-math').value || null,
+    teacher_ta_id:   document.getElementById('edit-teacher-ta').value   || null,
   };
 
   if (!updates.name) { errEl.textContent = 'Name is required.'; return; }
@@ -972,6 +1056,7 @@ function saveSettings() {
    STATE
 ============================================================ */
 let allStudents    = [];
+let allTeachers    = [];
 let currentCohort  = '__all__';
 let currentStudent = null;
 
@@ -1079,7 +1164,7 @@ function studentCardHTML(s) {
       <div class="status-dot ${s.status || 'active'}"></div>
       <div class="sc-code">${s.student_code || '—'}</div>
       <div class="sc-name">${s.name || 'Unnamed'}</div>
-      <div class="sc-meta">Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'}</div>
+      <div class="sc-meta">Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'}${teacherNames(s) ? ' · ' + teacherNames(s) : ''}</div>
       <div class="sc-score">
         ${s.current_score || '?'} <span class="score-arrow">→</span> ${s.target_score || '?'}
         <span class="score-gap">${gap} pts</span>
@@ -1150,7 +1235,7 @@ function renderPanel(s, notes) {
         <div class="panel-code">${s.student_code || '—'}</div>
         <div class="panel-name">${s.name || 'Unnamed'}</div>
         <div class="panel-meta">
-          Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'} · ${[s.teacher_rw, s.teacher_math, s.teacher_ta].filter(Boolean).join(' / ') || 'No teacher'} ·
+          Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'} · ${teacherNames(s)} ·
           ${s.current_score || '?'} → ${s.target_score || '?'} (${gap > 0 ? '+' : ''}${gap} pts) ·
           ${weeksLeft} weeks left
         </div>
@@ -1472,7 +1557,10 @@ async function loadCohortView() {
       const weeksArr = members.filter(s=>s.test_date).map(s=>weeksUntil(s.test_date));
       const avgWeeks = weeksArr.length ? Math.round(weeksArr.reduce((a,b)=>a+b,0)/weeksArr.length) : null;
       const teachers = [...new Set(members.flatMap(s =>
-        [s.teacher_rw, s.teacher_math, s.teacher_ta].filter(Boolean)
+        [s.teacher_rw_id, s.teacher_math_id, s.teacher_ta_id]
+          .filter(Boolean)
+          .map(id => allTeachers.find(t => t.id === id)?.name)
+          .filter(Boolean)
       ))];
 
       return `<div class="cohort-card" onclick="filterCohortAndSwitch('${c.replace(/'/g,"\'")}')">
@@ -1514,11 +1602,12 @@ function filterCohortAndSwitch(cohort) {
    TEACHER VIEW
 ============================================================ */
 async function loadTeacherView() {
+  renderTeacherRoster();
   const body = document.getElementById('teacher-view-body');
   body.innerHTML = '<div class="state-msg">Loading…</div>';
   try {
     const [students, mockTests, assignments] = await Promise.all([
-      sbFetch('students?select=id,name,cohort,teacher,current_score,target_score,status&order=teacher.asc'),
+      sbFetch('students?select=id,name,cohort,teacher_rw_id,teacher_math_id,teacher_ta_id,current_score,target_score,status'),
       sbFetch('mock_tests?select=student_id,rw_score,math_score,total_score,created_at&order=created_at.asc'),
       sbFetch('assignments?select=student_id,completed'),
     ]);
@@ -1542,30 +1631,32 @@ async function loadTeacherView() {
       if (a.completed) hwByStudent[a.student_id].done++;
     });
 
-    // Group by teacher — students appear under each teacher role they have
-    const teacherMap = {};   // { name: { role, students[] } }
+    // Group by teacher ID — students appear under each teacher they have
+    const teacherMap = {};
     studs.forEach(s => {
       const roles = [
-        { name: s.teacher_rw,   role: 'RW'   },
-        { name: s.teacher_math, role: 'Math' },
-        { name: s.teacher_ta,   role: 'TA'   },
-      ].filter(r => r.name);
+        { id: s.teacher_rw_id,   role: 'RW'   },
+        { id: s.teacher_math_id, role: 'Math' },
+        { id: s.teacher_ta_id,   role: 'TA'   },
+      ].filter(r => r.id);
       if (!roles.length) {
-        if (!teacherMap['(Unassigned)']) teacherMap['(Unassigned)'] = { role: '', students: [] };
-        teacherMap['(Unassigned)'].students.push(s);
+        if (!teacherMap['__unassigned__']) teacherMap['__unassigned__'] = { id: null, name: '(Unassigned)', role: '', students: [] };
+        teacherMap['__unassigned__'].students.push(s);
       } else {
-        roles.forEach(({ name, role }) => {
-          if (!teacherMap[name]) teacherMap[name] = { role, students: [] };
-          teacherMap[name].students.push(s);
+        roles.forEach(({ id, role }) => {
+          const teacher = allTeachers.find(t => t.id === id);
+          const name = teacher?.name || id;
+          if (!teacherMap[id]) teacherMap[id] = { id, name, role, students: [] };
+          teacherMap[id].students.push(s);
         });
       }
     });
 
-    const teachers = Object.keys(teacherMap).sort();
+    const teachers = Object.keys(teacherMap);
     if (!teachers.length) { body.innerHTML = '<div class="state-msg">No students yet.</div>'; return; }
 
     const rows = teachers.map(t => {
-      const { role: tRole, students: members } = teacherMap[t];
+      const { name: tName, role: tRole, students: members } = teacherMap[t];
       const count   = members.length;
       const withStart  = members.filter(s => firstMock[s.id]);
       const withLatest = members.filter(s => latestMock[s.id]);
@@ -1628,13 +1719,14 @@ function drillTeacher(teacher) {
   switchView('students', tab);
   // Find or create a cohort-item for this teacher filter and apply it
   // Instead: directly filter allStudents by teacher
-  const titleEl = document.getElementById('main-title');
-  if (titleEl) titleEl.textContent = teacher;
+
   const grid = document.getElementById('student-grid');
-  const filtered = allStudents.filter(s =>
-    s.teacher_rw === teacher || s.teacher_math === teacher || s.teacher_ta === teacher ||
-    (!s.teacher_rw && !s.teacher_math && !s.teacher_ta && teacher === '(Unassigned)')
-  );
+  const filtered = teacher === '__unassigned__'
+    ? allStudents.filter(s => !s.teacher_rw_id && !s.teacher_math_id && !s.teacher_ta_id)
+    : allStudents.filter(s => s.teacher_rw_id === teacher || s.teacher_math_id === teacher || s.teacher_ta_id === teacher);
+  const tObj = allTeachers.find(t => t.id === teacher);
+  const titleEl = document.getElementById('main-title');
+  if (titleEl) titleEl.textContent = tObj?.name || teacher;
   if (!filtered.length) { grid.innerHTML = '<div class="state-msg">No students found.</div>'; return; }
   grid.innerHTML = filtered.map(s => studentCardHTML(s)).join('');
   grid.querySelectorAll('.student-card').forEach(card => {
@@ -1643,10 +1735,349 @@ function drillTeacher(teacher) {
 }
 
 /* ============================================================
+   TEACHER DETAIL PANEL
+============================================================ */
+let currentTeacherId = null;
+
+async function openTeacherPanel(id) {
+  const panel = document.getElementById('teacher-detail-panel');
+  if (currentTeacherId === id && panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    currentTeacherId = null;
+    return;
+  }
+  currentTeacherId = id;
+  panel.classList.add('open');
+  panel.innerHTML = '<div class="state-msg" style="padding:24px;">Loading…</div>';
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  const t = allTeachers.find(x => x.id === id);
+  if (!t) return;
+
+  try {
+    const myStudentIds = allStudents
+      .filter(s => s.teacher_rw_id === id || s.teacher_math_id === id || s.teacher_ta_id === id)
+      .map(s => s.id);
+
+    const idList = myStudentIds.length ? `(${myStudentIds.map(i=>`"${i}"`).join(',')})` : '("__none__")';
+
+    const [ratings, logs, mockTests, notes, assignments] = await Promise.all([
+      sbFetch(`session_ratings?teacher_id=eq.${id}&select=*&order=created_at.desc`),
+      sbFetch(`teacher_logs?teacher_id=eq.${id}&select=*,students(name)&order=created_at.desc`),
+      sbFetch(`mock_tests?student_id=in.${idList}&select=student_id,rw_score,math_score,created_at&order=created_at.asc`),
+      sbFetch(`notes?teacher_id=eq.${id}&select=id,created_at&order=created_at.desc&limit=100`),
+      sbFetch(`assignments?teacher_id=eq.${id}&select=id,completed,created_at&order=created_at.desc&limit=200`),
+    ]);
+
+    renderTeacherPanel(t, myStudentIds, ratings||[], logs||[], mockTests||[], notes||[], assignments||[]);
+  } catch(e) {
+    panel.innerHTML = `<div class="state-msg" style="padding:24px;">Error: ${e.message}</div>`;
+  }
+}
+
+function renderTeacherPanel(t, studentIds, ratings, logs, mockTests, notes, assignments) {
+  const panel = document.getElementById('teacher-detail-panel');
+
+  // ── Stats ──
+  const avgRating = ratings.length
+    ? (ratings.reduce((a,r) => a+r.rating, 0) / ratings.length).toFixed(1)
+    : null;
+
+  const hwTotal = assignments.length;
+  const hwDone  = assignments.filter(a => a.completed).length;
+  const hwPct   = hwTotal > 0 ? Math.round(hwDone/hwTotal*100) : null;
+
+  // Notes per month (last 90 days)
+  const cutoff = Date.now() - 90*24*3600*1000;
+  const recentNotes = notes.filter(n => new Date(n.created_at).getTime() > cutoff).length;
+  const notesPerMonth = Math.round(recentNotes / 3 * 10) / 10;
+
+  // Domain specialization: per-student first vs latest mock delta, split by section
+  const firstMock = {}, latestMock = {};
+  mockTests.forEach(m => {
+    if (!firstMock[m.student_id])  firstMock[m.student_id]  = m;
+    latestMock[m.student_id] = m;
+  });
+  const studsWithBoth = studentIds.filter(id => firstMock[id] && latestMock[id] && firstMock[id].created_at !== latestMock[id].created_at);
+  const rwDeltas   = studsWithBoth.map(id => (latestMock[id].rw_score||0)   - (firstMock[id].rw_score||0));
+  const mathDeltas = studsWithBoth.map(id => (latestMock[id].math_score||0) - (firstMock[id].math_score||0));
+  const avgRwDelta   = rwDeltas.length   ? Math.round(rwDeltas.reduce((a,b)=>a+b,0)/rwDeltas.length)     : null;
+  const avgMathDelta = mathDeltas.length ? Math.round(mathDeltas.reduce((a,b)=>a+b,0)/mathDeltas.length) : null;
+
+  const deltaStr = v => v === null ? '—' : (v >= 0 ? `+${v}` : `${v}`);
+  const deltaColor = v => v === null ? '' : v >= 0 ? 'color:var(--good)' : 'color:var(--accent)';
+
+  // ── Rating stars state ──
+  let pendingRating = 0;
+  let pendingStudent = '';
+
+  const roleLabel = { rw:'Reading & Writing', math:'Math', ta:'TA' };
+
+  panel.innerHTML = `
+    <div class="teacher-panel-header">
+      <div>
+        <div class="teacher-panel-name">${t.name}</div>
+        <div class="teacher-panel-meta">${roleLabel[t.role]||'—'} · ${studentIds.length} student${studentIds.length!==1?'s':''} · ${t.email||'No email'}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('teacher-detail-panel').classList.remove('open');currentTeacherId=null;">Close</button>
+    </div>
+
+    <div class="teacher-stat-grid">
+      <div class="teacher-stat-cell">
+        <div class="teacher-stat-val">${avgRating ? '★ '+avgRating : '—'}</div>
+        <div class="teacher-stat-lbl">Avg rating (${ratings.length})</div>
+      </div>
+      <div class="teacher-stat-cell">
+        <div class="teacher-stat-val">${hwTotal > 0 ? hwPct+'%' : '—'}</div>
+        <div class="teacher-stat-lbl">HW completion (${hwTotal} assigned)</div>
+      </div>
+      <div class="teacher-stat-cell">
+        <div class="teacher-stat-val">${notesPerMonth || '—'}</div>
+        <div class="teacher-stat-lbl">Notes / month (90d)</div>
+      </div>
+      <div class="teacher-stat-cell">
+        <div class="teacher-stat-val" style="${deltaColor(avgRwDelta)}">${deltaStr(avgRwDelta)}</div>
+        <div class="teacher-stat-lbl">Avg RW delta</div>
+      </div>
+      <div class="teacher-stat-cell">
+        <div class="teacher-stat-val" style="${deltaColor(avgMathDelta)}">${deltaStr(avgMathDelta)}</div>
+        <div class="teacher-stat-lbl">Avg Math delta</div>
+      </div>
+    </div>
+
+    <div class="teacher-panel-body">
+      <div class="teacher-panel-col">
+        <div class="tp-section-lbl">Log entry</div>
+        <select id="tp-log-type" style="width:100%;margin-bottom:8px;">
+          <option value="compliment">Compliment</option>
+          <option value="complaint">Complaint</option>
+          <option value="note">Note</option>
+        </select>
+        <select id="tp-log-student" style="width:100%;margin-bottom:8px;">
+          <option value="">— No specific student —</option>
+          ${allStudents.filter(s=>studentIds.includes(s.id)).map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+        <textarea id="tp-log-text" style="width:100%;box-sizing:border-box;font-family:var(--sans);font-size:.83rem;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;resize:vertical;min-height:72px;background:var(--bg);color:var(--text);" placeholder="Write a note…"></textarea>
+        <button class="btn btn-primary btn-sm" style="margin-top:6px;width:100%;" onclick="submitTeacherLog('${t.id}')">Save log entry</button>
+
+        <div class="tp-section-lbl" style="margin-top:20px;">Session rating</div>
+        <div class="rating-stars" id="tp-stars">
+          ${[1,2,3,4,5].map(n=>`<span class="rating-star" data-val="${n}" onclick="setRatingStar(${n},'${t.id}')">★</span>`).join('')}
+        </div>
+        <select id="tp-rating-student" style="width:100%;margin-bottom:8px;">
+          <option value="">— Student (optional) —</option>
+          ${allStudents.filter(s=>studentIds.includes(s.id)).map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+        <input type="text" id="tp-rating-comment" placeholder="Optional comment" style="width:100%;box-sizing:border-box;font-size:.83rem;border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px;background:var(--bg);color:var(--text);margin-bottom:6px;" />
+        <button class="btn btn-primary btn-sm" style="width:100%;" onclick="submitRating('${t.id}')">Save rating</button>
+      </div>
+
+      <div class="teacher-panel-col">
+        <div class="tp-section-lbl">Log history (${logs.length})</div>
+        ${logs.length === 0
+          ? '<div style="color:var(--muted);font-size:.83rem;">No entries yet.</div>'
+          : logs.map(l => `
+            <div class="log-entry">
+              <span class="log-type-badge ${l.type}">${l.type}</span>
+              <div class="log-body">
+                ${l.text}
+                <div class="log-meta">${l.created_at?.slice(0,10)||''}${l.students?.name ? ' · re: '+l.students.name : ''}</div>
+              </div>
+            </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Init star display
+  document.querySelectorAll('#tp-stars .rating-star').forEach(s => {
+    s.classList.toggle('on', parseInt(s.dataset.val) <= pendingRating);
+  });
+}
+
+let pendingRatingVal = 0;
+function setRatingStar(val, teacherId) {
+  pendingRatingVal = val;
+  document.querySelectorAll('#tp-stars .rating-star').forEach(s => {
+    s.classList.toggle('on', parseInt(s.dataset.val) <= val);
+  });
+}
+
+async function submitRating(teacherId) {
+  if (!pendingRatingVal) { alert('Select a star rating first.'); return; }
+  const studentId = document.getElementById('tp-rating-student').value || null;
+  const comment   = document.getElementById('tp-rating-comment').value.trim() || null;
+  try {
+    await sbFetch('session_ratings', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ teacher_id: teacherId, student_id: studentId, rating: pendingRatingVal, comment }),
+    });
+    pendingRatingVal = 0;
+    document.getElementById('tp-rating-comment').value = '';
+    document.getElementById('tp-rating-student').value = '';
+    document.querySelectorAll('#tp-stars .rating-star').forEach(s => s.classList.remove('on'));
+    await openTeacherPanel(teacherId); // refresh
+  } catch(e) { alert(`Failed: ${e.message}`); }
+}
+
+async function submitTeacherLog(teacherId) {
+  const type      = document.getElementById('tp-log-type').value;
+  const text      = document.getElementById('tp-log-text').value.trim();
+  const studentId = document.getElementById('tp-log-student').value || null;
+  if (!text) { alert('Write something first.'); return; }
+  try {
+    await sbFetch('teacher_logs', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ teacher_id: teacherId, type, text, student_id: studentId }),
+    });
+    await openTeacherPanel(teacherId); // refresh
+  } catch(e) { alert(`Failed: ${e.message}`); }
+}
+
+
+function teacherName(id) {
+  if (!id) return null;
+  return allTeachers.find(t => t.id === id)?.name || null;
+}
+function teacherNames(s) {
+  return [s.teacher_rw_id, s.teacher_math_id, s.teacher_ta_id]
+    .map(teacherName).filter(Boolean)
+    .filter((v, i, a) => a.indexOf(v) === i) // dedupe
+    .join(' / ');
+}
+function populateTeacherSelect(elId, role, selectedId) {
+  const sel = document.getElementById(elId);
+  if (!sel) return;
+  const options = allTeachers.filter(t => t.active !== false && (t.role === role || !t.role));
+  sel.innerHTML = '<option value="">— None —</option>' +
+    options.map(t => `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${t.name}</option>`).join('');
+}
+
+/* ============================================================
+   LOAD TEACHERS
+============================================================ */
+async function loadTeachers() {
+  try {
+    allTeachers = await sbFetch('teachers?select=*&order=name.asc') || [];
+  } catch { allTeachers = []; }
+}
+
+/* ============================================================
+   TEACHER ROSTER
+============================================================ */
+function renderTeacherRoster() {
+  const el = document.getElementById('teacher-roster');
+  if (!el) return;
+  if (!allTeachers.length) {
+    el.innerHTML = '<div class="state-msg" style="padding:20px 0;">No teachers yet — add one above.</div>';
+    return;
+  }
+  const roleLabel = { rw: 'RW', math: 'Math', ta: 'TA' };
+  el.innerHTML = `
+    <div style="font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Teacher roster</div>
+    <table class="teacher-roster-table">
+      <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Students</th><th></th></tr></thead>
+      <tbody>
+        ${allTeachers.map(t => {
+          const count = allStudents.filter(s =>
+            s.teacher_rw_id === t.id || s.teacher_math_id === t.id || s.teacher_ta_id === t.id
+          ).length;
+          return `<tr class="clickable ${t.active === false ? 'inactive-row' : ''}" onclick="openTeacherPanel('${t.id}')">
+            <td><strong>${t.name}</strong>${t.active === false ? ' <span style="font-size:.7rem;color:var(--muted);">(inactive)</span>' : ''}</td>
+            <td><span class="role-badge ${t.role || ''}">${roleLabel[t.role] || '—'}</span></td>
+            <td style="color:var(--muted);">${t.email || '—'}</td>
+            <td>${count}</td>
+            <td style="text-align:right;" onclick="event.stopPropagation()">
+              <button class="btn btn-ghost btn-sm" onclick="openEditTeacher('${t.id}')">Edit</button>
+              <button class="btn btn-ghost btn-sm" onclick="toggleTeacherActive('${t.id}', ${t.active !== false})" style="margin-left:4px;">${t.active === false ? 'Reactivate' : 'Deactivate'}</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+let editingTeacherId = null;
+
+function openAddTeacher() {
+  editingTeacherId = null;
+  document.getElementById('teacher-modal-title').textContent = 'Add teacher';
+  document.getElementById('tm-name').value  = '';
+  document.getElementById('tm-role').value  = 'rw';
+  document.getElementById('tm-email').value = '';
+  document.getElementById('teacher-modal-error').textContent = '';
+  document.getElementById('teacher-overlay').classList.add('open');
+}
+
+function openEditTeacher(id) {
+  const t = allTeachers.find(x => x.id === id);
+  if (!t) return;
+  editingTeacherId = id;
+  document.getElementById('teacher-modal-title').textContent = 'Edit teacher';
+  document.getElementById('tm-name').value  = t.name  || '';
+  document.getElementById('tm-role').value  = t.role  || 'rw';
+  document.getElementById('tm-email').value = t.email || '';
+  document.getElementById('teacher-modal-error').textContent = '';
+  document.getElementById('teacher-overlay').classList.add('open');
+}
+
+function closeTeacherModal() {
+  document.getElementById('teacher-overlay').classList.remove('open');
+  editingTeacherId = null;
+}
+function maybeCloseTeacherModal(e) {
+  if (e.target === document.getElementById('teacher-overlay')) closeTeacherModal();
+}
+
+async function saveTeacher() {
+  const name  = document.getElementById('tm-name').value.trim();
+  const role  = document.getElementById('tm-role').value;
+  const email = document.getElementById('tm-email').value.trim() || null;
+  const errEl = document.getElementById('teacher-modal-error');
+  if (!name) { errEl.textContent = 'Name is required.'; return; }
+  try {
+    if (editingTeacherId) {
+      await sbFetch(`teachers?id=eq.${editingTeacherId}`, {
+        method: 'PATCH',
+        headers: { 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ name, role, email }),
+      });
+      const idx = allTeachers.findIndex(t => t.id === editingTeacherId);
+      if (idx !== -1) allTeachers[idx] = { ...allTeachers[idx], name, role, email };
+    } else {
+      const res = await sbFetch('teachers', {
+        method: 'POST',
+        headers: { 'Prefer': 'return=representation' },
+        body: JSON.stringify({ name, role, email, active: true }),
+      });
+      if (res?.[0]) allTeachers.push(res[0]);
+    }
+    closeTeacherModal();
+    renderTeacherRoster();
+    await loadTeacherView(); // refresh stats
+  } catch(e) { errEl.textContent = `Save failed: ${e.message}`; }
+}
+
+async function toggleTeacherActive(id, currentlyActive) {
+  try {
+    await sbFetch(`teachers?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ active: !currentlyActive }),
+    });
+    const idx = allTeachers.findIndex(t => t.id === id);
+    if (idx !== -1) allTeachers[idx].active = !currentlyActive;
+    renderTeacherRoster();
+  } catch(e) { alert(`Failed: ${e.message}`); }
+}
+
+/* ============================================================
    INIT
 ============================================================ */
 checkAdminAuth();
-loadStudents();
+Promise.all([loadStudents(), loadTeachers()]).then(() => {
+  renderTeacherRoster();
+});
 </script>
 </body>
 </html>
