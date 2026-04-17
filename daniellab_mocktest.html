@@ -41,6 +41,8 @@
 <script src="data/mock-tests/data-mt01-math.js"></script>
 <script src="data/mock-tests/data-mt02-rw.js"></script>
 <script src="data/mock-tests/data-mt02-math.js"></script>
+<script src="data/mock-tests/data-mt03-rw.js"></script>
+<script src="data/mock-tests/data-mt03-math.js"></script>
 
 <style>
 .bb-question-layout {
@@ -194,6 +196,13 @@ const AVAILABLE_TESTS = [
     rw1min:32, rw2min:32, mathmin:35, math2min:35,
     threshold:19, mathThreshold:15,
   },
+  { 
+    id:'mt03', tag:'Official Test', name:'JUNE 2025', sub:'US Form B · Full length',
+  meta:'98 questions · Official timing',
+  rw1q:27, rw2q:27, mathq:22, math2q:22,
+  rw1min:32, rw2min:32, mathmin:35, math2min:35,
+  threshold:19, mathThreshold:15 
+}
 ];
 
 /* ── State ─────────────────────────────────────────────── */
@@ -258,26 +267,31 @@ function getQuestions() {
     if (t.id==='practice') return RW1_QUESTIONS;
     if (t.id==='mt01')     return MT01_RW1;
     if (t.id==='mt02')     return MT02_RW1;
+    if (t.id==='mt03')     return MT03_RW1;
     return RW1_QUESTIONS;
   }
   if (S.view==='rw2') {
     if (t.id==='practice') return S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
     if (t.id==='mt01')     return MT01_RW2_HARD;
     if (t.id==='mt02')     return MT02_RW2_HARD;
+    if (t.id==='mt03')     return MT03_RW2_HARD;
     return S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
   }
   if (S.view==='math') {
     if (t.id==='practice') return MATH_QUESTIONS;
     if (t.id==='mt01')     return MT01_MATH1;
     if (t.id==='mt02')     return MT02_MATH1;
+    if (t.id==='mt03')     return MT03_MATH1;
     return MATH_QUESTIONS;
   }
   if (S.view==='math2') {
     if (t.id==='mt01') return MT01_MATH2_HARD;
     if (t.id==='mt02') return MT02_MATH2_HARD;
+    if (t.id==='mt03') return MT03_MATH2_HARD;
     return [];
   }
   return [];
+}
 }
 function getResponses() {
   if (S.view==='rw1')   return S.rw1Responses;
