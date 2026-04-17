@@ -32,6 +32,7 @@
 <script src="data/data-ii6.js"></script>
 <script src="data/data-ii7.js"></script>
 <script src="data/data.daniellab.rw.js"></script>
+<script src="data/data.daniellab.math.js"></script>
 <style>
 .bb-question-layout {
   display:grid; grid-template-columns:1fr 1px 1fr;
@@ -573,7 +574,7 @@ function bindEvents() {
     });
     on('btn-q-prev','click',()=>{ if(S.qIndex>0){S.qIndex--;render();} });
     on('btn-q-next','click',()=>{ S.qIndex++; render(); });
-    on('btn-q-finish','click',()=>{ saveResults(); updateStreak(); S.view='results'; render(); });
+    on('btn-q-finish','click',()=>{ saveResults(); S.view='results'; render(); });
     onAll('.bb-dot[data-qi]','click',e=>{ S.qIndex=parseInt(e.currentTarget.dataset.qi,10); render(); });
     initHighlighter();
   }
@@ -581,7 +582,6 @@ function bindEvents() {
   on('btn-exit-save','click', async ()=>{
     if (S.view==='quiz' && Object.keys(S.responses).length > 0) {
       await saveResults();
-      updateStreak();
     }
     window.location.href='daniellab_student.html';
   });
@@ -668,17 +668,6 @@ function retryDomain() {
   S.qIndex=0; S.responses={}; S.selected={}; S.responseTimes={}; S.flags={}; S.highlights={};
   S.sessionId=crypto.randomUUID();
   S.view='quiz'; render();
-}
-
-function updateStreak() {
-  const key = `dl_streak_${studentId}`;
-  const today = new Date().toDateString();
-  const raw = localStorage.getItem(key);
-  if (!raw) { localStorage.setItem(key, JSON.stringify({ days:1, last:today })); return; }
-  const { days, last } = JSON.parse(raw);
-  if (last === today) return;
-  const yesterday = new Date(Date.now() - 86400000).toDateString();
-  localStorage.setItem(key, JSON.stringify({ days: last===yesterday ? days+1 : 1, last: today }));
 }
 
 async function saveResults() {
