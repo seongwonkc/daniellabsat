@@ -1683,7 +1683,7 @@ async function loadTeacherView() {
       const barClass   = barPct >= 70 ? '' : barPct >= 40 ? 'mid' : 'low';
 
       return `<tr onclick="drillTeacher('${t.replace(/'/g,"\'")}')">
-        <td class="teacher-name-cell">${t}</td>
+        <td class="teacher-name-cell">${tName}</td>
         <td>${count}</td>
         <td>${avgStart || '—'}</td>
         <td>${avgLatest || '—'}</td>
