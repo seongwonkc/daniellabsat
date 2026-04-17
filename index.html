@@ -32,7 +32,6 @@ body {
   padding: 24px;
   gap: 40px;
 }
-
 .logo {
   font-family: var(--sans);
   font-size: 1.6rem;
@@ -42,14 +41,12 @@ body {
 }
 .logo .bold { color: var(--accent); font-weight: 700; }
 .logo .sub  { display: block; font-size: 0.7rem; color: var(--muted); letter-spacing: .08em; margin-top: 6px; }
-
 .branch-wrap {
   display: flex;
   gap: 14px;
   width: 100%;
-  max-width: 460px;
+  max-width: 680px;
 }
-
 .branch-card {
   flex: 1;
   background: var(--surface);
@@ -69,38 +66,20 @@ body {
   box-shadow: 0 2px 16px rgba(200,16,46,0.08);
   transform: translateY(-1px);
 }
-.branch-icon {
-  font-size: 1.4rem;
-  margin-bottom: 4px;
-}
-.branch-title {
-  font-family: var(--serif);
-  font-size: 1.2rem;
-}
-.branch-sub {
-  font-size: 0.78rem;
-  color: var(--muted);
-  line-height: 1.4;
-}
-.branch-card .arrow {
-  font-size: 0.8rem;
-  color: var(--accent);
-  font-weight: 600;
-  margin-top: 8px;
-}
-
-@media (max-width: 400px) {
+.branch-icon { font-size: 1.4rem; margin-bottom: 4px; }
+.branch-title { font-family: var(--serif); font-size: 1.2rem; }
+.branch-sub { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+.branch-card .arrow { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-top: 8px; }
+@media (max-width: 540px) {
   .branch-wrap { flex-direction: column; }
 }
 </style>
 </head>
 <body>
-
 <div class="logo">
   The<span class="bold">Daniel</span>Lab
   <span class="sub">Seoul · Boston</span>
 </div>
-
 <div class="branch-wrap">
   <a class="branch-card" href="daniellab_login.html">
     <div class="branch-icon">📖</div>
@@ -108,14 +87,19 @@ body {
     <div class="branch-sub">Log in with your student code and PIN</div>
     <div class="arrow">Sign in →</div>
   </a>
-  <a class="branch-card" href="daniellab_dashboard.html">
+  <a class="branch-card" href="daniellab_intake.html">
+    <div class="branch-icon">📋</div>
+    <div class="branch-title">New student?</div>
+    <div class="branch-sub">Complete your intake form before your first session</div>
+    <div class="arrow">Register →</div>
+  </a>
+  <a class="branch-card" href="daniellab_admin_login.html">
     <div class="branch-icon">⚙️</div>
     <div class="branch-title">Admin</div>
     <div class="branch-sub">Manage cohorts, sessions, and student records</div>
     <div class="arrow">Dashboard →</div>
   </a>
 </div>
-
 <footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by Vector AI</footer>
 </body>
 </html>
