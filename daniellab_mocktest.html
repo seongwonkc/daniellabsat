@@ -39,6 +39,8 @@
 <!-- Mock tests -->
 <script src="data/mock-tests/data-mt01-rw.js"></script>
 <script src="data/mock-tests/data-mt01-math.js"></script>
+<script src="data/mock-tests/data-mt02-rw.js"></script>
+<script src="data/mock-tests/data-mt02-math.js"></script>
 
 <style>
 .bb-question-layout {
@@ -168,9 +170,9 @@ const AVAILABLE_TESTS = [
     name:      'Random Practice Test',
     sub:       'Questions drawn from your full question bank',
     meta:      '~58 questions · Adaptive',
-    rw1q:20, rw2q:20, mathq:18,
-    rw1min:25, rw2min:25, mathmin:22,
-    threshold: 14,   // score needed out of rw1q to get hard module 2
+    rw1q:20, rw2q:20, mathq:18, math2q:0,
+    rw1min:25, rw2min:25, mathmin:22, math2min:0,
+    threshold:14, mathThreshold:0,
   },
   {
     id:        'mt01',
@@ -178,9 +180,19 @@ const AVAILABLE_TESTS = [
     name:      'December 2024',
     sub:       'US Form A · Full length',
     meta:      '98 questions · Official timing',
-    rw1q:27, rw2q:27, mathq:22,
-    rw1min:32, rw2min:32, mathmin:35,
-    threshold: 19,   // 70% of 27
+    rw1q:27, rw2q:27, mathq:22, math2q:22,
+    rw1min:32, rw2min:32, mathmin:35, math2min:35,
+    threshold:19, mathThreshold:15,
+  },
+  {
+    id:        'mt02',
+    tag:       'Official Test',
+    name:      'March 2025',
+    sub:       'US Form A · Full length',
+    meta:      '98 questions · Official timing',
+    rw1q:27, rw2q:27, mathq:22, math2q:22,
+    rw1min:32, rw2min:32, mathmin:35, math2min:35,
+    threshold:19, mathThreshold:15,
   },
 ];
 
@@ -191,7 +203,8 @@ const S = {
   rw1Responses:{}, rw1Score:null,
   moduleType:null,
   rw2Responses:{}, rw2Score:null,
-  mathResponses:{}, mathScore:null, mathTimeAtEnd:null,
+  mathResponses:{}, mathScore:null,
+  math2Responses:{}, math2Score:null, mathModuleType:null, mathTimeAtEnd:null,
   timerRemaining:0, timerInterval:null,
   sessionId: crypto.randomUUID(),
   responseTimes:{},
@@ -231,9 +244,10 @@ function updateTimerDisplay() {
   nav.classList.toggle('critical', S.timerRemaining<=60);
 }
 function autoSubmit() {
-  if      (S.view==='rw1')  submitModule('rw1');
-  else if (S.view==='rw2')  submitModule('rw2');
-  else if (S.view==='math') { S.mathTimeAtEnd=0; submitModule('math'); }
+  if      (S.view==='rw1')   submitModule('rw1');
+  else if (S.view==='rw2')   submitModule('rw2');
+  else if (S.view==='math')  { S.mathTimeAtEnd=0; submitModule('math'); }
+  else if (S.view==='math2') { S.mathTimeAtEnd=0; submitModule('math2'); }
 }
 
 /* ── Question helpers ──────────────────────────────────── */
@@ -241,27 +255,42 @@ function getQuestions() {
   const t = S.selectedTest;
   if (!t) return [];
   if (S.view==='rw1') {
-    return t.id==='practice' ? RW1_QUESTIONS : MT01_RW1;
+    if (t.id==='practice') return RW1_QUESTIONS;
+    if (t.id==='mt01')     return MT01_RW1;
+    if (t.id==='mt02')     return MT02_RW1;
+    return RW1_QUESTIONS;
   }
   if (S.view==='rw2') {
     if (t.id==='practice') return S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
-    return MT01_RW2_HARD; // MT01 hard only for now
+    if (t.id==='mt01')     return MT01_RW2_HARD;
+    if (t.id==='mt02')     return MT02_RW2_HARD;
+    return S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
   }
   if (S.view==='math') {
-    return t.id==='practice' ? MATH_QUESTIONS : MT01_MATH1;
+    if (t.id==='practice') return MATH_QUESTIONS;
+    if (t.id==='mt01')     return MT01_MATH1;
+    if (t.id==='mt02')     return MT02_MATH1;
+    return MATH_QUESTIONS;
+  }
+  if (S.view==='math2') {
+    if (t.id==='mt01') return MT01_MATH2_HARD;
+    if (t.id==='mt02') return MT02_MATH2_HARD;
+    return [];
   }
   return [];
 }
 function getResponses() {
-  if (S.view==='rw1')  return S.rw1Responses;
-  if (S.view==='rw2')  return S.rw2Responses;
-  if (S.view==='math') return S.mathResponses;
+  if (S.view==='rw1')   return S.rw1Responses;
+  if (S.view==='rw2')   return S.rw2Responses;
+  if (S.view==='math')  return S.mathResponses;
+  if (S.view==='math2') return S.math2Responses;
   return {};
 }
 function setR(id, val) {
-  if      (S.view==='rw1')  S.rw1Responses[id]=val;
-  else if (S.view==='rw2')  S.rw2Responses[id]=val;
-  else if (S.view==='math') S.mathResponses[id]=val;
+  if      (S.view==='rw1')   S.rw1Responses[id]=val;
+  else if (S.view==='rw2')   S.rw2Responses[id]=val;
+  else if (S.view==='math')  S.mathResponses[id]=val;
+  else if (S.view==='math2') S.math2Responses[id]=val;
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -330,10 +359,12 @@ function updateNav() {
   const qs = getQuestions();
   if (S.modulePhase==='active'&&qs.length) {
     bar.style.width = ((S.qIndex/qs.length)*100)+'%';
+    const hasMath2 = S.selectedTest?.math2q > 0;
     const names = {
-      rw1:'Reading & Writing · Module 1',
-      rw2:`Reading & Writing · Module 2 (${S.moduleType||'standard'})`,
-      math:'Math',
+      rw1:   'Reading & Writing · Module 1',
+      rw2:   `Reading & Writing · Module 2 (${S.moduleType||'standard'})`,
+      math:  hasMath2 ? 'Math · Module 1' : 'Math',
+      math2: `Math · Module 2 (${S.mathModuleType||'standard'})`,
     };
     lbl.innerHTML = `<strong>${names[S.view]}</strong> &nbsp;·&nbsp; Q ${S.qIndex+1} / ${qs.length}`;
     const ht=document.getElementById('hl-toolbar'); if(ht) ht.style.opacity='1';
@@ -381,12 +412,14 @@ function htmlTestSelect() {
 
 function htmlModuleIntro() {
   const t = S.selectedTest;
+  const hasMath2 = t.math2q > 0;
   const key = S.view==='rw2' ? (S.moduleType==='hard'?'rw2h':'rw2e') : S.view;
   const cfgs = {
-    rw1:  { sub:'Module 1 of 2',            title:'Reading & Writing', q:t.rw1q,  min:t.rw1min,  desc:'Read each passage and answer the question. You may navigate back within this module.' },
-    rw2e: { sub:'Module 2 of 2 — Standard', title:'Reading & Writing', q:t.rw2q,  min:t.rw2min,  desc:'Continue with the same format. You may not return to Module 1.' },
-    rw2h: { sub:'Module 2 of 2 — Advanced', title:'Reading & Writing', q:t.rw2q,  min:t.rw2min,  desc:'Continue with the same format. You may not return to Module 1.' },
-    math: { sub:'Final Module',              title:'Math',              q:t.mathq, min:t.mathmin, desc:'Some questions require a typed answer. A calculator is available for all questions.' },
+    rw1:   { sub:'Module 1 of 2',             title:'Reading & Writing', q:t.rw1q,   min:t.rw1min,   desc:'Read each passage and answer the question. You may navigate back within this module.' },
+    rw2e:  { sub:'Module 2 of 2 — Standard',  title:'Reading & Writing', q:t.rw2q,   min:t.rw2min,   desc:'Continue with the same format. You may not return to Module 1.' },
+    rw2h:  { sub:'Module 2 of 2 — Advanced',  title:'Reading & Writing', q:t.rw2q,   min:t.rw2min,   desc:'Continue with the same format. You may not return to Module 1.' },
+    math:  { sub: hasMath2 ? 'Module 1 of 2' : 'Final Module', title:'Math', q:t.mathq, min:t.mathmin, desc:'Some questions require a typed answer. A calculator is available for all questions.' },
+    math2: { sub:`Module 2 of 2 — ${S.mathModuleType==='hard'?'Advanced':'Standard'}`, title:'Math', q:t.math2q, min:t.math2min, desc:'Continue with the same format. You may not return to Math Module 1.' },
   };
   const c = cfgs[key];
   return `
@@ -547,31 +580,44 @@ function toggleCalc() {
   if (p) p.style.display = p.style.display==='none'?'flex':'none';
 }
 
+function getTestQuestions(t, module) {
+  const tid = t.id;
+  if (module==='rw1')   return tid==='mt01' ? MT01_RW1    : tid==='mt02' ? MT02_RW1    : RW1_QUESTIONS;
+  if (module==='rw2')   return S.moduleType==='hard'
+    ? (tid==='mt01' ? MT01_RW2_HARD  : tid==='mt02' ? MT02_RW2_HARD  : RW2_HARD_QUESTIONS)
+    : (tid==='mt01' ? MT01_RW2_HARD  : tid==='mt02' ? MT02_RW2_HARD  : RW2_EASY_QUESTIONS);
+  if (module==='math')  return tid==='mt01' ? MT01_MATH1  : tid==='mt02' ? MT02_MATH1  : MATH_QUESTIONS;
+  if (module==='math2') return tid==='mt01' ? MT01_MATH2_HARD : tid==='mt02' ? MT02_MATH2_HARD : [];
+  return [];
+}
+
 function htmlResults() {
   const t = S.selectedTest;
-  const rw1Qs  = t.id==='mt01' ? MT01_RW1 : RW1_QUESTIONS;
-  const rwQs   = S.moduleType==='hard'
-    ? (t.id==='mt01' ? MT01_RW2_HARD : RW2_HARD_QUESTIONS)
-    : (t.id==='mt01' ? MT01_RW2_HARD : RW2_EASY_QUESTIONS);
-  const mathQs = t.id==='mt01' ? MT01_MATH1 : MATH_QUESTIONS;
+  const rw1Qs  = getTestQuestions(t,'rw1');
+  const rwQs   = getTestQuestions(t,'rw2');
+  const mathQs = getTestQuestions(t,'math');
+  const math2Qs= t.math2q>0 ? getTestQuestions(t,'math2') : [];
 
   const rwTotal   = t.rw1q + t.rw2q;
-  const mathTotal = t.mathq;
+  const mathTotal = t.mathq + (t.math2q||0);
   const rwRaw     = (S.rw1Score||0)+(S.rw2Score||0);
+  const mathRaw   = (S.mathScore||0)+(S.math2Score||0);
   const rwScaled  = Math.round(200+(rwRaw/rwTotal)*600);
-  const mathScaled= Math.round(200+((S.mathScore||0)/mathTotal)*600);
+  const mathScaled= Math.round(200+(mathRaw/mathTotal)*600);
   const total = rwScaled+mathScaled;
   const target = parseInt(sessionStorage.getItem('dl_student_target')||'0');
   const gap = target ? target - total : null;
 
   const allRWQs   = [...rw1Qs,...rwQs];
+  const allMathQs = [...mathQs,...math2Qs];
+  const allMathRes= {...S.mathResponses,...S.math2Responses};
   const rwBreak   = domainBreakdown({...S.rw1Responses,...S.rw2Responses}, allRWQs);
-  const mathBreak = domainBreakdown(S.mathResponses, mathQs);
+  const mathBreak = domainBreakdown(allMathRes, allMathQs);
   const allBreak  = {...rwBreak,...mathBreak};
 
   // Time analysis per domain
   const timeByDomain = {};
-  const allQs = [...rw1Qs,...rwQs,...mathQs];
+  const allQs = [...rw1Qs,...rwQs,...mathQs,...math2Qs];
   allQs.forEach(q => {
     const t = S.responseTimes[q.id];
     if (!t||!q.domain) return;
@@ -583,8 +629,8 @@ function htmlResults() {
   // Missed question type analysis
   const missedTypes = {};
   allQs.forEach(q => {
-    const r = [...Object.entries(S.rw1Responses),...Object.entries(S.rw2Responses),...Object.entries(S.mathResponses)]
-      .find(([id])=>id===q.id)?.[1];
+    const allRes = {...S.rw1Responses,...S.rw2Responses,...allMathRes};
+    const r = allRes[q.id];
     if (!r||!q.type) return;
     let ok = q.isSPR
       ? (()=>{const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');let ok=false;if(q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01)ok=true;}if(!ok)ok=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);return ok;})()
@@ -697,7 +743,7 @@ function htmlResults() {
     <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;">
       <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">Math</div>
       <div style="font-size:32px;font-weight:700;line-height:1;">${mathScaled}</div>
-      <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">Raw ${S.mathScore||0}/${mathTotal}</div>
+      <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">Raw ${mathRaw}/${mathTotal} · M1: ${S.mathScore||0}/${t.mathq}${t.math2q>0?` · M2: ${S.math2Score||0}/${t.math2q}`:''}</div>
     </div>
     ${target?`<div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;">
       <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">Target</div>
@@ -764,7 +810,9 @@ function htmlResults() {
       ${S.moduleType==='hard'?' ✓ Above threshold':' (below '+t.threshold+'/'+t.rw1q+')'}<br>
       RW Module 2: <strong>${S.rw2Score}/${t.rw2q}</strong> (${Math.round((S.rw2Score/t.rw2q)*100)}%)
       ${rwDrop?` <span style="font-size:.72rem;font-weight:600;color:#c8102e;">▼ Drop from M1</span>`:''}<br>
-      Math: <strong>${S.mathScore||0}/${mathTotal}</strong> (${Math.round(((S.mathScore||0)/mathTotal)*100)}%)
+      Math: <strong>${S.mathScore||0}/${t.mathq}</strong> (${Math.round(((S.mathScore||0)/t.mathq)*100)}%)
+      ${t.math2q>0?`→ Math Module 2 routed to <strong>${S.mathModuleType==='hard'?'Advanced':'Standard'}</strong><br>
+      Math M2: <strong>${S.math2Score||0}/${t.math2q}</strong> (${Math.round(((S.math2Score||0)/t.math2q)*100)}%)`:''}
       ${S.mathTimeAtEnd!=null?` · ${fmtTime(S.mathTimeAtEnd)} remaining`:''}
     </div>
   </div>
@@ -848,7 +896,7 @@ function bindEvents() {
       const qs=getQuestions(), rs=getResponses();
       const unanswered=qs.filter(qq=>!rs[qq.id]).length;
       if (unanswered>0&&!confirm(`${unanswered} unanswered question${unanswered>1?'s':''}. Submit anyway?`)) return;
-      if (S.view==='math') S.mathTimeAtEnd=S.timerRemaining;
+      if (S.view==='math'||S.view==='math2') S.mathTimeAtEnd=S.timerRemaining;
       submitModule(S.view);
     });
     onAll('.bb-dot[data-qi]','click',e=>{ S.qIndex=parseInt(e.currentTarget.dataset.qi,10); render(); });
@@ -859,7 +907,7 @@ function bindEvents() {
 /* ── Handlers ──────────────────────────────────────────── */
 function handleBeginModule() {
   const t = S.selectedTest;
-  const seconds = { rw1:t.rw1min*60, rw2:t.rw2min*60, math:t.mathmin*60 }[S.view] || 1500;
+  const seconds = { rw1:t.rw1min*60, rw2:t.rw2min*60, math:t.mathmin*60, math2:t.math2min*60 }[S.view] || 1500;
   S.modulePhase='active'; S.qIndex=0;
   startTimer(seconds);
   render();
@@ -868,14 +916,22 @@ function handleBeginModule() {
 function submitModule(module) {
   stopTimer();
   if (module==='rw1') {
-    S.rw1Score  = scoreModule(S.rw1Responses, getQuestions());
-    S.moduleType= S.rw1Score >= S.selectedTest.threshold ? 'hard' : 'easy';
+    S.rw1Score   = scoreModule(S.rw1Responses, getQuestions());
+    S.moduleType = S.rw1Score >= S.selectedTest.threshold ? 'hard' : 'easy';
     S.view='rw2'; S.modulePhase='intro'; S.qIndex=0; render();
   } else if (module==='rw2') {
     S.rw2Score = scoreModule(S.rw2Responses, getQuestions());
     S.view='math'; S.modulePhase='intro'; S.qIndex=0; render();
   } else if (module==='math') {
     S.mathScore = scoreModule(S.mathResponses, getQuestions());
+    if (S.selectedTest.math2q > 0) {
+      S.mathModuleType = S.mathScore >= S.selectedTest.mathThreshold ? 'hard' : 'easy';
+      S.view='math2'; S.modulePhase='intro'; S.qIndex=0; render();
+    } else {
+      finishTest();
+    }
+  } else if (module==='math2') {
+    S.math2Score = scoreModule(S.math2Responses, getQuestions());
     finishTest();
   }
 }
@@ -885,9 +941,11 @@ async function finishTest() {
 
   const t = S.selectedTest;
   const rwTotal    = t.rw1q + t.rw2q;
+  const mathTotal  = t.mathq + (t.math2q||0);
   const rwRaw      = (S.rw1Score||0)+(S.rw2Score||0);
+  const mathRaw    = (S.mathScore||0)+(S.math2Score||0);
   const rwScaled   = Math.round(200+(rwRaw/rwTotal)*600);
-  const mathScaled = Math.round(200+((S.mathScore||0)/t.mathq)*600);
+  const mathScaled = Math.round(200+(mathRaw/mathTotal)*600);
 
   const {url,key}=getConfig();
   if (!url||!key) return;
@@ -900,18 +958,17 @@ async function finishTest() {
     module_type:         S.moduleType,
     rw1_responses:       S.rw1Responses,
     rw2_responses:       S.rw2Responses,
-    math_responses:      S.mathResponses,
+    math_responses:      {...S.mathResponses,...S.math2Responses},
     time_remaining_math: S.mathTimeAtEnd,
   });
 
-  const rw1Qs  = t.id==='mt01' ? MT01_RW1 : RW1_QUESTIONS;
-  const rwQs   = S.moduleType==='hard'
-    ? (t.id==='mt01' ? MT01_RW2_HARD : RW2_HARD_QUESTIONS)
-    : (t.id==='mt01' ? MT01_RW2_HARD : RW2_EASY_QUESTIONS);
-  const mathQs = t.id==='mt01' ? MT01_MATH1 : MATH_QUESTIONS;
+  const rw1Qs  = getTestQuestions(t,'rw1');
+  const rwQs   = getTestQuestions(t,'rw2');
+  const mathQs = getTestQuestions(t,'math');
+  const math2Qs= t.math2q>0 ? getTestQuestions(t,'math2') : [];
 
   const rows = [];
-  [{questions:rw1Qs,responses:S.rw1Responses},{questions:rwQs,responses:S.rw2Responses},{questions:mathQs,responses:S.mathResponses}]
+  [{questions:rw1Qs,responses:S.rw1Responses},{questions:rwQs,responses:S.rw2Responses},{questions:mathQs,responses:S.mathResponses},{questions:math2Qs,responses:S.math2Responses}]
     .forEach(({questions,responses})=>{
       questions.forEach(q=>{
         const r=responses[q.id];
@@ -1016,6 +1073,6 @@ function initHighlighter() {
 
 render();
 </script>
-<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by SENECA AI</footer>
+<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by Vector AI</footer>
 </body>
 </html>
