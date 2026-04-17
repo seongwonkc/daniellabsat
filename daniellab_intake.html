@@ -630,7 +630,13 @@
   <div class="logo">The<span class="brand-bold">Daniel</span>Lab<span class="brand-sub">Seoul · Boston</span></div>
   <div style="display:flex;align-items:center;gap:16px;">
     <div class="step-counter" id="step-counter">Step 1 of 4</div>
-      </div>
+    <button class="btn-icon" onclick="openSettings()" title="Supabase config">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="2.5"/>
+        <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/>
+      </svg>
+    </button>
+  </div>
 </header>
 
 <!-- SETTINGS MODAL -->
@@ -672,10 +678,8 @@
   <div class="card" id="step-1">
     <div class="step-label">Step 1 — Student Info</div>
     <h2 class="card-title">Student intake.</h2>
-    <p class="card-subtitle">Fill in your details below. Your teacher will give you your Student Login ID and Cohort before you start.</p>
-    <div style="font-size:0.78rem;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:20px;line-height:1.6;">
-      By completing this form, you agree to SENECA AI collecting and storing your information for educational coaching purposes. Data is processed by SENECA AI and stored on overseas servers. Questions? Ask your teacher.
-    </div>
+    <p class="card-subtitle">Internal record — fill in what you have. Student code is the login ID — customize it or leave it auto-generated.</p>
+
     <div class="field-group">
       <div class="field">
         <label for="name">Student Name</label>
@@ -858,7 +862,7 @@
         <div class="option-indicator"></div>
         <div><div class="option-text">Anxiety / pressure</div><div class="option-sub">Stress makes it hard to focus</div></div>
       </div>
-      <div class="option-card" onclick="selectOption(this, 'obstacle', 'Don\'t know what to study')">
+      <div class="option-card" onclick="selectOption(this, 'obstacle', "Don't know what to study")">
         <div class="option-indicator"></div>
         <div><div class="option-text">Don't know what to study</div><div class="option-sub">Not sure where to focus</div></div>
       </div>
@@ -930,6 +934,7 @@
   <div class="result-actions">
     <button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
     <button class="btn btn-ghost" onclick="restartForm()">Start Over</button>
+    <button class="btn btn-ghost" onclick="window.location.href='daniellab_login.html'">Go to login →</button>
   </div>
 
 </div><!-- /results -->
@@ -1477,6 +1482,5 @@ function restartForm() {
 }
 
 </script>
-<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by SENECA AI</footer>
 </body>
 </html>
