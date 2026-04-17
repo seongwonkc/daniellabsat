@@ -6,7 +6,6 @@
 <title>DanielLab · Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <style>
 :root {
@@ -89,17 +88,6 @@ body {
   margin-top: auto;
   padding: 16px 20px 0;
   border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.sidebar-admin-name {
-  font-size: 0.75rem;
-  color: var(--muted);
-  padding: 0 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .btn-config {
   font-family: var(--sans);
@@ -118,23 +106,6 @@ body {
   gap: 6px;
 }
 .btn-config:hover { color: var(--accent); border-color: var(--accent); }
-.btn-signout {
-  font-family: var(--sans);
-  font-size: 0.82rem;
-  color: var(--muted);
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  transition: all 0.12s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-signout:hover { color: var(--accent); border-color: var(--accent); }
 
 /* Main content */
 .main {
@@ -361,6 +332,7 @@ body {
 }
 .notes-header h3 { font-size: 0.9rem; font-weight: 600; }
 
+/* Add note form */
 .note-form {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -403,6 +375,7 @@ textarea {
 textarea:focus { border-color: var(--accent); }
 textarea::placeholder { color: var(--muted); }
 
+/* Note history */
 .note-timeline { display: flex; flex-direction: column; gap: 0; }
 .note-item {
   display: flex;
@@ -486,6 +459,62 @@ textarea::placeholder { color: var(--muted); }
 }
 
 /* ============================
+   ADMIN PIN GATE
+============================ */
+.pin-gate {
+  display: none;
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 32px;
+}
+.pin-gate.active { display: flex; }
+.pin-gate .logo  { font-family: var(--sans); font-size: 1.4rem; font-weight: 400; text-align: center; }
+.pin-gate .logo .bold { color: var(--accent); font-weight: 700; }
+.pin-gate .logo .sub  { display: block; font-size: 0.65rem; color: var(--muted); letter-spacing: .08em; margin-top: 4px; }
+.pin-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px 32px;
+  width: 100%;
+  max-width: 360px;
+}
+.pin-card h2 { font-family: var(--serif); font-size: 1.4rem; margin-bottom: 6px; }
+.pin-card p  { font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; }
+.pin-input {
+  font-family: var(--sans);
+  font-size: 1.4rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  padding: 14px;
+  width: 100%;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+.pin-input:focus { border-color: var(--accent); }
+.pin-btn {
+  font-family: var(--sans); font-size: 0.95rem; font-weight: 600;
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 8px; padding: 13px;
+  width: 100%; cursor: pointer; transition: background 0.15s;
+}
+.pin-btn:hover { background: var(--accent-dim); }
+.pin-error {
+  font-size: 0.8rem; color: var(--accent);
+  text-align: center; margin-top: 10px;
+  min-height: 18px;
+}
+
+/* ============================
    EDIT STUDENT MODAL
 ============================ */
 .edit-modal {
@@ -536,9 +565,104 @@ textarea::placeholder { color: var(--muted); }
   .panel-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
   .note-fields { grid-template-columns: 1fr 1fr; }
 }
+
+/* ============================
+   VIEW TABS
+============================ */
+.view-tabs {
+  display: flex; gap: 0; border-bottom: 2px solid var(--border);
+  margin-bottom: 28px;
+}
+.view-tab {
+  padding: 10px 20px; font-size: 0.85rem; font-weight: 500;
+  color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -2px; transition: all .12s;
+}
+.view-tab:hover { color: var(--text); }
+.view-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.view-section { display: none; }
+.view-section.active { display: block; }
+
+/* ============================
+   COHORT VIEW
+============================ */
+.cohort-overview-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px; margin-bottom: 32px;
+}
+.cohort-card {
+  border: 1.5px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); padding: 20px 22px; cursor: pointer;
+  transition: all .12s;
+}
+.cohort-card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(200,16,46,0.07); }
+.cohort-card-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+.cohort-card-sub  { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
+.cohort-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.cohort-stat-val { font-size: 1.15rem; font-weight: 600; color: var(--text); }
+.cohort-stat-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 2px; }
+.cohort-delta { color: var(--good); }
+.cohort-delta.neg { color: var(--accent); }
+
+/* ============================
+   TEACHER VIEW
+============================ */
+.teacher-table {
+  width: 100%; border-collapse: collapse; font-size: 0.85rem;
+  margin-bottom: 32px;
+}
+.teacher-table th {
+  text-align: left; font-size: 0.68rem; font-weight: 600;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+  padding: 8px 12px; border-bottom: 2px solid var(--border);
+}
+.teacher-table td {
+  padding: 12px 12px; border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.teacher-table tr:last-child td { border-bottom: none; }
+.teacher-table tr:hover td { background: var(--bg); cursor: pointer; }
+.teacher-name-cell { font-weight: 600; }
+.perf-bar-wrap { width: 80px; height: 6px; background: var(--border); border-radius: 3px; display:inline-block; vertical-align:middle; margin-right:6px; }
+.perf-bar-fill { height: 100%; border-radius: 3px; background: var(--good); }
+.perf-bar-fill.mid { background: var(--warn); }
+.perf-bar-fill.low { background: var(--accent); }
+.delta-positive { color: var(--good); font-weight: 600; }
+.delta-negative { color: var(--accent); font-weight: 600; }
+.delta-neutral  { color: var(--muted); }
+
+/* Teacher drill-in student list */
+.teacher-drill-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+}
+.teacher-drill-back {
+  font-size: 0.82rem; color: var(--muted); cursor: pointer;
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--radius);
+}
+.teacher-drill-back:hover { color: var(--text); }
+
+/* Mini sparkline in student panel */
+.mini-chart-wrap {
+  margin-top: 12px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+}
+.mini-chart-label { font-size: 0.68rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
 </style>
 </head>
 <body>
+
+<!-- ADMIN PIN GATE -->
+<div class="pin-gate" id="pin-gate">
+  <div class="logo">The<span class="bold">Daniel</span>Lab<span class="sub">Admin</span></div>
+  <div class="pin-card">
+    <h2>Admin access</h2>
+    <p>Enter your admin PIN to continue.</p>
+    <input class="pin-input" type="password" id="admin-pin-input" maxlength="8" placeholder="••••"
+           onkeydown="if(event.key==='Enter') checkAdminPin()" autofocus />
+    <button class="pin-btn" onclick="checkAdminPin()">Enter</button>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
 
 <!-- EDIT STUDENT MODAL -->
 <div class="overlay" id="edit-overlay" onclick="maybeCloseEdit(event)">
@@ -577,6 +701,18 @@ textarea::placeholder { color: var(--muted); }
         <input type="text" id="edit-cohort" />
       </div>
       <div class="edit-field">
+        <label>RW Teacher</label>
+        <input type="text" id="edit-teacher-rw" placeholder="e.g. Sarah Kim" />
+      </div>
+      <div class="edit-field">
+        <label>Math Teacher</label>
+        <input type="text" id="edit-teacher-math" placeholder="e.g. Kevin Choi" />
+      </div>
+      <div class="edit-field">
+        <label>TA (optional)</label>
+        <input type="text" id="edit-teacher-ta" placeholder="e.g. James Park" />
+      </div>
+      <div class="edit-field">
         <label>Test Date</label>
         <input type="date" id="edit-test-date" />
       </div>
@@ -605,7 +741,7 @@ textarea::placeholder { color: var(--muted); }
       <button class="btn btn-primary" style="flex:1;" onclick="saveStudentEdit()">Save changes</button>
       <button class="btn btn-ghost" onclick="closeEdit()">Cancel</button>
     </div>
-    <div class="pin-error" id="edit-error" style="text-align:left;margin-top:8px;font-size:.8rem;color:var(--accent);"></div>
+    <div class="pin-error" id="edit-error" style="text-align:left;margin-top:8px;"></div>
   </div>
 </div>
 
@@ -641,107 +777,84 @@ textarea::placeholder { color: var(--muted); }
       </div>
     </div>
     <div class="sidebar-bottom">
-      <div class="sidebar-admin-name" id="admin-name-display"></div>
       <button class="btn-config" onclick="openSettings()">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/>
         </svg>
         Supabase config
       </button>
-      <button class="btn-signout" onclick="adminSignOut()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3-3-3-3M13 8H6"/>
-        </svg>
-        Sign out
-      </button>
     </div>
   </aside>
 
   <!-- MAIN -->
   <main class="main">
-    <div class="main-header">
-      <h1 id="main-title">All students</h1>
-      <div class="header-actions">
-        <input class="search-input" type="text" id="search" placeholder="Search name or code…" oninput="renderStudents()" />
-        <a href="daniellab_intake.html" class="btn btn-primary btn-sm">+ New intake</a>
+    <!-- VIEW TABS -->
+    <div class="view-tabs">
+      <div class="view-tab active" onclick="switchView('students', this)">Students</div>
+      <div class="view-tab" onclick="switchView('cohorts', this)">Cohorts</div>
+      <div class="view-tab" onclick="switchView('teachers', this)">Teachers</div>
+    </div>
+
+    <!-- STUDENTS VIEW -->
+    <div class="view-section active" id="view-students">
+      <div class="main-header">
+        <h1 id="main-title">All students</h1>
+        <div class="header-actions">
+          <input class="search-input" type="text" id="search" placeholder="Search name or code…" oninput="renderStudents()" />
+          <a href="daniellab_intake.html" class="btn btn-primary btn-sm">+ New intake</a>
+        </div>
+      </div>
+      <div class="student-grid" id="student-grid">
+        <div class="state-msg" id="grid-state">Loading students…</div>
+      </div>
+      <div class="detail-panel" id="detail-panel"></div>
+    </div>
+
+    <!-- COHORTS VIEW -->
+    <div class="view-section" id="view-cohorts">
+      <div class="main-header" style="margin-bottom:24px;"><h1>Cohorts</h1></div>
+      <div class="cohort-overview-grid" id="cohort-overview-grid">
+        <div class="state-msg">Loading cohort data…</div>
       </div>
     </div>
 
-    <div class="student-grid" id="student-grid">
-      <div class="state-msg" id="grid-state">Loading students…</div>
+    <!-- TEACHERS VIEW -->
+    <div class="view-section" id="view-teachers">
+      <div class="main-header" style="margin-bottom:24px;">
+        <h1 id="teacher-view-title">Teacher performance</h1>
+      </div>
+      <div id="teacher-view-body">
+        <div class="state-msg">Loading teacher data…</div>
+      </div>
     </div>
-
-    <div class="detail-panel" id="detail-panel"></div>
   </main>
 </div>
 
 <script>
 /* ============================================================
-   AUTH — Supabase Auth replaces PIN gate
+   ADMIN PIN GATE
 ============================================================ */
-let supabaseClient = null;
-
-function getConfig() {
-  return {
-    url: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL) || localStorage.getItem('dl_sb_url') || '',
-    key: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_KEY) || localStorage.getItem('dl_sb_key') || '',
-  };
+function getAdminPin() {
+  return (typeof CONFIG !== 'undefined' && CONFIG.ADMIN_PIN) || '1234';
 }
 
-function initSupabase() {
-  const { url, key } = getConfig();
-  if (!url || !key) return null;
-  if (!supabaseClient) {
-    const { createClient } = window.supabase;
-    supabaseClient = createClient(url, key);
-  }
-  return supabaseClient;
-}
-
-async function checkAdminAuth() {
-  const client = initSupabase();
-
-  if (!client) {
-    /* No config yet — show settings so they can paste credentials */
-    openSettings();
-    return;
-  }
-
-  const { data: { session } } = await client.auth.getSession();
-
-  if (!session) {
-    window.location.href = 'daniellab_admin_login.html';
-    return;
-  }
-
-  /* Verify user is in the admins table using their JWT */
-  const { url, key } = getConfig();
-  try {
-    const res = await fetch(
-      `${url}/rest/v1/admins?id=eq.${session.user.id}&select=name,role`,
-      { headers: { 'apikey': key, 'Authorization': `Bearer ${session.access_token}` } }
-    );
-    const admins = await res.json();
-
-    if (!admins || admins.length === 0) {
-      await client.auth.signOut();
-      window.location.href = 'daniellab_admin_login.html';
-      return;
-    }
-
-    /* Show admin name in sidebar */
-    const nameEl = document.getElementById('admin-name-display');
-    if (nameEl) nameEl.textContent = admins[0].name + (admins[0].role === 'super_admin' ? ' ·  super admin' : '');
-
-  } catch (e) {
-    window.location.href = 'daniellab_admin_login.html';
+function checkAdminPin() {
+  const input = document.getElementById('admin-pin-input').value;
+  if (input === getAdminPin()) {
+    sessionStorage.setItem('dl_admin_auth', '1');
+    document.getElementById('pin-gate').classList.remove('active');
+  } else {
+    document.getElementById('pin-error').textContent = 'Incorrect PIN.';
+    document.getElementById('admin-pin-input').value = '';
+    document.getElementById('admin-pin-input').focus();
   }
 }
 
-async function adminSignOut() {
-  const client = initSupabase();
-  if (client) await client.auth.signOut();
-  window.location.href = 'daniellab_admin_login.html';
+function checkAdminAuth() {
+  if (!sessionStorage.getItem('dl_admin_auth')) {
+    document.getElementById('pin-gate').classList.add('active');
+    setTimeout(() => document.getElementById('admin-pin-input').focus(), 100);
+  }
 }
 
 /* ============================================================
@@ -759,6 +872,9 @@ function openEdit(studentId) {
   document.getElementById('edit-grade').value          = s.grade || '11';
   document.getElementById('edit-school').value         = s.school_name || '';
   document.getElementById('edit-cohort').value         = s.cohort || '';
+  document.getElementById('edit-teacher-rw').value    = s.teacher_rw   || '';
+  document.getElementById('edit-teacher-math').value  = s.teacher_math || '';
+  document.getElementById('edit-teacher-ta').value    = s.teacher_ta   || '';
   document.getElementById('edit-test-date').value      = s.test_date || '';
   document.getElementById('edit-current-score').value  = s.current_score || '';
   document.getElementById('edit-target-score').value   = s.target_score || '';
@@ -794,6 +910,9 @@ async function saveStudentEdit() {
     target_score:   parseInt(document.getElementById('edit-target-score').value) || null,
     parent_name:    document.getElementById('edit-parent-name').value.trim(),
     parent_contact: document.getElementById('edit-parent-contact').value.trim(),
+    teacher_rw:     document.getElementById('edit-teacher-rw').value.trim()   || null,
+    teacher_math:   document.getElementById('edit-teacher-math').value.trim() || null,
+    teacher_ta:     document.getElementById('edit-teacher-ta').value.trim()   || null,
   };
 
   if (!updates.name) { errEl.textContent = 'Name is required.'; return; }
@@ -805,6 +924,7 @@ async function saveStudentEdit() {
       body: JSON.stringify(updates),
     });
 
+    // Update local state
     const idx = allStudents.findIndex(x => x.id === editingStudentId);
     if (idx !== -1) allStudents[idx] = { ...allStudents[idx], ...updates };
 
@@ -812,6 +932,7 @@ async function saveStudentEdit() {
     buildCohortList();
     renderStudents();
 
+    // Re-open the detail panel with updated data
     const notes = await loadNotes(editingStudentId).catch(() => []);
     renderPanel(allStudents[idx], notes);
 
@@ -823,6 +944,12 @@ async function saveStudentEdit() {
 /* ============================================================
    CONFIG
 ============================================================ */
+function getConfig() {
+  return {
+    url: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_URL) || localStorage.getItem('dl_sb_url') || '',
+    key: (typeof CONFIG !== 'undefined' && CONFIG.SUPABASE_KEY) || localStorage.getItem('dl_sb_key') || '',
+  };
+}
 function openSettings() {
   const cfg = getConfig();
   document.getElementById('sb-url').value = cfg.url;
@@ -911,6 +1038,7 @@ function buildCohortList() {
   const cohorts = [...new Set(allStudents.map(s => s.cohort).filter(Boolean))].sort();
   const list = document.getElementById('cohort-list');
 
+  // Reset to just "All"
   list.innerHTML = `
     <div class="cohort-item ${currentCohort === '__all__' ? 'active' : ''}"
          data-cohort="__all__" onclick="filterCohort('__all__', this)">
@@ -942,12 +1070,28 @@ function filterCohort(cohort, el) {
 /* ============================================================
    STUDENT GRID
 ============================================================ */
+function studentCardHTML(s) {
+  const gap = s.target_score && s.current_score
+    ? `+${s.target_score - s.current_score}`
+    : s.target_score ? `→ ${s.target_score}` : '—';
+  return `
+    <div class="student-card" data-id="${s.id}" onclick="openStudent('${s.id}')">
+      <div class="status-dot ${s.status || 'active'}"></div>
+      <div class="sc-code">${s.student_code || '—'}</div>
+      <div class="sc-name">${s.name || 'Unnamed'}</div>
+      <div class="sc-meta">Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'}</div>
+      <div class="sc-score">
+        ${s.current_score || '?'} <span class="score-arrow">→</span> ${s.target_score || '?'}
+        <span class="score-gap">${gap} pts</span>
+      </div>
+    </div>`;
+}
+
 function renderStudents() {
   const query = document.getElementById('search').value.trim().toLowerCase();
   let filtered = currentCohort === '__all__'
     ? allStudents
     : allStudents.filter(s => s.cohort === currentCohort);
-
   if (query) {
     filtered = filtered.filter(s =>
       (s.name || '').toLowerCase().includes(query) ||
@@ -955,32 +1099,10 @@ function renderStudents() {
       (s.school_name || '').toLowerCase().includes(query)
     );
   }
-
   const grid = document.getElementById('student-grid');
   document.getElementById('grid-state')?.remove();
-
-  if (filtered.length === 0) {
-    grid.innerHTML = `<div class="empty-state">No students found.</div>`;
-    return;
-  }
-
-  grid.innerHTML = filtered.map(s => {
-    const gap = s.target_score && s.current_score
-      ? `+${s.target_score - s.current_score}`
-      : s.target_score ? `→ ${s.target_score}` : '—';
-    return `
-      <div class="student-card" onclick="openStudent('${s.id}')">
-        <div class="status-dot ${s.status || 'active'}"></div>
-        <div class="sc-code">${s.student_code || '—'}</div>
-        <div class="sc-name">${s.name || 'Unnamed'}</div>
-        <div class="sc-meta">Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'}</div>
-        <div class="sc-score">
-          ${s.current_score || '?'} <span class="score-arrow">→</span> ${s.target_score || '?'}
-          <span class="score-gap">${gap} pts</span>
-        </div>
-      </div>
-    `;
-  }).join('');
+  if (!filtered.length) { grid.innerHTML = '<div class="empty-state">No students found.</div>'; return; }
+  grid.innerHTML = filtered.map(studentCardHTML).join('');
 }
 
 /* ============================================================
@@ -997,21 +1119,15 @@ async function openStudent(id) {
   panel.classList.add('open');
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  let notes = [], responses = [], assignments = [];
-  try {
-    [notes, responses, assignments] = await Promise.all([
-      loadNotes(id).catch(()=>[]),
-      sbFetch(`responses?student_id=eq.${id}&select=domain,is_correct&limit=1000`).catch(()=>[]),
-      sbFetch(`assignments?student_id=eq.${id}&order=created_at.asc`).catch(()=>[]),
-    ]);
-  } catch {}
+  let notes = [], mockTests = [];
+  try { notes = await loadNotes(id) || []; } catch {}
+  try { mockTests = await sbFetch(`mock_tests?student_id=eq.${id}&select=rw_score,math_score,created_at&order=created_at.asc`) || []; } catch {}
 
-  renderPanel(s, notes, responses || [], assignments || []);
+  renderPanel(s, notes);
+  renderPanelChart(mockTests);
 }
 
-function renderPanel(s, notes, responses, assignments) {
-  responses    = responses    || [];
-  assignments  = assignments  || [];
+function renderPanel(s, notes) {
   const mathDomains  = s.math_ratings  ? Object.entries(s.math_ratings)  : [];
   const ebrwDomains  = s.ebrw_ratings  ? Object.entries(s.ebrw_ratings)  : [];
   const priorities   = s.priority_domains || [];
@@ -1023,70 +1139,18 @@ function renderPanel(s, notes, responses, assignments) {
     additional:'Additional Topics', calc:'Calculator Strategy',
     evidence:'Command of Evidence', vocab:'Words in Context', analysis:'Analysis in Hist./Sci.',
     expression:'Expression of Ideas', grammar:'Standard English',
-    craft_structure:'Craft & Structure', info_ideas:'Information & Ideas',
-    sec:'Standard English', eoi:'Expression of Ideas',
-    advanced_math:'Advanced Math', psda:'Problem Solving & Data', geometry:'Geometry',
   };
 
   const barColor = v => v <= 2 ? '' : v <= 3 ? 'mid' : 'high';
 
-  const domainStats = {};
-  responses.forEach(r => {
-    if (!r.domain) return;
-    if (!domainStats[r.domain]) domainStats[r.domain] = { correct:0, total:0 };
-    domainStats[r.domain].total++;
-    if (r.is_correct) domainStats[r.domain].correct++;
-  });
-  const allPracticeDomains = [
-    'craft_structure','info_ideas','sec','eoi',
-    'algebra','advanced_math','psda','geometry',
-  ];
-  function liveAccuracyHtml() {
-    const rows = allPracticeDomains.filter(d => domainStats[d]?.total >= 3);
-    if (!rows.length) return '<div style="color:var(--muted);font-size:.78rem;">No practice data yet.</div>';
-    const pctColor = p => p >= 70 ? 'var(--good)' : p >= 50 ? '#b45309' : 'var(--accent)';
-    return rows.map(d => {
-      const st  = domainStats[d];
-      const pct = Math.round((st.correct / st.total) * 100);
-      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:.78rem;">
-        <span style="flex:1;color:var(--muted);">${domainLabels[d]||d}</span>
-        <span style="font-weight:600;color:${pctColor(pct)};width:36px;text-align:right;">${pct}%</span>
-        <span style="color:var(--muted);font-size:.7rem;">${st.total}q</span>
-      </div>`;
-    }).join('');
-  }
-
-  const assignDomains = ['craft_structure','info_ideas','sec','eoi','algebra','advanced_math','psda','geometry'];
-  function assignmentHtml() {
-    return `
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;" id="assign-current">
-        ${assignments.map(a => `
-          <span style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;
-            padding:3px 8px;border-radius:4px;
-            background:${a.completed?'rgba(42,122,79,0.08)':'rgba(200,16,46,0.07)'};
-            color:${a.completed?'var(--good)':'var(--accent)'};
-            border:1px solid ${a.completed?'rgba(42,122,79,0.2)':'rgba(200,16,46,0.15)'};">
-            ${a.completed?'✓ ':''} ${domainLabels[a.domain]||a.domain}
-            <button onclick="deleteAssignment('${a.id}')" style="background:none;border:none;cursor:pointer;font-size:10px;opacity:.5;padding:0;line-height:1;">✕</button>
-          </span>`).join('')}
-        ${!assignments.length ? '<span style="color:var(--muted);font-size:.78rem;">No assignments yet.</span>' : ''}
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-        <select id="assign-domain-select" style="font-family:var(--sans);font-size:.78rem;padding:4px 8px;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);outline:none;">
-          ${assignDomains.map(d=>`<option value="${d}">${domainLabels[d]||d}</option>`).join('')}
-        </select>
-        <input id="assign-note-input" type="text" placeholder="Note (optional)" style="font-family:var(--sans);font-size:.78rem;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);outline:none;width:160px;" />
-        <button onclick="addAssignment('${s.id}')" style="font-family:var(--sans);font-size:.75rem;font-weight:600;padding:4px 12px;background:var(--accent);color:#fff;border:none;border-radius:5px;cursor:pointer;">Assign</button>
-      </div>`;
-  }
-
   document.getElementById('detail-panel').innerHTML = `
+    <!-- HEADER -->
     <div class="panel-header">
       <div class="panel-header-left">
         <div class="panel-code">${s.student_code || '—'}</div>
         <div class="panel-name">${s.name || 'Unnamed'}</div>
         <div class="panel-meta">
-          Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'} ·
+          Gr. ${s.grade || '—'} · ${s.school_name || '—'} · ${s.cohort || '—'} · ${[s.teacher_rw, s.teacher_math, s.teacher_ta].filter(Boolean).join(' / ') || 'No teacher'} ·
           ${s.current_score || '?'} → ${s.target_score || '?'} (${gap > 0 ? '+' : ''}${gap} pts) ·
           ${weeksLeft} weeks left
         </div>
@@ -1102,6 +1166,7 @@ function renderPanel(s, notes, responses, assignments) {
       </div>
     </div>
 
+    <!-- BODY: domains + parent info -->
     <div class="panel-body">
       <div class="panel-col">
         <div class="panel-section-label">Priority focus</div>
@@ -1111,10 +1176,7 @@ function renderPanel(s, notes, responses, assignments) {
             : '<span style="color:var(--muted);font-size:.82rem;">Not generated yet</span>'}
         </div>
 
-        <div class="panel-section-label">Live performance</div>
-        <div style="margin-bottom:18px;">${liveAccuracyHtml()}</div>
-
-        <div class="panel-section-label">Intake ratings — Math</div>
+        <div class="panel-section-label">Math domains</div>
         ${mathDomains.map(([id, score]) => `
           <div class="domain-bar-row">
             <span class="domain-bar-label">${domainLabels[id] || id}</span>
@@ -1125,7 +1187,7 @@ function renderPanel(s, notes, responses, assignments) {
           </div>
         `).join('')}
 
-        <div class="panel-section-label" style="margin-top:16px;">Intake ratings — RW</div>
+        <div class="panel-section-label" style="margin-top:16px;">Reading & Writing</div>
         ${ebrwDomains.map(([id, score]) => `
           <div class="domain-bar-row">
             <span class="domain-bar-label">${domainLabels[id] || id}</span>
@@ -1167,16 +1229,16 @@ function renderPanel(s, notes, responses, assignments) {
           <div class="info-row"><span class="info-key">Style</span><span class="info-val">${s.study_habits.style || '—'}</span></div>
           <div class="info-row"><span class="info-key">Obstacle</span><span class="info-val">${s.study_habits.obstacle || '—'}</span></div>
         ` : '<span style="color:var(--muted);font-size:.82rem;">—</span>'}
-
-        <div class="panel-section-label" style="margin-top:20px;">Assigned practice</div>
-        <div style="margin-bottom:4px;">${assignmentHtml()}</div>
       </div>
     </div>
 
+    <!-- NOTES -->
     <div class="notes-section">
       <div class="notes-header">
         <h3>Session log</h3>
       </div>
+
+      <!-- Add note form -->
       <div class="note-form">
         <div class="note-form-title">Add session note</div>
         <div class="note-fields">
@@ -1203,7 +1265,14 @@ function renderPanel(s, notes, responses, assignments) {
         <textarea id="note-text" placeholder="Additional notes…" style="min-height:48px;"></textarea>
         <button class="btn btn-primary btn-sm" onclick="submitNote('${s.id}')">Save note</button>
       </div>
+
+      <!-- Note history -->
       <div class="note-timeline" id="note-timeline">
+        <div class="mini-chart-wrap" id="panel-chart-wrap">
+          <div class="mini-chart-label">Mock test scores</div>
+          <canvas id="panel-score-chart" height="70"></canvas>
+          <div id="panel-chart-empty" style="display:none;font-size:.78rem;color:var(--muted);padding:8px 0;">No mock tests recorded yet.</div>
+        </div>
         ${renderNoteTimeline(notes)}
       </div>
     </div>
@@ -1211,7 +1280,9 @@ function renderPanel(s, notes, responses, assignments) {
 }
 
 function renderNoteTimeline(notes) {
-  if (!notes || notes.length === 0) return '<div class="no-notes">No session notes yet.</div>';
+  if (!notes || notes.length === 0) {
+    return '<div class="no-notes">No session notes yet.</div>';
+  }
   return notes.map(n => `
     <div class="note-item">
       <div class="note-dot"></div>
@@ -1235,16 +1306,16 @@ function renderNoteTimeline(notes) {
    SUBMIT NOTE
 ============================================================ */
 async function submitNote(studentId) {
-  const session   = parseInt(document.getElementById('note-session').value) || null;
-  const projected = parseInt(document.getElementById('note-projected').value) || null;
-  const progress  = document.getElementById('note-progress').value || null;
-  const feedback  = document.getElementById('note-feedback').value.trim();
-  const noteText  = document.getElementById('note-text').value.trim();
+  const session    = parseInt(document.getElementById('note-session').value) || null;
+  const projected  = parseInt(document.getElementById('note-projected').value) || null;
+  const progress   = document.getElementById('note-progress').value || null;
+  const feedback   = document.getElementById('note-feedback').value.trim();
+  const noteText   = document.getElementById('note-text').value.trim();
 
   if (!feedback && !noteText) return;
 
   try {
-    await saveNote({
+    const saved = await saveNote({
       student_id:       studentId,
       session_number:   session,
       projected_score:  projected,
@@ -1253,14 +1324,17 @@ async function submitNote(studentId) {
       note_text:        noteText,
     });
 
+    // Clear form
     ['note-session','note-projected','note-feedback','note-text'].forEach(id => {
       document.getElementById(id).value = '';
     });
     document.getElementById('note-progress').value = '';
 
+    // Refresh notes in panel
     const notes = await loadNotes(studentId);
     document.getElementById('note-timeline').innerHTML = renderNoteTimeline(notes);
 
+    // If projected score updated, also refresh the student card
     if (projected) {
       const s = allStudents.find(x => x.id === studentId);
       if (s) s.latest_projected = projected;
@@ -1307,37 +1381,6 @@ async function changeStatus(studentId, status) {
 }
 
 /* ============================================================
-   ASSIGNMENT MANAGEMENT
-============================================================ */
-async function addAssignment(studentId) {
-  const domain = document.getElementById('assign-domain-select')?.value;
-  const note   = document.getElementById('assign-note-input')?.value.trim() || null;
-  if (!domain) return;
-  const {url, key} = getConfig();
-  if (!url || !key) return;
-  try {
-    await fetch(`${url}/rest/v1/assignments`, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'apikey':key, 'Authorization':`Bearer ${key}`, 'Prefer':'return=minimal' },
-      body: JSON.stringify({ student_id: studentId, domain, note }),
-    });
-    openStudent(studentId);
-  } catch(e) { alert(`Failed to assign: ${e.message}`); }
-}
-
-async function deleteAssignment(assignmentId) {
-  const {url, key} = getConfig();
-  if (!url || !key) return;
-  try {
-    await fetch(`${url}/rest/v1/assignments?id=eq.${assignmentId}`, {
-      method: 'DELETE',
-      headers: { 'apikey':key, 'Authorization':`Bearer ${key}` },
-    });
-    openStudent(currentStudent?.id);
-  } catch(e) { alert(`Failed to remove: ${e.message}`); }
-}
-
-/* ============================================================
    UTILS
 ============================================================ */
 function weeksUntil(dateStr) {
@@ -1347,10 +1390,263 @@ function weeksUntil(dateStr) {
 }
 
 /* ============================================================
+   VIEW SWITCHER
+============================================================ */
+function switchView(name, el) {
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(`view-${name}`).classList.add('active');
+  if (name === 'cohorts')  loadCohortView();
+  if (name === 'teachers') loadTeacherView();
+}
+
+/* ============================================================
+   PANEL MINI CHART
+============================================================ */
+let panelChartInstance = null;
+function renderPanelChart(mockTests) {
+  const canvas  = document.getElementById('panel-score-chart');
+  const emptyEl = document.getElementById('panel-chart-empty');
+  if (!canvas) return;
+  if (!mockTests.length) { canvas.style.display='none'; emptyEl.style.display='block'; return; }
+  canvas.style.display = 'block'; emptyEl.style.display = 'none';
+  const labels = mockTests.map((_, i) => `#${i+1}`);
+  if (panelChartInstance) panelChartInstance.destroy();
+  panelChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'RW', data: mockTests.map(t=>t.rw_score||null), borderColor:'#1a56db', backgroundColor:'rgba(26,86,219,0.05)', borderWidth:2, pointRadius:4, tension:0.3, fill:true },
+      { label:'Math', data: mockTests.map(t=>t.math_score||null), borderColor:'#2a7a4f', backgroundColor:'rgba(42,122,79,0.05)', borderWidth:2, pointRadius:4, tension:0.3, fill:true },
+    ]},
+    options: {
+      responsive:true,
+      plugins: {
+        legend:{ labels:{ font:{family:"'DM Sans',sans-serif",size:11}, color:'#888', boxWidth:10 }},
+        tooltip:{ backgroundColor:'#fff', borderColor:'#e2e0dc', borderWidth:1, titleColor:'#111', bodyColor:'#888' },
+      },
+      scales: {
+        y:{ min:200, max:800, ticks:{ font:{family:"'DM Sans',sans-serif",size:10}, color:'#888', stepSize:100 }, grid:{color:'#f0ede9'} },
+        x:{ ticks:{ font:{family:"'DM Sans',sans-serif",size:10}, color:'#888' }, grid:{display:false} },
+      },
+    },
+  });
+}
+
+/* ============================================================
+   COHORT VIEW
+============================================================ */
+async function loadCohortView() {
+  const grid = document.getElementById('cohort-overview-grid');
+  grid.innerHTML = '<div class="state-msg">Loading…</div>';
+  try {
+    const [students, mockTests] = await Promise.all([
+      sbFetch('students?select=id,name,cohort,current_score,target_score,test_date,teacher&order=cohort.asc'),
+      sbFetch('mock_tests?select=student_id,rw_score,math_score,total_score,created_at&order=created_at.desc'),
+    ]);
+
+    // Group mock tests by student — keep only latest per student
+    const latestMock = {};
+    (mockTests || []).forEach(t => { if (!latestMock[t.student_id]) latestMock[t.student_id] = t; });
+
+    // Group students by cohort
+    const cohortMap = {};
+    (students || []).forEach(s => {
+      const c = s.cohort || '(No cohort)';
+      if (!cohortMap[c]) cohortMap[c] = [];
+      cohortMap[c].push(s);
+    });
+
+    const cohorts = Object.keys(cohortMap).sort();
+    if (!cohorts.length) { grid.innerHTML = '<div class="state-msg">No cohorts defined yet.</div>'; return; }
+
+    grid.innerHTML = cohorts.map(c => {
+      const members = cohortMap[c];
+      const count   = members.length;
+      const avgStart = Math.round(members.filter(s=>s.current_score).reduce((a,s)=>a+s.current_score,0) / (members.filter(s=>s.current_score).length||1));
+      const withMock = members.filter(s => latestMock[s.id]);
+      const avgLatest = withMock.length
+        ? Math.round(withMock.reduce((a,s) => a + ((latestMock[s.id].rw_score||0)+(latestMock[s.id].math_score||0)), 0) / withMock.length)
+        : null;
+      const delta = avgLatest && avgStart ? avgLatest - avgStart : null;
+      const weeksArr = members.filter(s=>s.test_date).map(s=>weeksUntil(s.test_date));
+      const avgWeeks = weeksArr.length ? Math.round(weeksArr.reduce((a,b)=>a+b,0)/weeksArr.length) : null;
+      const teachers = [...new Set(members.flatMap(s =>
+        [s.teacher_rw, s.teacher_math, s.teacher_ta].filter(Boolean)
+      ))];
+
+      return `<div class="cohort-card" onclick="filterCohortAndSwitch('${c.replace(/'/g,"\'")}')">
+        <div class="cohort-card-name">${c}</div>
+        <div class="cohort-card-sub">${teachers.length ? teachers.join(', ') : 'No teacher assigned'}</div>
+        <div class="cohort-stats">
+          <div>
+            <div class="cohort-stat-val">${count}</div>
+            <div class="cohort-stat-lbl">Students</div>
+          </div>
+          <div>
+            <div class="cohort-stat-val">${avgStart || '—'}</div>
+            <div class="cohort-stat-lbl">Avg start</div>
+          </div>
+          <div>
+            <div class="cohort-stat-val ${delta !== null ? (delta >= 0 ? 'cohort-delta' : 'cohort-delta neg') : ''}">
+              ${delta !== null ? (delta >= 0 ? '+' : '') + delta : avgLatest || '—'}
+            </div>
+            <div class="cohort-stat-lbl">${delta !== null ? 'Avg delta' : 'Avg latest'}</div>
+          </div>
+        </div>
+        ${avgWeeks !== null ? `<div style="font-size:.72rem;color:var(--muted);margin-top:10px;">${avgWeeks} weeks avg to test</div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) { grid.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`; }
+}
+
+function filterCohortAndSwitch(cohort) {
+  // Switch to Students tab and filter
+  const tab = document.querySelectorAll('.view-tab')[0];
+  switchView('students', tab);
+  const items = document.querySelectorAll('.cohort-item');
+  items.forEach(el => {
+    if (el.dataset.cohort === cohort) { filterCohort(cohort, el); }
+  });
+}
+
+/* ============================================================
+   TEACHER VIEW
+============================================================ */
+async function loadTeacherView() {
+  const body = document.getElementById('teacher-view-body');
+  body.innerHTML = '<div class="state-msg">Loading…</div>';
+  try {
+    const [students, mockTests, assignments] = await Promise.all([
+      sbFetch('students?select=id,name,cohort,teacher,current_score,target_score,status&order=teacher.asc'),
+      sbFetch('mock_tests?select=student_id,rw_score,math_score,total_score,created_at&order=created_at.asc'),
+      sbFetch('assignments?select=student_id,completed'),
+    ]);
+
+    const studs = students || [];
+    const tests  = mockTests || [];
+    const hw     = assignments || [];
+
+    // Per student: first mock score and latest mock score
+    const firstMock = {}, latestMock = {};
+    tests.forEach(t => {
+      if (!firstMock[t.student_id])  firstMock[t.student_id]  = t;
+      latestMock[t.student_id] = t;
+    });
+
+    // Homework completion per student
+    const hwByStudent = {};
+    hw.forEach(a => {
+      if (!hwByStudent[a.student_id]) hwByStudent[a.student_id] = { total:0, done:0 };
+      hwByStudent[a.student_id].total++;
+      if (a.completed) hwByStudent[a.student_id].done++;
+    });
+
+    // Group by teacher — students appear under each teacher role they have
+    const teacherMap = {};   // { name: { role, students[] } }
+    studs.forEach(s => {
+      const roles = [
+        { name: s.teacher_rw,   role: 'RW'   },
+        { name: s.teacher_math, role: 'Math' },
+        { name: s.teacher_ta,   role: 'TA'   },
+      ].filter(r => r.name);
+      if (!roles.length) {
+        if (!teacherMap['(Unassigned)']) teacherMap['(Unassigned)'] = { role: '', students: [] };
+        teacherMap['(Unassigned)'].students.push(s);
+      } else {
+        roles.forEach(({ name, role }) => {
+          if (!teacherMap[name]) teacherMap[name] = { role, students: [] };
+          teacherMap[name].students.push(s);
+        });
+      }
+    });
+
+    const teachers = Object.keys(teacherMap).sort();
+    if (!teachers.length) { body.innerHTML = '<div class="state-msg">No students yet.</div>'; return; }
+
+    const rows = teachers.map(t => {
+      const { role: tRole, students: members } = teacherMap[t];
+      const count   = members.length;
+      const withStart  = members.filter(s => firstMock[s.id]);
+      const withLatest = members.filter(s => latestMock[s.id]);
+      const avgStart  = withStart.length
+        ? Math.round(withStart.reduce((a,s) => a + ((firstMock[s.id].rw_score||0)+(firstMock[s.id].math_score||0)), 0) / withStart.length)
+        : (members.filter(s=>s.current_score).length ? Math.round(members.filter(s=>s.current_score).reduce((a,s)=>a+s.current_score,0)/members.filter(s=>s.current_score).length) : null);
+      const avgLatest = withLatest.length
+        ? Math.round(withLatest.reduce((a,s) => a + ((latestMock[s.id].rw_score||0)+(latestMock[s.id].math_score||0)), 0) / withLatest.length)
+        : null;
+      const delta = avgStart && avgLatest ? avgLatest - avgStart : null;
+
+      // HW completion across all students of this teacher
+      let hwTotal = 0, hwDone = 0;
+      members.forEach(s => {
+        const h = hwByStudent[s.id];
+        if (h) { hwTotal += h.total; hwDone += h.done; }
+      });
+      const hwPct = hwTotal > 0 ? Math.round((hwDone / hwTotal) * 100) : null;
+
+      const deltaClass = delta === null ? 'delta-neutral' : delta >= 0 ? 'delta-positive' : 'delta-negative';
+      const deltaStr   = delta === null ? '—' : (delta >= 0 ? '+' : '') + delta;
+      const barPct     = hwPct || 0;
+      const barClass   = barPct >= 70 ? '' : barPct >= 40 ? 'mid' : 'low';
+
+      return `<tr onclick="drillTeacher('${t.replace(/'/g,"\'")}')">
+        <td class="teacher-name-cell">${t}</td>
+        <td>${count}</td>
+        <td>${avgStart || '—'}</td>
+        <td>${avgLatest || '—'}</td>
+        <td class="${deltaClass}">${deltaStr}</td>
+        <td>
+          ${hwPct !== null
+            ? `<span class="perf-bar-wrap"><span class="perf-bar-fill ${barClass}" style="width:${barPct}%"></span></span>${hwPct}%`
+            : '—'}
+        </td>
+      </tr>`;
+    }).join('');
+
+    body.innerHTML = `
+      <table class="teacher-table">
+        <thead>
+          <tr>
+            <th>Teacher</th>
+            <th>Role</th>
+            <th>Students</th>
+            <th>Avg Start</th>
+            <th>Avg Latest</th>
+            <th>Avg Δ</th>
+            <th>HW Completion</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="font-size:.75rem;color:var(--muted);">Click a row to see that teacher’s students. Δ = latest mock avg minus starting score avg.</div>`;
+  } catch(e) { body.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`; }
+}
+
+function drillTeacher(teacher) {
+  const tab = document.querySelectorAll('.view-tab')[0];
+  switchView('students', tab);
+  // Find or create a cohort-item for this teacher filter and apply it
+  // Instead: directly filter allStudents by teacher
+  const titleEl = document.getElementById('main-title');
+  if (titleEl) titleEl.textContent = teacher;
+  const grid = document.getElementById('student-grid');
+  const filtered = allStudents.filter(s =>
+    s.teacher_rw === teacher || s.teacher_math === teacher || s.teacher_ta === teacher ||
+    (!s.teacher_rw && !s.teacher_math && !s.teacher_ta && teacher === '(Unassigned)')
+  );
+  if (!filtered.length) { grid.innerHTML = '<div class="state-msg">No students found.</div>'; return; }
+  grid.innerHTML = filtered.map(s => studentCardHTML(s)).join('');
+  grid.querySelectorAll('.student-card').forEach(card => {
+    card.addEventListener('click', () => openStudent(card.dataset.id));
+  });
+}
+
+/* ============================================================
    INIT
 ============================================================ */
-checkAdminAuth().then(() => loadStudents());
+checkAdminAuth();
+loadStudents();
 </script>
-<footer style="text-align:center;padding:32px 24px 16px;font-size:0.72rem;color:#aaa;letter-spacing:0.04em;">Developed by Kevin Choi &nbsp;·&nbsp; Powered by SENECA AI</footer>
 </body>
 </html>
