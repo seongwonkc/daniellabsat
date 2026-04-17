@@ -10,10 +10,22 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
   onload="document.dispatchEvent(new Event('katexReady'))"></script>
 <script src="config.js"></script>
+
+<!-- Domain practice bank (practice mode) -->
 <script src="data/data-craft-structure.js"></script>
 <script src="data/data-cs2.js"></script>
+<script src="data/data-cs3.js"></script>
+<script src="data/data-cs4.js"></script>
+<script src="data/data-cs5.js"></script>
+<script src="data/data-cs6.js"></script>
+<script src="data/data-cs7.js"></script>
 <script src="data/data-info-ideas.js"></script>
 <script src="data/data-ii2.js"></script>
+<script src="data/data-ii3.js"></script>
+<script src="data/data-ii4.js"></script>
+<script src="data/data-ii5.js"></script>
+<script src="data/data-ii6.js"></script>
+<script src="data/data-ii7.js"></script>
 <script src="data/data-sec.js"></script>
 <script src="data/data-sec2.js"></script>
 <script src="data/data-sec3.js"></script>
@@ -21,25 +33,21 @@
 <script src="data/data-eoi2.js"></script>
 <script src="data/data-eoi3.js"></script>
 <script src="data/data-eoi4.js"></script>
-<script src="data/data-cs3.js"></script>
-<script src="data/data-cs4.js"></script>
-<script src="data/data-cs5.js"></script>
-<script src="data/data-cs6.js"></script>
-<script src="data/data-cs7.js"></script>
-<script src="data/data-ii3.js"></script>
-<script src="data/data-ii4.js"></script>
-<script src="data/data-ii5.js"></script>
-<script src="data/data-ii6.js"></script>
-<script src="data/data-ii7.js"></script>
 <script src="data/data.daniellab.rw.js"></script>
+<script src="data/data.daniellab.math.js"></script>
+
+<!-- Mock tests -->
+<script src="data/mock-tests/data-mt01-rw.js"></script>
+<script src="data/mock-tests/data-mt01-math.js"></script>
+
 <style>
 .bb-question-layout {
-  display: grid; grid-template-columns: 1fr 1px 1fr;
-  height: calc(100vh - 55px); overflow: hidden;
+  display:grid; grid-template-columns:1fr 1px 1fr;
+  height:calc(100vh - 55px); overflow:hidden;
 }
-.bb-left-panel  { padding: var(--panel-padding,28px 32px); overflow-y: auto; }
-.bb-divider-line { background: var(--border-light); width: 1px; }
-.bb-right-panel  { padding: var(--panel-padding,28px 32px); overflow-y: auto; display: flex; flex-direction: column; }
+.bb-left-panel  { padding:var(--panel-padding,28px 32px); overflow-y:auto; }
+.bb-divider-line { background:var(--border-light); width:1px; }
+.bb-right-panel  { padding:var(--panel-padding,28px 32px); overflow-y:auto; display:flex; flex-direction:column; }
 .bb-panel-tag { font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:14px; }
 .bb-q-num { font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:16px;display:flex;align-items:center;gap:10px; }
 .bb-intro-stat-val { font-size:42px;font-weight:700;color:var(--text);line-height:1; }
@@ -50,6 +58,18 @@
   .bb-question-layout { grid-template-columns:1fr;grid-template-rows:auto 1px auto;height:auto;overflow:visible; }
   .bb-divider-line { height:1px;width:auto; }
 }
+/* Test selector */
+.test-select-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:32px; }
+.test-card {
+  background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);
+  padding:24px;cursor:pointer;transition:all .12s;text-align:left;
+}
+.test-card:hover { border-color:var(--blue-border);background:var(--blue-light); }
+.test-card .tc-tag  { font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px; }
+.test-card .tc-name { font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px; }
+.test-card .tc-sub  { font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.4; }
+.test-card .tc-meta { font-size:12px;color:var(--text-dim); }
+/* Results */
 .mt-results { max-width:680px;margin:0 auto;padding:48px 24px 80px; }
 .mt-score-row { display:flex;align-items:baseline;gap:16px;margin-bottom:32px;flex-wrap:wrap; }
 .mt-score-big { font-size:72px;font-weight:700;color:var(--blue);line-height:1; }
@@ -126,18 +146,45 @@ function renderKatex() {
   });
 }
 
-/* ── Timer ─────────────────────────────────────────────── */
+/* ── Available tests registry ──────────────────────────── */
+// Add new tests here. Everything else adapts automatically.
+const AVAILABLE_TESTS = [
+  {
+    id:        'practice',
+    tag:       'Practice Mode',
+    name:      'Random Practice Test',
+    sub:       'Questions drawn from your full question bank',
+    meta:      '~58 questions · Adaptive',
+    rw1q:20, rw2q:20, mathq:18,
+    rw1min:25, rw2min:25, mathmin:22,
+    threshold: 14,   // score needed out of rw1q to get hard module 2
+  },
+  {
+    id:        'mt01',
+    tag:       'Official Test',
+    name:      'December 2024',
+    sub:       'US Form A · Full length',
+    meta:      '98 questions · Official timing',
+    rw1q:27, rw2q:27, mathq:22,
+    rw1min:32, rw2min:32, mathmin:35,
+    threshold: 19,   // 70% of 27
+  },
+];
+
+/* ── State ─────────────────────────────────────────────── */
 const S = {
   view:'intro', modulePhase:'intro', qIndex:0,
+  selectedTest: null,
   rw1Responses:{}, rw1Score:null,
   moduleType:null,
   rw2Responses:{}, rw2Score:null,
   mathResponses:{}, mathScore:null, mathTimeAtEnd:null,
   timerRemaining:0, timerInterval:null,
   sessionId: crypto.randomUUID(),
-  responseTimes:{},       // { questionId: seconds }
+  responseTimes:{},
 };
 
+/* ── Timer ─────────────────────────────────────────────── */
 let questionStartTime = null;
 function recordQuestionStart() { questionStartTime = Date.now(); }
 function recordQuestionEnd(qId) {
@@ -145,7 +192,6 @@ function recordQuestionEnd(qId) {
   S.responseTimes[qId] = Math.round((Date.now() - questionStartTime) / 1000);
   questionStartTime = null;
 }
-
 function startTimer(seconds) {
   stopTimer();
   S.timerRemaining = seconds;
@@ -177,17 +223,19 @@ function autoSubmit() {
 }
 
 /* ── Question helpers ──────────────────────────────────── */
-const MODULE_CFG = {
-  rw1:  { sub:'Module 1 of 2',             title:'Reading & Writing', q:20, min:25, desc:'Read each passage and answer the question. You may navigate back within this module.' },
-  rw2e: { sub:'Module 2 of 2 — Standard',  title:'Reading & Writing', q:20, min:25, desc:'Continue with the same format. You may not return to Module 1.' },
-  rw2h: { sub:'Module 2 of 2 — Advanced',  title:'Reading & Writing', q:20, min:25, desc:'Continue with the same format. You may not return to Module 1.' },
-  math: { sub:'Final Module',              title:'Math',              q:18, min:22, desc:'Some questions require a typed answer. A calculator is available for all questions.' },
-};
-
 function getQuestions() {
-  if (S.view==='rw1')  return RW1_QUESTIONS;
-  if (S.view==='rw2')  return S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
-  if (S.view==='math') return MATH_QUESTIONS;
+  const t = S.selectedTest;
+  if (!t) return [];
+  if (S.view==='rw1') {
+    return t.id==='practice' ? RW1_QUESTIONS : MT01_RW1;
+  }
+  if (S.view==='rw2') {
+    if (t.id==='practice') return S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
+    return MT01_RW2_HARD; // MT01 hard only for now
+  }
+  if (S.view==='math') {
+    return t.id==='practice' ? MATH_QUESTIONS : MT01_MATH1;
+  }
   return [];
 }
 function getResponses() {
@@ -203,11 +251,52 @@ function setR(id, val) {
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+/* ── Inline scoring ────────────────────────────────────── */
+function scoreModule(responses, questions) {
+  let correct = 0;
+  questions.forEach(q => {
+    const r = responses[q.id];
+    if (!r) return;
+    if (q.isSPR) {
+      const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
+      const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+      let ok=false;
+      if (q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01) ok=true;}
+      if (!ok) ok=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);
+      if (ok) correct++;
+    } else {
+      if (r===q.answer) correct++;
+    }
+  });
+  return correct;
+}
+
+function domainBreakdown(responses, questions) {
+  const stats = {};
+  questions.forEach(q => {
+    if (!q.domain) return;
+    if (!stats[q.domain]) stats[q.domain] = { correct:0, total:0 };
+    stats[q.domain].total++;
+    const r = responses[q.id];
+    if (!r) return;
+    let ok = false;
+    if (q.isSPR) {
+      const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
+      const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+      if (q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01) ok=true;}
+      if (!ok) ok=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);
+    } else { ok = r===q.answer; }
+    if (ok) stats[q.domain].correct++;
+  });
+  return stats;
+}
+
 /* ── Render ────────────────────────────────────────────── */
 function render() {
   updateNav();
   const app = document.getElementById('app');
   if      (S.view==='intro')          app.innerHTML = htmlWelcome();
+  else if (S.view==='test_select')    app.innerHTML = htmlTestSelect();
   else if (S.modulePhase==='intro')   app.innerHTML = htmlModuleIntro();
   else if (S.view==='done')           app.innerHTML = htmlResults();
   else                              { app.innerHTML = htmlQuestion(); recordQuestionStart(); }
@@ -220,14 +309,18 @@ function updateNav() {
   const bar = document.getElementById('progress-bar');
   const lbl = document.getElementById('nav-label');
   if (!bar||!lbl) return;
-  if (S.view==='intro'||S.view==='done') {
+  if (['intro','test_select','done'].includes(S.view)) {
     bar.style.width = S.view==='done' ? '100%' : '0%';
     lbl.innerHTML = ''; return;
   }
   const qs = getQuestions();
   if (S.modulePhase==='active'&&qs.length) {
     bar.style.width = ((S.qIndex/qs.length)*100)+'%';
-    const names = { rw1:'Reading & Writing · Module 1', rw2:`Reading & Writing · Module 2 (${S.moduleType||'standard'})`, math:'Math' };
+    const names = {
+      rw1:'Reading & Writing · Module 1',
+      rw2:`Reading & Writing · Module 2 (${S.moduleType||'standard'})`,
+      math:'Math',
+    };
     lbl.innerHTML = `<strong>${names[S.view]}</strong> &nbsp;·&nbsp; Q ${S.qIndex+1} / ${qs.length}`;
   } else { bar.style.width='5%'; lbl.innerHTML=''; }
 }
@@ -237,29 +330,50 @@ function htmlWelcome() {
   return `
 <div class="bb-screen">
   <div class="bb-intro-card" style="max-width:560px;">
-    <div class="bb-intro-tag">DanielLab · Full Practice Test</div>
+    <div class="bb-intro-tag">DanielLab · Mock Test</div>
     <div class="bb-title" style="margin-bottom:8px;">Digital SAT</div>
     <div style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:28px;">
       This test follows the adaptive Digital SAT format.<br>
-      Plan for approximately <strong>2 hours</strong>. Do not close the browser during the test.
-    </div>
-    <div class="bb-intro-stats">
-      <div><div class="bb-intro-stat-val">3</div><div class="bb-intro-stat-lbl">Modules</div></div>
-      <div class="bb-intro-divider"></div>
-      <div><div class="bb-intro-stat-val">58</div><div class="bb-intro-stat-lbl">Questions</div></div>
-      <div class="bb-intro-divider"></div>
-      <div><div class="bb-intro-stat-val">~2h</div><div class="bb-intro-stat-lbl">Total time</div></div>
+      Plan for approximately <strong>2 hours</strong> for a full test. Do not close the browser during the test.
     </div>
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:28px;line-height:1.55;text-align:left;background:var(--bg-surface);border-radius:var(--radius);padding:14px 16px;">
       <strong>How it adapts:</strong> Your Module 1 score determines which Module 2 you receive — standard or advanced.
     </div>
-    <button class="bb-btn bb-btn-primary bb-btn-lg bb-btn-full" id="btn-start-test">Begin test →</button>
+    <button class="bb-btn bb-btn-primary bb-btn-lg bb-btn-full" id="btn-choose-test">Choose a test →</button>
+  </div>
+</div>`;
+}
+
+function htmlTestSelect() {
+  const cards = AVAILABLE_TESTS.map(t => `
+    <div class="test-card" data-testid="${t.id}">
+      <div class="tc-tag">${t.tag}</div>
+      <div class="tc-name">${t.name}</div>
+      <div class="tc-sub">${t.sub}</div>
+      <div class="tc-meta">${t.meta}</div>
+    </div>`).join('');
+
+  return `
+<div class="bb-screen">
+  <div style="max-width:700px;margin:0 auto;padding:40px 24px 80px;">
+    <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;">Select a test</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:28px;">Choose a full-length test or draw randomly from your question bank.</div>
+    <div class="test-select-grid">${cards}</div>
+    <button class="bb-btn bb-btn-ghost" id="btn-back-to-intro">← Back</button>
   </div>
 </div>`;
 }
 
 function htmlModuleIntro() {
-  const c = { rw1:MODULE_CFG.rw1, rw2:S.moduleType==='hard'?MODULE_CFG.rw2h:MODULE_CFG.rw2e, math:MODULE_CFG.math }[S.view];
+  const t = S.selectedTest;
+  const key = S.view==='rw2' ? (S.moduleType==='hard'?'rw2h':'rw2e') : S.view;
+  const cfgs = {
+    rw1:  { sub:'Module 1 of 2',            title:'Reading & Writing', q:t.rw1q,  min:t.rw1min,  desc:'Read each passage and answer the question. You may navigate back within this module.' },
+    rw2e: { sub:'Module 2 of 2 — Standard', title:'Reading & Writing', q:t.rw2q,  min:t.rw2min,  desc:'Continue with the same format. You may not return to Module 1.' },
+    rw2h: { sub:'Module 2 of 2 — Advanced', title:'Reading & Writing', q:t.rw2q,  min:t.rw2min,  desc:'Continue with the same format. You may not return to Module 1.' },
+    math: { sub:'Final Module',              title:'Math',              q:t.mathq, min:t.mathmin, desc:'Some questions require a typed answer. A calculator is available for all questions.' },
+  };
+  const c = cfgs[key];
   return `
 <div class="bb-screen">
   <div class="bb-intro-card">
@@ -282,13 +396,12 @@ function htmlQuestion() {
   const q = questions[S.qIndex];
   if (!q) return '';
 
-  const isMath  = S.view==='math';
-  const resp    = responses[q.id];
-  const isLast  = S.qIndex===questions.length-1;
+  const isMath   = S.view==='math';
+  const resp     = responses[q.id];
+  const isLast   = S.qIndex===questions.length-1;
   const answered = Object.values(responses).filter(v=>v!==undefined&&v!==null&&v!=='').length;
   const allDone  = questions.every(qq=>{ const v=responses[qq.id]; return v!==undefined&&v!==null&&v!==''; });
 
-  /* Answer HTML */
   let answerHtml = '';
   if (q.isSPR) {
     answerHtml = `
@@ -331,13 +444,14 @@ function htmlQuestion() {
   }).join('');
   const dotsStrip = `<div class="bb-dots-strip">${dots}</div>`;
 
-  /* Passage */
   let passageHtml='';
   if (q.dualText) {
+    const t1 = typeof q.dualText==='object' ? q.dualText.text1 : q.passage;
+    const t2 = typeof q.dualText==='object' ? q.dualText.text2 : q.dualText;
     passageHtml=`<div class="bb-panel-tag">Texts</div>
     <div class="bb-dual-wrap">
-      <div class="bb-text-block"><div class="bb-text-label">Text 1</div><div class="bb-passage">${q.dualText.text1}</div></div>
-      <div class="bb-text-block"><div class="bb-text-label">Text 2</div><div class="bb-passage">${q.dualText.text2}</div></div>
+      <div class="bb-text-block"><div class="bb-text-label">Text 1</div><div class="bb-passage">${t1}</div></div>
+      <div class="bb-text-block"><div class="bb-text-label">Text 2</div><div class="bb-passage">${t2}</div></div>
     </div>`;
   } else if (q.notes) {
     passageHtml=`<div class="bb-panel-tag">Notes</div>
@@ -351,7 +465,11 @@ function htmlQuestion() {
     passageHtml=`<div class="bb-panel-tag">Passage</div><div class="bb-passage">${txt}</div>
     ${q.table?(q.table.trim().startsWith('<')?q.table.replace(/class="data-table"/g,'class="bb-data-table"'):parseTextTable(q.table)):''}`;
   } else if (q.table) {
-    passageHtml=`<div class="bb-panel-tag">Data</div>${q.table.replace(/class="data-table"/g,'class="bb-data-table"')}`;
+    passageHtml=`<div class="bb-panel-tag">Data</div>${parseTextTable(q.table)}`;
+  }
+
+  if (q.katex && !passageHtml) {
+    passageHtml=`<div class="bb-panel-tag">Figure / Data</div><div class="bb-passage katex-content" style="font-size:14px;line-height:1.8;">${q.katex}</div>`;
   }
 
   const typeLabel = (q.type||'').replace(/_/g,' ');
@@ -402,33 +520,37 @@ function toggleCalc() {
 
 /* ── Results ───────────────────────────────────────────── */
 function htmlResults() {
-  const rwQs  = S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
-  const rw1Raw= S.rw1Score||0;
-  const rw2Raw= S.rw2Score||0;
-  const rwRaw = rw1Raw+rw2Raw;
-  const rwScaled   = Math.round(200+(rwRaw/40)*600);
-  const mathScaled = Math.round(200+((S.mathScore||0)/18)*600);
+  const t = S.selectedTest;
+  const rw1Qs  = t.id==='mt01' ? MT01_RW1 : RW1_QUESTIONS;
+  const rwQs   = S.moduleType==='hard'
+    ? (t.id==='mt01' ? MT01_RW2_HARD : RW2_HARD_QUESTIONS)
+    : (t.id==='mt01' ? MT01_RW2_HARD : RW2_EASY_QUESTIONS);
+  const mathQs = t.id==='mt01' ? MT01_MATH1 : MATH_QUESTIONS;
+
+  const rwTotal   = t.rw1q + t.rw2q;
+  const mathTotal = t.mathq;
+  const rwRaw     = (S.rw1Score||0)+(S.rw2Score||0);
+  const rwScaled  = Math.round(200+(rwRaw/rwTotal)*600);
+  const mathScaled= Math.round(200+((S.mathScore||0)/mathTotal)*600);
   const total = rwScaled+mathScaled;
 
-  /* Domain breakdown using scoring.js */
-  const allRs  = {...S.rw1Responses,...S.rw2Responses,...S.mathResponses};
-  const rwDoms = rwDomainBreakdown(allRs, [...RW1_QUESTIONS,...rwQs]);
-  const mathDoms = mathDomainBreakdown(S.mathResponses);
+  const rwBreak   = domainBreakdown({...S.rw1Responses,...S.rw2Responses}, [...rw1Qs,...rwQs]);
+  const mathBreak = domainBreakdown(S.mathResponses, mathQs);
 
   const domainLabels = {
     craft_structure:'Craft & Structure', info_ideas:'Information & Ideas',
-    sec:'Standard English', eoi:'Expression of Ideas',
-    algebra:'Algebra', advanced_math:'Advanced Math',
-    psda:'Problem Solving & Data', geometry:'Geometry & Trig',
+    sec:'Standard English',             eoi:'Expression of Ideas',
+    algebra:'Algebra',                  advanced_math:'Advanced Math',
+    psda:'Problem Solving & Data',      geometry:'Geometry & Trig',
   };
 
-  const rwRows = Object.entries(rwDoms)
+  const rwRows = Object.entries(rwBreak)
     .filter(([,v])=>v.total>0)
     .map(([k,v])=>`<div class="mt-domain-row"><span>${domainLabels[k]||k}</span><span class="mt-domain-score">${v.correct}/${v.total}</span></div>`)
     .join('');
-  const mathRows = Object.entries(mathDoms)
-    .filter(([,v])=>v.t>0)
-    .map(([k,v])=>`<div class="mt-domain-row"><span>${domainLabels[k]||k}</span><span class="mt-domain-score">${v.c}/${v.t}</span></div>`)
+  const mathRows = Object.entries(mathBreak)
+    .filter(([,v])=>v.total>0)
+    .map(([k,v])=>`<div class="mt-domain-row"><span>${domainLabels[k]||k}</span><span class="mt-domain-score">${v.correct}/${v.total}</span></div>`)
     .join('');
 
   return `
@@ -437,19 +559,19 @@ function htmlResults() {
     <div class="mt-score-big">${total}</div>
     <div>
       <div style="font-size:15px;font-weight:600;color:var(--text);">Estimated Score</div>
-      <div style="font-size:13px;color:var(--text-muted);">Digital SAT scale · Module 2: ${S.moduleType||'—'}</div>
+      <div style="font-size:13px;color:var(--text-muted);">${t.name} · Module 2: ${S.moduleType||'—'}</div>
     </div>
   </div>
   <div class="mt-breakdown">
     <div class="mt-breakdown-card">
       <div class="label">Reading & Writing</div>
       <div class="val">${rwScaled}</div>
-      <div class="sub">Raw: ${rwRaw}/40</div>
+      <div class="sub">Raw: ${rwRaw}/${rwTotal}</div>
     </div>
     <div class="mt-breakdown-card">
       <div class="label">Math</div>
       <div class="val">${mathScaled}</div>
-      <div class="sub">Raw: ${S.mathScore||0}/18</div>
+      <div class="sub">Raw: ${S.mathScore||0}/${mathTotal}</div>
     </div>
   </div>
   <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:28px;">
@@ -470,7 +592,20 @@ function bindEvents() {
   const on    = (id,ev,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener(ev,fn); };
   const onAll = (sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,fn));
 
-  if (S.view==='intro')        on('btn-start-test','click',()=>{ S.view='rw1';S.modulePhase='intro';render(); });
+  if (S.view==='intro') {
+    on('btn-choose-test','click',()=>{ S.view='test_select'; render(); });
+  }
+
+  if (S.view==='test_select') {
+    on('btn-back-to-intro','click',()=>{ S.view='intro'; render(); });
+    onAll('.test-card','click',e=>{
+      const id = e.currentTarget.dataset.testid;
+      S.selectedTest = AVAILABLE_TESTS.find(t=>t.id===id);
+      if (!S.selectedTest) return;
+      S.view='rw1'; S.modulePhase='intro'; render();
+    });
+  }
+
   if (S.modulePhase==='intro') on('btn-begin-module','click',handleBeginModule);
 
   if (S.modulePhase==='active') {
@@ -504,14 +639,6 @@ function bindEvents() {
       }
     }
 
-    on('btn-flag','click',()=>{ S.flags[q.id]=!S.flags[q.id]; render(); });
-     on('btn-jump-flagged','click',()=>{
-      const flaggedIndices = S.questions.map((qq,i)=>S.flags[qq.id]?i:-1).filter(i=>i>=0);
-      if (!flaggedIndices.length) return;
-      const currentPos = flaggedIndices.indexOf(S.qIndex);
-      const next = flaggedIndices[(currentPos + 1) % flaggedIndices.length];
-      S.qIndex=next; render();
-    });
     on('btn-q-prev','click',()=>{ if(S.qIndex>0){S.qIndex--;render();} });
     on('btn-q-next','click',()=>{
       if (q.isSPR){ const inp=document.getElementById('spr-input'); if(!inp||!inp.value.trim()) return; recordQuestionEnd(q.id); setR(q.id,inp.value.trim()); }
@@ -530,176 +657,163 @@ function bindEvents() {
     onAll('.bb-dot[data-qi]','click',e=>{ S.qIndex=parseInt(e.currentTarget.dataset.qi,10); render(); });
     initHighlighter();
   }
-
-  on('btn-exit-save','click', async ()=>{
-    if (S.view==='quiz' && Object.keys(S.responses).length > 0) {
-      await saveResults();
-    }
-    window.location.href='daniellab_student.html';
-  });
-}
-
-function initHighlighter() {
-  let activeColor = null; // 'yellow' | 'green' | null
-
-  function setActive(color) {
-    activeColor = activeColor === color ? null : color;
-    const yBtn = document.getElementById('hl-yellow');
-    const gBtn = document.getElementById('hl-green');
-    if (yBtn) yBtn.style.outline = activeColor==='yellow' ? '2px solid #fff' : 'none';
-    if (gBtn) gBtn.style.outline = activeColor==='green'  ? '2px solid #fff' : 'none';
-    document.body.style.cursor = activeColor ? 'text' : '';
-  }
-
-  document.getElementById('hl-yellow')?.addEventListener('click', () => setActive('yellow'));
-  document.getElementById('hl-green')?.addEventListener('click',  () => setActive('green'));
-  document.getElementById('hl-clear')?.addEventListener('click',  () => {
-    const inPassage = document.querySelector('.bb-passage,.bb-notes-box');
-    if (inPassage) {
-      inPassage.querySelectorAll('mark.hl-yellow,mark.hl-green').forEach(mark => {
-        const parent = mark.parentNode;
-        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
-        parent.removeChild(mark);
-        parent.normalize();
-      });
-    }
-    setActive(null);
-  });
-  document.getElementById('hl-clear')?.addEventListener('click',  () => {
-    window.getSelection().removeAllRanges();
-    setActive(null);
-  });
-
-  document.addEventListener('mouseup', e => {
-    if (e.target.closest('#hl-toolbar')) return;
-    if (!activeColor) return;
-
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) return;
-
-    const range = sel.getRangeAt(0);
-    const container = range.commonAncestorContainer;
-    const inPassage = container.nodeType === 3
-      ? container.parentElement?.closest('.bb-passage,.bb-notes-box')
-      : container.closest?.('.bb-passage,.bb-notes-box');
-    if (!inPassage) { sel.removeAllRanges(); return; }
-
-    // Remove any existing highlights in range first
-    const existingMarks = inPassage.querySelectorAll('mark.hl-yellow,mark.hl-green');
-    existingMarks.forEach(mark => {
-      if (range.intersectsNode(mark)) {
-        const parent = mark.parentNode;
-        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
-        parent.removeChild(mark);
-        parent.normalize();
-      }
-    });
-
-    // Re-get selection after DOM change
-    sel.removeAllRanges();
-    const newRange = range.cloneRange();
-
-    // Check if selection now covers text — if original was purely a removal, stop
-    if (newRange.collapsed) return;
-
-    const mark = document.createElement('mark');
-    mark.className = activeColor === 'yellow' ? 'hl-yellow' : 'hl-green';
-    try { newRange.surroundContents(mark); }
-    catch {
-      const frag = newRange.extractContents();
-      mark.appendChild(frag);
-      newRange.insertNode(mark);
-    }
-    sel.removeAllRanges();
-  });
 }
 
 /* ── Handlers ──────────────────────────────────────────── */
 function handleBeginModule() {
+  const t = S.selectedTest;
+  const seconds = { rw1:t.rw1min*60, rw2:t.rw2min*60, math:t.mathmin*60 }[S.view] || 1500;
   S.modulePhase='active'; S.qIndex=0;
-  startTimer({rw1:1500,rw2:1500,math:1320}[S.view]||1500);
+  startTimer(seconds);
   render();
 }
 
 function submitModule(module) {
   stopTimer();
   if (module==='rw1') {
-    S.rw1Score  = scoreRWModule(S.rw1Responses, RW1_QUESTIONS);
-    S.moduleType= S.rw1Score>=14?'hard':'easy';
+    S.rw1Score  = scoreModule(S.rw1Responses, getQuestions());
+    S.moduleType= S.rw1Score >= S.selectedTest.threshold ? 'hard' : 'easy';
     S.view='rw2'; S.modulePhase='intro'; S.qIndex=0; render();
   } else if (module==='rw2') {
-    const qs=S.moduleType==='hard'?RW2_HARD_QUESTIONS:RW2_EASY_QUESTIONS;
-    S.rw2Score=scoreRWModule(S.rw2Responses,qs);
+    S.rw2Score = scoreModule(S.rw2Responses, getQuestions());
     S.view='math'; S.modulePhase='intro'; S.qIndex=0; render();
   } else if (module==='math') {
-    S.mathScore=scoreMathModule(S.mathResponses,MATH_QUESTIONS);
+    S.mathScore = scoreModule(S.mathResponses, getQuestions());
     finishTest();
   }
 }
 
 async function finishTest() {
   S.view='done'; S.modulePhase='done'; render();
-  const rwQs     = S.moduleType==='hard' ? RW2_HARD_QUESTIONS : RW2_EASY_QUESTIONS;
-  const rwRaw    = (S.rw1Score||0)+(S.rw2Score||0);
-  const rwScaled = Math.round(200+(rwRaw/40)*600);
-  const mathScaled=Math.round(200+((S.mathScore||0)/18)*600);
+
+  const t = S.selectedTest;
+  const rwTotal    = t.rw1q + t.rw2q;
+  const rwRaw      = (S.rw1Score||0)+(S.rw2Score||0);
+  const rwScaled   = Math.round(200+(rwRaw/rwTotal)*600);
+  const mathScaled = Math.round(200+((S.mathScore||0)/t.mathq)*600);
+
   const {url,key}=getConfig();
   if (!url||!key) return;
 
-  // Save mock test aggregate
   await sbPost('mock_tests',{
-    student_id:studentId,
-    rw_score:rwScaled, math_score:mathScaled,
-    total_score:rwScaled+mathScaled,
-    module_type:S.moduleType,
-    rw1_responses:S.rw1Responses,
-    rw2_responses:S.rw2Responses,
-    math_responses:S.mathResponses,
-    time_remaining_math:S.mathTimeAtEnd,
+    student_id:          studentId,
+    rw_score:            rwScaled,
+    math_score:          mathScaled,
+    total_score:         rwScaled+mathScaled,
+    module_type:         S.moduleType,
+    rw1_responses:       S.rw1Responses,
+    rw2_responses:       S.rw2Responses,
+    math_responses:      S.mathResponses,
+    time_remaining_math: S.mathTimeAtEnd,
   });
 
-  // Build per-response rows for all three modules
-  const allModules = [
-    { questions:RW1_QUESTIONS,  responses:S.rw1Responses  },
-    { questions:rwQs,           responses:S.rw2Responses  },
-    { questions:MATH_QUESTIONS, responses:S.mathResponses },
-  ];
+  const rw1Qs  = t.id==='mt01' ? MT01_RW1 : RW1_QUESTIONS;
+  const rwQs   = S.moduleType==='hard'
+    ? (t.id==='mt01' ? MT01_RW2_HARD : RW2_HARD_QUESTIONS)
+    : (t.id==='mt01' ? MT01_RW2_HARD : RW2_EASY_QUESTIONS);
+  const mathQs = t.id==='mt01' ? MT01_MATH1 : MATH_QUESTIONS;
 
   const rows = [];
-  allModules.forEach(({questions, responses}) => {
-    questions.forEach(q => {
-      const r = responses[q.id];
-      let isCorrect = null;
-      if (r) {
-        if (q.isSPR) {
-          const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
-          const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
-          isCorrect=false;
-          if (q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01) isCorrect=true;}
-          if (!isCorrect) isCorrect=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);
-        } else {
-          isCorrect = r===q.answer;
+  [{questions:rw1Qs,responses:S.rw1Responses},{questions:rwQs,responses:S.rw2Responses},{questions:mathQs,responses:S.mathResponses}]
+    .forEach(({questions,responses})=>{
+      questions.forEach(q=>{
+        const r=responses[q.id];
+        let isCorrect=null;
+        if (r) {
+          if (q.isSPR) {
+            const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');
+            const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');
+            isCorrect=false;
+            if (q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01) isCorrect=true;}
+            if (!isCorrect) isCorrect=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);
+          } else { isCorrect=r===q.answer; }
         }
-      }
-      rows.push({
-        student_id:       studentId,
-        session_id:       S.sessionId,
-        session_type:     'mock',
-        question_id:      q.id,
-        domain:           q.domain,
-        question_type:    q.type,
-        student_answer:   r||null,
-        correct_answer:   q.isSPR ? q.sprAnswer : q.answer,
-        is_correct:       isCorrect,
-        time_on_question: S.responseTimes[q.id]||null,
+        rows.push({
+          student_id:       studentId,
+          session_id:       S.sessionId,
+          session_type:     'mock',
+          question_id:      q.id,
+          domain:           q.domain,
+          question_type:    q.type,
+          student_answer:   r||null,
+          correct_answer:   q.isSPR ? q.sprAnswer : q.answer,
+          is_correct:       isCorrect,
+          time_on_question: S.responseTimes[q.id]||null,
+        });
       });
     });
-  });
 
   await fetch(`${url}/rest/v1/responses`,{
     method:'POST',
     headers:{'Content-Type':'application/json','apikey':key,'Authorization':`Bearer ${key}`,'Prefer':'return=minimal'},
     body: JSON.stringify(rows),
+  });
+}
+
+/* ── Table parser ──────────────────────────────────────── */
+function parseTextTable(text) {
+  if (!text) return '';
+  const lines = text.trim().split('\n').filter(l => l.trim() && !l.match(/^[-|:\s]+$/));
+  if (lines.length < 2) return `<p style="font-size:14px;color:var(--text-muted)">${text}</p>`;
+  const rows = lines.map(l => l.split('|').map(c => c.trim()).filter(c => c !== ''));
+  const [header, ...body] = rows;
+  return `<table class="bb-data-table">
+    <thead><tr>${header.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${body.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table>`;
+}
+
+/* ── Highlighter ───────────────────────────────────────── */
+function initHighlighter() {
+  let activeColor = null;
+  function setActive(color) {
+    activeColor = activeColor===color ? null : color;
+    const yBtn=document.getElementById('hl-yellow');
+    const gBtn=document.getElementById('hl-green');
+    if (yBtn) yBtn.style.outline = activeColor==='yellow' ? '2px solid #fff' : 'none';
+    if (gBtn) gBtn.style.outline = activeColor==='green'  ? '2px solid #fff' : 'none';
+    document.body.style.cursor = activeColor ? 'text' : '';
+  }
+  document.getElementById('hl-yellow')?.addEventListener('click',()=>setActive('yellow'));
+  document.getElementById('hl-green')?.addEventListener('click', ()=>setActive('green'));
+  document.getElementById('hl-clear')?.addEventListener('click', ()=>{
+    const inPassage=document.querySelector('.bb-passage,.bb-notes-box');
+    if (inPassage) {
+      inPassage.querySelectorAll('mark.hl-yellow,mark.hl-green').forEach(mark=>{
+        const parent=mark.parentNode;
+        while (mark.firstChild) parent.insertBefore(mark.firstChild,mark);
+        parent.removeChild(mark); parent.normalize();
+      });
+    }
+    window.getSelection().removeAllRanges();
+    setActive(null);
+  });
+  document.addEventListener('mouseup',e=>{
+    if (e.target.closest('#hl-toolbar')) return;
+    if (!activeColor) return;
+    const sel=window.getSelection();
+    if (!sel||sel.isCollapsed) return;
+    const range=sel.getRangeAt(0);
+    const container=range.commonAncestorContainer;
+    const inPassage=container.nodeType===3
+      ? container.parentElement?.closest('.bb-passage,.bb-notes-box')
+      : container.closest?.('.bb-passage,.bb-notes-box');
+    if (!inPassage){sel.removeAllRanges();return;}
+    inPassage.querySelectorAll('mark.hl-yellow,mark.hl-green').forEach(mark=>{
+      if (range.intersectsNode(mark)){
+        const parent=mark.parentNode;
+        while (mark.firstChild) parent.insertBefore(mark.firstChild,mark);
+        parent.removeChild(mark); parent.normalize();
+      }
+    });
+    sel.removeAllRanges();
+    const newRange=range.cloneRange();
+    if (newRange.collapsed) return;
+    const mark=document.createElement('mark');
+    mark.className=activeColor==='yellow'?'hl-yellow':'hl-green';
+    try { newRange.surroundContents(mark); }
+    catch { const frag=newRange.extractContents(); mark.appendChild(frag); newRange.insertNode(mark); }
+    sel.removeAllRanges();
   });
 }
 
