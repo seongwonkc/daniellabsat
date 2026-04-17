@@ -493,6 +493,10 @@ function htmlQuestion() {
     passageHtml=`<div class="bb-panel-tag">Data</div>${parseTextTable(q.table)}`;
   }
 
+  if (q.graph && !passageHtml) {
+    passageHtml = `<div class="bb-panel-tag">Figure</div><div style="padding:8px 0;">${q.graph}</div>`;
+  }
+
   if (q.katex && !passageHtml) {
     passageHtml=`<div class="bb-panel-tag">Figure / Data</div><div class="bb-passage katex-content" style="font-size:14px;line-height:1.8;">${q.katex}</div>`;
   }
@@ -543,7 +547,6 @@ function toggleCalc() {
   if (p) p.style.display = p.style.display==='none'?'flex':'none';
 }
 
-/* ── Results ───────────────────────────────────────────── */
 function htmlResults() {
   const t = S.selectedTest;
   const rw1Qs  = t.id==='mt01' ? MT01_RW1 : RW1_QUESTIONS;
@@ -558,57 +561,219 @@ function htmlResults() {
   const rwScaled  = Math.round(200+(rwRaw/rwTotal)*600);
   const mathScaled= Math.round(200+((S.mathScore||0)/mathTotal)*600);
   const total = rwScaled+mathScaled;
+  const target = parseInt(sessionStorage.getItem('dl_student_target')||'0');
+  const gap = target ? target - total : null;
 
-  const rwBreak   = domainBreakdown({...S.rw1Responses,...S.rw2Responses}, [...rw1Qs,...rwQs]);
+  const allRWQs   = [...rw1Qs,...rwQs];
+  const rwBreak   = domainBreakdown({...S.rw1Responses,...S.rw2Responses}, allRWQs);
   const mathBreak = domainBreakdown(S.mathResponses, mathQs);
+  const allBreak  = {...rwBreak,...mathBreak};
 
-  const domainLabels = {
+  // Time analysis per domain
+  const timeByDomain = {};
+  const allQs = [...rw1Qs,...rwQs,...mathQs];
+  allQs.forEach(q => {
+    const t = S.responseTimes[q.id];
+    if (!t||!q.domain) return;
+    if (!timeByDomain[q.domain]) timeByDomain[q.domain] = {total:0,count:0};
+    timeByDomain[q.domain].total += t;
+    timeByDomain[q.domain].count++;
+  });
+
+  // Missed question type analysis
+  const missedTypes = {};
+  allQs.forEach(q => {
+    const r = [...Object.entries(S.rw1Responses),...Object.entries(S.rw2Responses),...Object.entries(S.mathResponses)]
+      .find(([id])=>id===q.id)?.[1];
+    if (!r||!q.type) return;
+    let ok = q.isSPR
+      ? (()=>{const c=(r||'').toString().trim().toLowerCase().replace(/\s/g,'');const e=(q.sprAnswer||'').toString().toLowerCase().replace(/\s/g,'');let ok=false;if(q.sprAnswerNum!=null){const p=parseFloat(c);if(!isNaN(p)&&Math.abs(p-q.sprAnswerNum)<0.01)ok=true;}if(!ok)ok=[e,e.replace('π','pi'),e.replace('π','p')].includes(c);return ok;})()
+      : r===q.answer;
+    if (!ok) missedTypes[q.type] = (missedTypes[q.type]||0)+1;
+  });
+  const topMissed = Object.entries(missedTypes).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const DOMAIN_NAMES = {
     craft_structure:'Craft & Structure', info_ideas:'Information & Ideas',
     sec:'Standard English',             eoi:'Expression of Ideas',
     algebra:'Algebra',                  advanced_math:'Advanced Math',
-    psda:'Problem Solving & Data',      geometry:'Geometry & Trig',
+    psda:'Problem Solving & Data',      geometry:'Geometry',
+  };
+  const TYPE_NAMES = {
+    word_in_context:'Words in Context',      text_structure:'Text Structure',
+    cross_text:'Cross-Text Questions',        central_idea:'Central Ideas',
+    command_of_evidence:'Command of Evidence',transition:'Transitions',
+    rhetorical_synthesis:'Rhetorical Synthesis',boundaries:'Boundaries',
+    form_structure_sense:'Form, Structure & Sense',
+    linear_equation:'Linear Equations',      linear_inequality:'Linear Inequalities',
+    systems:'Systems of Equations',          quadratic:'Quadratic Equations',
+    polynomial:'Polynomials',                exponential:'Exponential Functions',
+    function:'Functions',                    statistics:'Statistics',
+    probability:'Probability',               ratio_percent:'Ratios & Percents',
+    geometry:'Geometry',                     trigonometry:'Trigonometry',
+    data_interpretation:'Data Interpretation',word_problem:'Word Problems',
   };
 
-  const rwRows = Object.entries(rwBreak)
-    .filter(([,v])=>v.total>0)
-    .map(([k,v])=>`<div class="mt-domain-row"><span>${domainLabels[k]||k}</span><span class="mt-domain-score">${v.correct}/${v.total}</span></div>`)
-    .join('');
-  const mathRows = Object.entries(mathBreak)
-    .filter(([,v])=>v.total>0)
-    .map(([k,v])=>`<div class="mt-domain-row"><span>${domainLabels[k]||k}</span><span class="mt-domain-score">${v.correct}/${v.total}</span></div>`)
-    .join('');
+  function fmtTime(sec) { return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`; }
+  function timeBadge(sec, isMath) {
+    const slow = isMath ? 150 : 90;
+    const fast = isMath ? 75 : 45;
+    if (sec > slow) return `<span style="font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(200,16,46,.08);color:#c8102e;">Slow</span>`;
+    if (sec < fast) return `<span style="font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(42,122,79,.08);color:#2a7a4f;">Fast</span>`;
+    return `<span style="font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:3px;background:rgba(0,0,0,.05);color:#888;">OK</span>`;
+  }
+
+  const RW_DOMS  = ['craft_structure','info_ideas','sec','eoi'];
+  const MATH_DOMS = ['algebra','advanced_math','psda','geometry'];
+
+  function domainBar(d) {
+    const s = allBreak[d];
+    if (!s||s.total===0) return '';
+    const pct = Math.round((s.correct/s.total)*100);
+    const color = pct>=70?'#2a7a4f':pct>=50?'#b45309':'#c8102e';
+    const tm = timeByDomain[d];
+    const avgSec = tm ? Math.round(tm.total/tm.count) : null;
+    const isMath = MATH_DOMS.includes(d);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light);">
+      <span style="flex:1;font-size:.82rem;">${DOMAIN_NAMES[d]||d}</span>
+      <div style="width:80px;height:5px;background:#eee;border-radius:99px;overflow:hidden;flex-shrink:0;">
+        <div style="width:${pct}%;height:100%;background:${color};border-radius:99px;"></div>
+      </div>
+      <span style="font-size:.78rem;font-weight:600;color:${color};width:34px;text-align:right;">${pct}%</span>
+      ${avgSec ? `<span style="font-size:.72rem;color:#888;width:30px;text-align:right;">${fmtTime(avgSec)}</span>${timeBadge(avgSec,isMath)}` : ''}
+    </div>`;
+  }
+
+  // Auto-recommendation
+  const weakest = Object.entries(allBreak).filter(([,v])=>v.total>=3).sort(([,a],[,b])=>(a.correct/a.total)-(b.correct/b.total))[0];
+  const slowDomain = Object.entries(timeByDomain).filter(([d])=>MATH_DOMS.includes(d)).sort(([,a],[,b])=>(b.total/b.count)-(a.total/a.count)).find(([,v])=>v.total/v.count>150);
+  const rw1Pct = S.rw1Score/t.rw1q;
+  const rw2Pct = S.rw2Score/t.rw2q;
+  const rwDrop = rw2Pct < rw1Pct - 0.1;
+
+  let rec = weakest
+    ? `Focus next session on <strong>${DOMAIN_NAMES[weakest[0]]||weakest[0]}</strong> (${Math.round((weakest[1].correct/weakest[1].total)*100)}% accuracy — ${weakest[1].total - weakest[1].correct} missed).`
+    : 'Solid performance across all domains.';
+  if (slowDomain) rec += ` Pacing on <strong>${DOMAIN_NAMES[slowDomain[0]]||slowDomain[0]}</strong> is slow (avg ${fmtTime(Math.round(slowDomain[1].total/slowDomain[1].count))}/question) — drill timed problem sets.`;
+  if (rwDrop) rec += ` RW accuracy dropped in Module 2 (${Math.round(rw1Pct*100)}% → ${Math.round(rw2Pct*100)}%) — review harder question types in weak domains.`;
+
+  const drillLinks = [weakest?.[0], slowDomain?.[0]].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).map(d=>
+    `<a href="daniellab_practice.html" style="font-size:.78rem;font-weight:600;padding:5px 12px;border-radius:6px;background:rgba(200,16,46,.07);color:#c8102e;border:1px solid rgba(200,16,46,.15);text-decoration:none;">Drill ${DOMAIN_NAMES[d]||d} →</a>`
+  ).join('');
+
+  const domainTableRows = [...RW_DOMS,...MATH_DOMS].map(d => {
+    const s = allBreak[d];
+    if (!s||s.total===0) return '';
+    const pct = Math.round((s.correct/s.total)*100);
+    const tm = timeByDomain[d];
+    const avgSec = tm ? Math.round(tm.total/tm.count) : null;
+    const isMath = MATH_DOMS.includes(d);
+    return `<tr>
+      <td style="padding:7px 10px;font-size:.8rem;">${DOMAIN_NAMES[d]||d}</td>
+      <td style="padding:7px 10px;font-size:.8rem;text-align:center;">${s.correct}/${s.total}</td>
+      <td style="padding:7px 10px;font-size:.8rem;text-align:center;font-weight:600;color:${pct>=70?'#2a7a4f':pct>=50?'#b45309':'#c8102e'}">${pct}%</td>
+      <td style="padding:7px 10px;font-size:.8rem;text-align:center;">${avgSec ? fmtTime(avgSec) : '—'}</td>
+      <td style="padding:7px 10px;font-size:.8rem;">${avgSec ? timeBadge(avgSec,isMath) : ''}</td>
+    </tr>`;
+  }).join('');
 
   return `
-<div class="mt-results">
-  <div class="mt-score-row">
-    <div class="mt-score-big">${total}</div>
+<div style="max-width:700px;margin:0 auto;padding:36px 24px 80px;">
+
+  <!-- ── SCORE HEADER ──────────────────────────────── -->
+  <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap;">
+    <div style="font-size:68px;font-weight:700;color:var(--blue);line-height:1;">${total}</div>
     <div>
-      <div style="font-size:15px;font-weight:600;color:var(--text);">Estimated Score</div>
-      <div style="font-size:13px;color:var(--text-muted);">${t.name} · Module 2: ${S.moduleType||'—'}</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text);">Estimated Score — ${t.name}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Module 2: ${S.moduleType==='hard'?'Advanced ✓':'Standard'} · ${rwRaw}/${rwTotal} RW raw · ${S.mathScore||0}/${mathTotal} Math raw</div>
     </div>
   </div>
-  <div class="mt-breakdown">
-    <div class="mt-breakdown-card">
-      <div class="label">Reading & Writing</div>
-      <div class="val">${rwScaled}</div>
-      <div class="sub">Raw: ${rwRaw}/${rwTotal}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr${target?' 1fr':''};gap:10px;margin-bottom:24px;">
+    <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;">
+      <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">Reading & Writing</div>
+      <div style="font-size:32px;font-weight:700;line-height:1;">${rwScaled}</div>
+      <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">Raw ${rwRaw}/${rwTotal} · M1: ${S.rw1Score}/${t.rw1q} · M2: ${S.rw2Score}/${t.rw2q}</div>
     </div>
-    <div class="mt-breakdown-card">
-      <div class="label">Math</div>
-      <div class="val">${mathScaled}</div>
-      <div class="sub">Raw: ${S.mathScore||0}/${mathTotal}</div>
+    <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;">
+      <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">Math</div>
+      <div style="font-size:32px;font-weight:700;line-height:1;">${mathScaled}</div>
+      <div style="font-size:.72rem;color:var(--text-muted);margin-top:3px;">Raw ${S.mathScore||0}/${mathTotal}</div>
+    </div>
+    ${target?`<div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;">
+      <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">Target</div>
+      <div style="font-size:32px;font-weight:700;line-height:1;">${target}</div>
+      <div style="font-size:.72rem;color:${gap<=0?'#2a7a4f':'#c8102e'};margin-top:3px;font-weight:600;">${gap<=0?'✓ Reached':'Gap: '+gap+' pts'}</div>
+    </div>`:''}
+  </div>
+
+  <!-- ── STUDENT SECTION ───────────────────────────── -->
+  <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);">Student Report</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+    <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;">
+      <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Reading & Writing</div>
+      ${RW_DOMS.map(domainBar).join('')}
+    </div>
+    <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;">
+      <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Math</div>
+      ${MATH_DOMS.map(domainBar).join('')}
     </div>
   </div>
-  <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:28px;">
-    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;">Reading & Writing breakdown</div>
-    ${rwRows}
-    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin:16px 0 12px;">Math breakdown</div>
-    ${mathRows}
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+  ${topMissed.length ? `
+  <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px;">
+    <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Most Missed Question Types</div>
+    ${topMissed.map(([type,count])=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-light);font-size:.82rem;">
+      <span>${TYPE_NAMES[type]||type}</span>
+      <span style="font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(200,16,46,.07);color:#c8102e;">${count} missed</span>
+    </div>`).join('')}
+  </div>` : ''}
+
+  ${drillLinks ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;">${drillLinks}</div>` : ''}
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;">
     <a href="daniellab_student.html" class="bb-btn bb-btn-primary">← Return to portal</a>
-    <a href="daniellab_practice.html" class="bb-btn bb-btn-secondary">Practice weak areas →</a>
+    <a href="daniellab_practice.html" class="bb-btn bb-btn-secondary">Practice →</a>
   </div>
+
+  <!-- ── TEACHER SECTION ───────────────────────────── -->
+  <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--border);">Teacher Notes</div>
+
+  <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px;">
+    <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Domain Breakdown</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1.5px solid var(--border);">
+          <th style="padding:6px 10px;font-size:.72rem;text-align:left;color:var(--text-dim);font-weight:600;">Domain</th>
+          <th style="padding:6px 10px;font-size:.72rem;text-align:center;color:var(--text-dim);font-weight:600;">Score</th>
+          <th style="padding:6px 10px;font-size:.72rem;text-align:center;color:var(--text-dim);font-weight:600;">%</th>
+          <th style="padding:6px 10px;font-size:.72rem;text-align:center;color:var(--text-dim);font-weight:600;">Avg Time</th>
+          <th style="padding:6px 10px;font-size:.72rem;text-align:left;color:var(--text-dim);font-weight:600;">Pace</th>
+        </tr>
+      </thead>
+      <tbody>${domainTableRows}</tbody>
+    </table>
+  </div>
+
+  <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:14px;">
+    <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Module Routing</div>
+    <div style="font-size:.82rem;line-height:1.7;">
+      RW Module 1: <strong>${S.rw1Score}/${t.rw1q}</strong> (${Math.round((S.rw1Score/t.rw1q)*100)}%) →
+      Module 2 routed to <strong>${S.moduleType==='hard'?'Advanced':'Standard'}</strong>
+      ${S.moduleType==='hard'?' ✓ Above threshold':' (below '+t.threshold+'/'+t.rw1q+')'}<br>
+      RW Module 2: <strong>${S.rw2Score}/${t.rw2q}</strong> (${Math.round((S.rw2Score/t.rw2q)*100)}%)
+      ${rwDrop?` <span style="font-size:.72rem;font-weight:600;color:#c8102e;">▼ Drop from M1</span>`:''}<br>
+      Math: <strong>${S.mathScore||0}/${mathTotal}</strong> (${Math.round(((S.mathScore||0)/mathTotal)*100)}%)
+      ${S.mathTimeAtEnd!=null?` · ${fmtTime(S.mathTimeAtEnd)} remaining`:''}
+    </div>
+  </div>
+
+  <div style="background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;">
+    <div style="font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Session Recommendation</div>
+    <div style="font-size:.85rem;line-height:1.65;color:var(--text);">${rec}</div>
+  </div>
+
 </div>`;
 }
 
