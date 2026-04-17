@@ -925,7 +925,7 @@ function getAdminPin() {
 function checkAdminPin() {
   const input = document.getElementById('admin-pin-input').value;
   if (input === getAdminPin()) {
-    sessionStorage.setItem('dl_admin_auth', '1');
+    localStorage.setItem('dl_admin_auth', '1');
     document.getElementById('pin-gate').classList.remove('active');
   } else {
     document.getElementById('pin-error').textContent = 'Incorrect PIN.';
@@ -935,7 +935,7 @@ function checkAdminPin() {
 }
 
 function checkAdminAuth() {
-  if (!sessionStorage.getItem('dl_admin_auth')) {
+  if (!localStorage.getItem('dl_admin_auth')) {
     document.getElementById('pin-gate').classList.add('active');
     setTimeout(() => document.getElementById('admin-pin-input').focus(), 100);
   }
@@ -946,10 +946,11 @@ function checkAdminAuth() {
 ============================================================ */
 let editingStudentId = null;
 
-function openEdit(studentId) {
+async function openEdit(studentId) {
   const s = allStudents.find(x => x.id === studentId);
   if (!s) return;
   editingStudentId = studentId;
+  if (!allTeachers.length) await loadTeachers();
 
   document.getElementById('edit-name').value           = s.name || '';
   document.getElementById('edit-code').value           = s.student_code || '';
@@ -1948,9 +1949,14 @@ function teacherNames(s) {
 function populateTeacherSelect(elId, role, selectedId) {
   const sel = document.getElementById(elId);
   if (!sel) return;
-  const options = allTeachers.filter(t => t.active !== false && (t.role === role || !t.role));
+  // Show all active teachers — admin decides who teaches what
+  const options = allTeachers.filter(t => t.active !== false);
   sel.innerHTML = '<option value="">— None —</option>' +
-    options.map(t => `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${t.name}</option>`).join('');
+    options.map(t => {
+      const roleLabel = { rw:'RW', math:'Math', ta:'TA' }[t.role] || '';
+      const label = roleLabel ? `${t.name} (${roleLabel})` : t.name;
+      return `<option value="${t.id}" ${t.id === selectedId ? 'selected' : ''}>${label}</option>`;
+    }).join('');
 }
 
 /* ============================================================
