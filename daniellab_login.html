@@ -82,7 +82,8 @@ label {
   color: var(--muted);
   margin-bottom: 6px;
 }
-input {
+input[type="text"],
+input[type="password"] {
   font-family: var(--sans);
   font-size: 1rem;
   background: var(--bg);
@@ -95,9 +96,52 @@ input {
   transition: border-color 0.15s;
   letter-spacing: 0.02em;
 }
-input:focus { border-color: var(--accent); }
+input[type="text"]:focus,
+input[type="password"]:focus { border-color: var(--accent); }
 input::placeholder { color: var(--muted); letter-spacing: 0; }
 input[type="password"] { letter-spacing: 0.2em; font-size: 1.1rem; }
+
+/* ── Consent block ── */
+.consent-block {
+  display: none; /* hidden until we know this is a first-time visitor */
+  margin-top: 20px;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.consent-block.show { display: block; }
+.consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.consent-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: none;
+  letter-spacing: 0;
+  font-size: inherit;
+}
+.consent-text {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.consent-text a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.consent-text a:hover { text-decoration: underline; }
 
 .btn-login {
   font-family: var(--sans);
@@ -110,7 +154,7 @@ input[type="password"] { letter-spacing: 0.2em; font-size: 1.1rem; }
   padding: 14px;
   width: 100%;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 14px;
   transition: background 0.15s;
   letter-spacing: 0.01em;
 }
@@ -152,7 +196,7 @@ input[type="password"] { letter-spacing: 0.2em; font-size: 1.1rem; }
       <label for="code">Student Code</label>
       <input type="text" id="code" placeholder="DL-2025-XXXX"
              autocomplete="off" autocapitalize="characters"
-             oninput="this.value = this.value.toUpperCase()"
+             oninput="this.value = this.value.toUpperCase(); checkFirstVisit();"
              onkeydown="if(event.key==='Enter') document.getElementById('pin').focus()" />
     </div>
 
@@ -161,6 +205,19 @@ input[type="password"] { letter-spacing: 0.2em; font-size: 1.1rem; }
       <input type="password" id="pin" placeholder="••••"
              maxlength="8"
              onkeydown="if(event.key==='Enter') attemptLogin()" />
+    </div>
+
+    <!-- Consent block: only shown on first visit for this student code -->
+    <div class="consent-block" id="consent-block">
+      <div class="consent-row">
+        <input type="checkbox" id="agree" onchange="toggleLoginBtn()" />
+        <span class="consent-text">
+          I have read and agree to the
+          <a href="terms.html" target="_blank">Terms of Use</a> and
+          <a href="privacy.html" target="_blank">Privacy Policy</a>,
+          including the transfer of my data to overseas servers (Vector AI, operated by [헤르바르트 키타]).
+        </span>
+      </div>
     </div>
 
     <button class="btn-login" id="login-btn" onclick="attemptLogin()">Sign in</button>
@@ -182,16 +239,62 @@ function getConfig() {
   };
 }
 
+/* ── Consent logic ──
+   Key: dl_consent_{studentCode} → "true|{ISO timestamp}"
+   Stored in localStorage (device-level).
+   For server-side logging, see the note in attemptLogin().
+──────────────────── */
+function hasConsented(code) {
+  return !!localStorage.getItem('dl_consent_' + code);
+}
+
+function recordConsent(code) {
+  localStorage.setItem('dl_consent_' + code, 'true|' + new Date().toISOString());
+}
+
+function checkFirstVisit() {
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const block = document.getElementById('consent-block');
+  const btn   = document.getElementById('login-btn');
+
+  if (code.length < 4) {
+    block.classList.remove('show');
+    btn.disabled = false;
+    return;
+  }
+
+  if (!hasConsented(code)) {
+    block.classList.add('show');
+    btn.disabled = true; // disabled until checkbox ticked
+    document.getElementById('agree').checked = false;
+  } else {
+    block.classList.remove('show');
+    btn.disabled = false;
+  }
+}
+
+function toggleLoginBtn() {
+  const agreed = document.getElementById('agree').checked;
+  document.getElementById('login-btn').disabled = !agreed;
+}
+
 async function attemptLogin() {
   const code  = document.getElementById('code').value.trim().toUpperCase();
   const pin   = document.getElementById('pin').value.trim();
   const btn   = document.getElementById('login-btn');
   const errEl = document.getElementById('error-msg');
+  const needsConsent = document.getElementById('consent-block').classList.contains('show');
+  const agreed = document.getElementById('agree').checked;
 
   errEl.classList.remove('visible');
 
   if (!code || !pin) {
     showError('Please enter both your student code and PIN.');
+    return;
+  }
+
+  if (needsConsent && !agreed) {
+    showError('Please agree to the Terms of Use and Privacy Policy to continue.');
     return;
   }
 
@@ -205,7 +308,6 @@ async function attemptLogin() {
   btn.textContent = 'Signing in…';
 
   try {
-    /* Fetch only the fields needed to verify — never expose all data here */
     const res = await fetch(
       `${url}/rest/v1/students?student_code=eq.${encodeURIComponent(code)}&select=id,name,grade,student_code,pin`,
       {
@@ -237,7 +339,30 @@ async function attemptLogin() {
       return;
     }
 
-    /* ✓ Auth passed — store session and redirect */
+    /* ✓ Auth passed */
+
+    /* Record consent locally if this was a first-visit login */
+    if (needsConsent && agreed) {
+      recordConsent(code);
+
+      /* OPTIONAL: also write consent timestamp to Supabase.
+         Requires a `consent_agreed_at` timestamptz column on your students table.
+         Uncomment when ready:
+
+      await fetch(`${url}/rest/v1/students?id=eq.${student.id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': key,
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ consent_agreed_at: new Date().toISOString() })
+      });
+      */
+    }
+
+    /* Store session and redirect */
     sessionStorage.setItem('dl_student_id',   student.id);
     sessionStorage.setItem('dl_student_name', student.name);
     sessionStorage.setItem('dl_student_code', student.student_code);
