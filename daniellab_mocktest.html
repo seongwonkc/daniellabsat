@@ -444,7 +444,7 @@ function htmlQuestion() {
   const q = questions[S.qIndex];
   if (!q) return '';
 
-  const isMath   = S.view==='math';
+  const isMath   = S.view==='math' || S.view==='math2';
   const resp     = responses[q.id];
   const isLast   = S.qIndex===questions.length-1;
   const answered = Object.values(responses).filter(v=>v!==undefined&&v!==null&&v!=='').length;
